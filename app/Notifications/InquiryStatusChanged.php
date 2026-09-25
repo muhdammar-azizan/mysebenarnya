@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Enums\InquiryStatus;
 use App\Models\Inquiry;
 use Illuminate\Notifications\Notification;
 
@@ -26,12 +27,14 @@ class InquiryStatusChanged extends Notification
      */
     public function toArray(object $notifiable): array
     {
+        $toStatusLabel = InquiryStatus::tryFrom($this->toStatus)?->label() ?? $this->toStatus;
+
         return [
             'inquiry_id' => $this->inquiry->id,
             'inquiry_title' => $this->inquiry->title,
             'from_status' => $this->fromStatus,
             'to_status' => $this->toStatus,
-            'message' => "Your inquiry '{$this->inquiry->title}' is now {$this->toStatus}.",
+            'message' => "Your inquiry '{$this->inquiry->title}' is now {$toStatusLabel}.",
         ];
     }
 }

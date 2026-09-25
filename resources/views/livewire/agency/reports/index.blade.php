@@ -86,8 +86,8 @@ new #[Layout('layouts.agency')] class extends Component
             'name' => Auth::user()->agency->name.' — Performance Report',
             'kpis' => [
                 ['label' => 'Case Records', 'value' => $this->summary['total']],
-                ['label' => 'Verified True', 'value' => $this->summary['verified']],
-                ['label' => 'Identified Fake', 'value' => $this->summary['fake']],
+                ['label' => 'Verified as True', 'value' => $this->summary['verified']],
+                ['label' => 'Identified as Fake', 'value' => $this->summary['fake']],
                 ['label' => 'Rejected by Us', 'value' => $this->summary['rejected']],
                 ['label' => 'Pending', 'value' => $this->summary['pending']],
                 ['label' => 'Delayed (7d+)', 'value' => $this->summary['delayed']],
@@ -102,7 +102,7 @@ new #[Layout('layouts.agency')] class extends Component
                 [
                     'heading' => 'Recently Resolved',
                     'columns' => ['Title', 'Status', 'Resolved On'],
-                    'rows' => $this->resolvedRecords->map(fn ($i) => [$i->title, $i->status->value, $i->resolved_at?->format('d M Y')])->all(),
+                    'rows' => $this->resolvedRecords->map(fn ($i) => [$i->title, $i->status->label(), $i->resolved_at?->format('d M Y')])->all(),
                 ],
             ],
         ]];
@@ -151,11 +151,11 @@ new #[Layout('layouts.agency')] class extends Component
             <div class="text-3xl font-extrabold text-gray-900">{{ $this->summary['total'] }}</div>
         </div>
         <div class="bg-green-50 border border-green-100 rounded-xl p-5">
-            <div class="text-xs font-semibold text-green-700 mb-1">{{ __('Verified True') }}</div>
+            <div class="text-xs font-semibold text-green-700 mb-1">{{ __('Verified as True') }}</div>
             <div class="text-3xl font-extrabold text-green-700">{{ $this->summary['verified'] }}</div>
         </div>
         <div class="bg-brand-light border border-red-100 rounded-xl p-5">
-            <div class="text-xs font-semibold text-brand mb-1">{{ __('Identified Fake') }}</div>
+            <div class="text-xs font-semibold text-brand mb-1">{{ __('Identified as Fake') }}</div>
             <div class="text-3xl font-extrabold text-brand">{{ $this->summary['fake'] }}</div>
         </div>
         <div class="bg-gray-50 border border-gray-100 rounded-xl p-5">

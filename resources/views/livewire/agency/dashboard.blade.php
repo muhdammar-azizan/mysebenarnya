@@ -31,8 +31,8 @@ new #[Layout('layouts.agency')] class extends Component
         $total = max(1, $verified + $fake + $rejected);
 
         return [
-            ['label' => __('Verified True'), 'count' => $verified, 'pct' => round($verified / $total * 100), 'color' => 'bg-green-600'],
-            ['label' => __('Identified Fake'), 'count' => $fake, 'pct' => round($fake / $total * 100), 'color' => 'bg-brand'],
+            ['label' => __('Verified as True'), 'count' => $verified, 'pct' => round($verified / $total * 100), 'color' => 'bg-green-600'],
+            ['label' => __('Identified as Fake'), 'count' => $fake, 'pct' => round($fake / $total * 100), 'color' => 'bg-brand'],
             ['label' => __('Rejected by us'), 'count' => $rejected, 'pct' => round($rejected / $total * 100), 'color' => 'bg-gray-400'],
         ];
     }

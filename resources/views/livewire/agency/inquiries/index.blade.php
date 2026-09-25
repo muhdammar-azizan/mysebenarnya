@@ -65,8 +65,8 @@ new #[Layout('layouts.agency')] class extends Component
             <option value="All">{{ __('All Assigned') }}</option>
             <option value="awaiting">{{ __('Awaiting Jurisdiction Review') }}</option>
             <option value="{{ InquiryStatus::UnderInvestigation->value }}">{{ __('Under Investigation') }}</option>
-            <option value="{{ InquiryStatus::VerifiedTrue->value }}">{{ __('Verified True') }}</option>
-            <option value="{{ InquiryStatus::IdentifiedFake->value }}">{{ __('Identified Fake') }}</option>
+            <option value="{{ InquiryStatus::VerifiedTrue->value }}">{{ __('Verified as True') }}</option>
+            <option value="{{ InquiryStatus::IdentifiedFake->value }}">{{ __('Identified as Fake') }}</option>
             <option value="{{ InquiryStatus::Rejected->value }}">{{ __('Rejected by us') }}</option>
         </select>
         <select wire:model.live="category" class="rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">

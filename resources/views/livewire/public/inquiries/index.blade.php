@@ -75,11 +75,11 @@ new #[Layout('layouts.public')] class extends Component
             <div class="text-2xl font-extrabold text-amber-700">{{ $this->stats['investigation'] }}</div>
         </button>
         <button wire:click="filterByStatus('{{ InquiryStatus::VerifiedTrue->value }}')" class="text-left bg-green-50 border border-green-100 rounded-xl p-4 hover:shadow-sm {{ $status === InquiryStatus::VerifiedTrue->value ? 'ring-2 ring-green-300' : '' }}">
-            <div class="text-xs font-semibold text-green-700 mb-2">{{ __('Verified True') }}</div>
+            <div class="text-xs font-semibold text-green-700 mb-2">{{ __('Verified as True') }}</div>
             <div class="text-2xl font-extrabold text-green-700">{{ $this->stats['verified'] }}</div>
         </button>
         <button wire:click="filterByStatus('{{ InquiryStatus::IdentifiedFake->value }}')" class="text-left bg-brand-light border border-red-100 rounded-xl p-4 hover:shadow-sm {{ $status === InquiryStatus::IdentifiedFake->value ? 'ring-2 ring-red-300' : '' }}">
-            <div class="text-xs font-semibold text-brand mb-2">{{ __('Identified Fake') }}</div>
+            <div class="text-xs font-semibold text-brand mb-2">{{ __('Identified as Fake') }}</div>
             <div class="text-2xl font-extrabold text-brand">{{ $this->stats['fake'] }}</div>
         </button>
     </div>
@@ -91,7 +91,7 @@ new #[Layout('layouts.public')] class extends Component
             <select wire:model.live="status" class="rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
                 <option value="All">{{ __('All Statuses') }}</option>
                 @foreach (InquiryStatus::cases() as $case)
-                    <option value="{{ $case->value }}">{{ $case->value }}</option>
+                    <option value="{{ $case->value }}">{{ $case->label() }}</option>
                 @endforeach
             </select>
             <select wire:model.live="category" class="rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">

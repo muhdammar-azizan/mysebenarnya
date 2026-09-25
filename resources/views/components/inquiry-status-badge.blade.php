@@ -1,7 +1,9 @@
 @props(['status'])
 
 @php
-    $status = $status instanceof \App\Enums\InquiryStatus ? $status->value : $status;
+    $statusEnum = $status instanceof \App\Enums\InquiryStatus ? $status : \App\Enums\InquiryStatus::tryFrom($status);
+    $value = $statusEnum?->value ?? $status;
+    $label = $statusEnum?->label() ?? $status;
 
     $styles = [
         'Submitted' => 'bg-gray-100 text-gray-600',
@@ -13,6 +15,6 @@
     ];
 @endphp
 
-<span {{ $attributes->merge(['class' => 'inline-block px-2.5 py-1 rounded-full text-xs font-bold whitespace-nowrap ' . ($styles[$status] ?? 'bg-gray-100 text-gray-600')]) }}>
-    {{ $status }}
+<span {{ $attributes->merge(['class' => 'inline-block px-2.5 py-1 rounded-full text-xs font-bold whitespace-nowrap ' . ($styles[$value] ?? 'bg-gray-100 text-gray-600')]) }}>
+    {{ $label }}
 </span>

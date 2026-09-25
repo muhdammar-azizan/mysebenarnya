@@ -112,6 +112,7 @@ new #[Layout('layouts.mcmc')] class extends Component
     {
         return collect(InquiryStatus::cases())->map(fn ($case) => [
             'label' => $case->value,
+            'displayLabel' => $case->label(),
             'count' => (clone $this->inquiriesInRange())->where('status', $case)->count(),
         ])->all();
     }
@@ -251,7 +252,7 @@ new #[Layout('layouts.mcmc')] class extends Component
                 [
                     'heading' => 'By Status',
                     'columns' => ['Status', 'Count'],
-                    'rows' => collect($this->statusBreakdown)->map(fn ($r) => [$r['label'], $r['count']])->all(),
+                    'rows' => collect($this->statusBreakdown)->map(fn ($r) => [$r['displayLabel'], $r['count']])->all(),
                 ],
                 [
                     'heading' => 'By Category',

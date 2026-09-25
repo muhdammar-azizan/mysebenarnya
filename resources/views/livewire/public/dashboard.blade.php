@@ -62,11 +62,11 @@ new #[Layout('layouts.public')] class extends Component
             <div class="text-3xl font-extrabold text-gray-900">{{ $this->stats['total'] }}</div>
         </div>
         <div class="bg-green-50 border border-green-100 rounded-xl p-5">
-            <div class="text-xs font-semibold text-green-700 mb-1">{{ __('Verified True') }}</div>
+            <div class="text-xs font-semibold text-green-700 mb-1">{{ __('Verified as True') }}</div>
             <div class="text-3xl font-extrabold text-green-700">{{ $this->stats['verified'] }}</div>
         </div>
         <div class="bg-brand-light border border-red-100 rounded-xl p-5">
-            <div class="text-xs font-semibold text-brand mb-1">{{ __('Identified Fake') }}</div>
+            <div class="text-xs font-semibold text-brand mb-1">{{ __('Identified as Fake') }}</div>
             <div class="text-3xl font-extrabold text-brand">{{ $this->stats['fake'] }}</div>
         </div>
     </div>

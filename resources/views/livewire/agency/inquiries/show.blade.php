@@ -272,7 +272,7 @@ new #[Layout('layouts.agency')] class extends Component
         $this->inquiry->reviewer?->notify(new InquiryStatusChanged($this->inquiry, InquiryStatus::UnderInvestigation->value, $finalStatus->value));
 
         $this->finalizeModalOpen = false;
-        session()->flash('status', __('Inquiry marked as :status.', ['status' => $finalStatus->value]));
+        session()->flash('status', __('Inquiry marked as :status.', ['status' => $finalStatus->label()]));
         $this->redirect(route('agency.inquiries.index'), navigate: true);
     }
 }; ?>

@@ -22,7 +22,7 @@ class ReportsTest extends TestCase
 
         Volt::actingAs($staff)
             ->test('mcmc.reports.index')
-            ->assertSee('Verified True');
+            ->assertSee('Verified as True');
     }
 
     public function test_agency_performance_tab_shows_resolution_rate(): void

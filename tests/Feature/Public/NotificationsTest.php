@@ -23,7 +23,7 @@ class NotificationsTest extends TestCase
 
         Volt::actingAs($user)
             ->test('public.notifications.index')
-            ->assertSee('Verified True');
+            ->assertSee('Verified as True');
     }
 
     public function test_mark_all_read_clears_unread_count(): void

@@ -24,7 +24,7 @@ class AgencyNotificationsTest extends TestCase
 
         Volt::actingAs($staff)
             ->test('agency.notifications.index')
-            ->assertSee('Identified Fake');
+            ->assertSee('Identified as Fake');
     }
 
     public function test_route_is_forbidden_for_mcmc_staff(): void

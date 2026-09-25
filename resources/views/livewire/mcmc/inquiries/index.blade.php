@@ -70,7 +70,7 @@ new #[Layout('layouts.mcmc')] class extends Component
         <select wire:model.live="status" class="rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
             <option value="All">{{ __('All Statuses') }}</option>
             @foreach (InquiryStatus::cases() as $case)
-                <option value="{{ $case->value }}">{{ $case->value }}</option>
+                <option value="{{ $case->value }}">{{ $case->label() }}</option>
             @endforeach
         </select>
         <select wire:model.live="category" class="rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">

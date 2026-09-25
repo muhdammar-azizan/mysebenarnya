@@ -22,7 +22,7 @@ class McmcNotificationsTest extends TestCase
 
         Volt::actingAs($staff)
             ->test('mcmc.notifications.index')
-            ->assertSee('Verified True');
+            ->assertSee('Verified as True');
     }
 
     public function test_route_is_forbidden_for_public_users(): void
