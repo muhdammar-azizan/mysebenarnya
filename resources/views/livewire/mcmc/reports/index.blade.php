@@ -17,6 +17,18 @@ new #[Layout('layouts.mcmc')] class extends Component
     #[Url]
     public string $tab = 'inquiries';
 
+    #[Url]
+    public string $dateFrom = '';
+
+    #[Url]
+    public string $dateTo = '';
+
+    public function clearDateFilter(): void
+    {
+        $this->dateFrom = '';
+        $this->dateTo = '';
+    }
+
     protected function monthlySeries(\Closure $queryFactory, string $column = 'created_at'): array
     {
         $months = collect(range(5, 0))->map(fn ($i) => now()->subMonths($i)->startOfMonth());
@@ -28,6 +40,22 @@ new #[Layout('layouts.mcmc')] class extends Component
         })->all();
     }
 
+    protected function inquiriesInRange()
+    {
+        return Inquiry::query()
+            ->when($this->dateFrom, fn ($q) => $q->whereDate('created_at', '>=', $this->dateFrom))
+            ->when($this->dateTo, fn ($q) => $q->whereDate('created_at', '<=', $this->dateTo));
+    }
+
+    protected function periodLabel(): string
+    {
+        if ($this->dateFrom || $this->dateTo) {
+            return ($this->dateFrom ?: 'earliest').' to '.($this->dateTo ?: 'now');
+        }
+
+        return 'All records';
+    }
+
     public function getInquiryTrendProperty(): array
     {
         return $this->monthlySeries(fn () => Inquiry::query());
@@ -37,13 +65,14 @@ new #[Layout('layouts.mcmc')] class extends Component
     {
         return collect(InquiryStatus::cases())->map(fn ($case) => [
             'label' => $case->value,
-            'count' => Inquiry::where('status', $case)->count(),
+            'count' => (clone $this->inquiriesInRange())->where('status', $case)->count(),
         ])->all();
     }
 
     public function getCategoryBreakdownProperty()
     {
-        return Inquiry::selectRaw('category, count(*) as total')
+        return (clone $this->inquiriesInRange())
+            ->selectRaw('category, count(*) as total')
             ->groupBy('category')
             ->orderByDesc('total')
             ->get();
@@ -51,10 +80,34 @@ new #[Layout('layouts.mcmc')] class extends Component
 
     public function getAgencyPerformanceProperty()
     {
-        return Agency::withCount([
-            'inquiries',
-            'inquiries as resolved_count' => fn ($q) => $q->whereIn('status', [InquiryStatus::VerifiedTrue, InquiryStatus::IdentifiedFake]),
-        ])->orderByDesc('inquiries_count')->get();
+        $agencyIds = Agency::pluck('id');
+
+        return $agencyIds->map(function ($agencyId) {
+            $agency = Agency::find($agencyId);
+            $base = (clone $this->inquiriesInRange())->where('agency_id', $agencyId);
+
+            $total = (clone $base)->count();
+            $resolved = (clone $base)->whereIn('status', [InquiryStatus::VerifiedTrue, InquiryStatus::IdentifiedFake])->count();
+            $pending = (clone $base)->where('status', InquiryStatus::UnderInvestigation)->count();
+            $delayed = (clone $base)->where('status', InquiryStatus::UnderInvestigation)
+                ->where('reviewed_at', '<=', now()->subDays(7))
+                ->count();
+
+            $avgResolutionDays = (clone $base)
+                ->whereIn('status', [InquiryStatus::VerifiedTrue, InquiryStatus::IdentifiedFake])
+                ->whereNotNull('resolved_at')
+                ->whereNotNull('reviewed_at')
+                ->get()
+                ->avg(fn ($i) => $i->reviewed_at->diffInDays($i->resolved_at));
+
+            $agency->inquiries_count = $total;
+            $agency->resolved_count = $resolved;
+            $agency->pending_count = $pending;
+            $agency->delayed_count = $delayed;
+            $agency->avg_resolution_days = $avgResolutionDays ? round($avgResolutionDays, 1) : null;
+
+            return $agency;
+        })->sortByDesc('inquiries_count')->values();
     }
 
     public function getUserTrendProperty(): array
@@ -62,12 +115,29 @@ new #[Layout('layouts.mcmc')] class extends Component
         return $this->monthlySeries(fn () => User::where('role', UserRole::Public));
     }
 
+    protected function usersInRange()
+    {
+        return User::query()
+            ->when($this->dateFrom, fn ($q) => $q->whereDate('created_at', '>=', $this->dateFrom))
+            ->when($this->dateTo, fn ($q) => $q->whereDate('created_at', '<=', $this->dateTo));
+    }
+
     public function getUserStatsProperty(): array
     {
         return [
-            'total' => User::where('role', UserRole::Public)->count(),
-            'verified' => User::where('role', UserRole::Public)->whereNotNull('email_verified_at')->count(),
+            'total' => (clone $this->usersInRange())->where('role', UserRole::Public)->count(),
+            'verified' => (clone $this->usersInRange())->where('role', UserRole::Public)->whereNotNull('email_verified_at')->count(),
+            'mcmc' => (clone $this->usersInRange())->where('role', UserRole::McmcStaff)->count(),
+            'agency' => (clone $this->usersInRange())->where('role', UserRole::AgencyStaff)->count(),
         ];
+    }
+
+    public function getUsersByAgencyProperty()
+    {
+        return Agency::withCount(['users' => function ($q) {
+            $q->when($this->dateFrom, fn ($qq) => $qq->whereDate('created_at', '>=', $this->dateFrom))
+                ->when($this->dateTo, fn ($qq) => $qq->whereDate('created_at', '<=', $this->dateTo));
+        }])->orderByDesc('users_count')->get();
     }
 
     protected function inquiryOverviewSections(): array
@@ -75,7 +145,7 @@ new #[Layout('layouts.mcmc')] class extends Component
         return [[
             'name' => 'Inquiry Overview',
             'kpis' => [
-                ['label' => 'Total Inquiries', 'value' => Inquiry::count()],
+                ['label' => 'Total Inquiries', 'value' => (clone $this->inquiriesInRange())->count()],
             ],
             'tables' => [
                 [
@@ -92,6 +162,7 @@ new #[Layout('layouts.mcmc')] class extends Component
                     'heading' => 'Monthly Trend',
                     'columns' => ['Month', 'Inquiries'],
                     'rows' => collect($this->inquiryTrend)->map(fn ($r) => [$r['label'], $r['count']])->all(),
+                    'chart' => collect($this->inquiryTrend)->map(fn ($r) => ['label' => $r['label'], 'value' => $r['count']])->all(),
                 ],
             ],
         ]];
@@ -99,7 +170,7 @@ new #[Layout('layouts.mcmc')] class extends Component
 
     public function exportInquiriesPdf()
     {
-        return $this->downloadPdf('SEBENARNYA_Inquiry-Overview', 'Inquiry Overview Report', 'Last 6 months', $this->inquiryOverviewSections());
+        return $this->downloadPdf('SEBENARNYA_Inquiry-Overview', 'Inquiry Overview Report', $this->periodLabel(), $this->inquiryOverviewSections());
     }
 
     public function exportInquiriesExcel()
@@ -118,8 +189,21 @@ new #[Layout('layouts.mcmc')] class extends Component
         return $this->agencyPerformance->map(function ($agency) {
             $rate = $agency->inquiries_count > 0 ? round(($agency->resolved_count / $agency->inquiries_count) * 100) : 0;
 
-            return [$agency->name, $agency->inquiries_count, $agency->resolved_count, $rate.'%'];
+            return [
+                $agency->name,
+                $agency->inquiries_count,
+                $agency->resolved_count,
+                $rate.'%',
+                $agency->pending_count,
+                $agency->delayed_count,
+                $agency->avg_resolution_days !== null ? $agency->avg_resolution_days.' days' : '—',
+            ];
         })->all();
+    }
+
+    protected function agencyPerformanceColumns(): array
+    {
+        return ['Agency', 'Assigned', 'Resolved', 'Resolution Rate', 'Pending', 'Delayed (7d+)', 'Avg. Resolution Time'];
     }
 
     public function exportAgenciesPdf()
@@ -127,18 +211,18 @@ new #[Layout('layouts.mcmc')] class extends Component
         $sections = [[
             'name' => 'Agency Performance',
             'tables' => [[
-                'columns' => ['Agency', 'Assigned', 'Resolved', 'Resolution Rate'],
+                'columns' => $this->agencyPerformanceColumns(),
                 'rows' => $this->agencyPerformanceRows(),
             ]],
         ]];
 
-        return $this->downloadPdf('SEBENARNYA_Agency-Performance', 'Agency Performance Report', 'All records', $sections);
+        return $this->downloadPdf('SEBENARNYA_Agency-Performance', 'Agency Performance Report', $this->periodLabel(), $sections);
     }
 
     public function exportAgenciesExcel()
     {
         return $this->downloadExcel('SEBENARNYA_Agency-Performance', [
-            ['title' => 'Agency Performance', 'headings' => ['Agency', 'Assigned', 'Resolved', 'Resolution Rate'], 'rows' => $this->agencyPerformanceRows()],
+            ['title' => 'Agency Performance', 'headings' => $this->agencyPerformanceColumns(), 'rows' => $this->agencyPerformanceRows()],
         ]);
     }
 
@@ -149,26 +233,47 @@ new #[Layout('layouts.mcmc')] class extends Component
             'kpis' => [
                 ['label' => 'Total Public Users', 'value' => $this->userStats['total']],
                 ['label' => 'Verified', 'value' => $this->userStats['verified']],
+                ['label' => 'MCMC Staff', 'value' => $this->userStats['mcmc']],
+                ['label' => 'Agency Staff', 'value' => $this->userStats['agency']],
             ],
-            'tables' => [[
-                'heading' => 'Monthly Registrations',
-                'columns' => ['Month', 'New Registrations'],
-                'rows' => collect($this->userTrend)->map(fn ($r) => [$r['label'], $r['count']])->all(),
-            ]],
+            'tables' => [
+                [
+                    'heading' => 'Monthly Registrations',
+                    'columns' => ['Month', 'New Registrations'],
+                    'rows' => collect($this->userTrend)->map(fn ($r) => [$r['label'], $r['count']])->all(),
+                    'chart' => collect($this->userTrend)->map(fn ($r) => ['label' => $r['label'], 'value' => $r['count']])->all(),
+                ],
+                [
+                    'heading' => 'By User Type',
+                    'columns' => ['Type', 'Count'],
+                    'rows' => [
+                        ['Public User', $this->userStats['total']],
+                        ['MCMC Staff', $this->userStats['mcmc']],
+                        ['Agency Staff', $this->userStats['agency']],
+                    ],
+                ],
+                [
+                    'heading' => 'Users by Agency',
+                    'columns' => ['Agency', 'Staff Count'],
+                    'rows' => $this->usersByAgency->map(fn ($a) => [$a->name, $a->users_count])->all(),
+                ],
+            ],
         ]];
     }
 
     public function exportUsersPdf()
     {
-        return $this->downloadPdf('SEBENARNYA_User-Growth', 'User Growth Report', 'Last 6 months', $this->userGrowthSections());
+        return $this->downloadPdf('SEBENARNYA_User-Growth', 'User Growth Report', $this->periodLabel(), $this->userGrowthSections());
     }
 
     public function exportUsersExcel()
     {
-        $table = $this->userGrowthSections()[0]['tables'][0];
+        $tables = $this->userGrowthSections()[0]['tables'];
 
         return $this->downloadExcel('SEBENARNYA_User-Growth', [
-            ['title' => 'Monthly Registrations', 'headings' => $table['columns'], 'rows' => $table['rows']],
+            ['title' => 'Monthly Registrations', 'headings' => $tables[0]['columns'], 'rows' => $tables[0]['rows']],
+            ['title' => 'By User Type', 'headings' => $tables[1]['columns'], 'rows' => $tables[1]['rows']],
+            ['title' => 'Users by Agency', 'headings' => $tables[2]['columns'], 'rows' => $tables[2]['rows']],
         ]);
     }
 }; ?>
@@ -187,6 +292,18 @@ new #[Layout('layouts.mcmc')] class extends Component
         <button wire:click="$set('tab', 'inquiries')" class="px-5 py-3 text-sm font-bold {{ $tab === 'inquiries' ? 'text-brand border-b-2 border-brand' : 'text-gray-400' }}">{{ __('Inquiry Overview') }}</button>
         <button wire:click="$set('tab', 'agencies')" class="px-5 py-3 text-sm font-bold {{ $tab === 'agencies' ? 'text-brand border-b-2 border-brand' : 'text-gray-400' }}">{{ __('Agency Performance') }}</button>
         <button wire:click="$set('tab', 'users')" class="px-5 py-3 text-sm font-bold {{ $tab === 'users' ? 'text-brand border-b-2 border-brand' : 'text-gray-400' }}">{{ __('User Growth') }}</button>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-2 mb-6">
+        <span class="text-xs font-semibold text-gray-500">{{ __('Filter totals & tables by date') }}:</span>
+        <label class="text-xs text-gray-500">{{ __('From') }}</label>
+        <input type="date" wire:model.live="dateFrom" class="rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand" />
+        <label class="text-xs text-gray-500">{{ __('To') }}</label>
+        <input type="date" wire:model.live="dateTo" class="rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand" />
+        @if ($dateFrom || $dateTo)
+            <button wire:click="clearDateFilter" class="text-xs font-semibold text-brand">{{ __('Clear') }}</button>
+        @endif
+        <span class="text-[11px] text-gray-400">{{ __('(Monthly trend charts always show the rolling last 6 months.)') }}</span>
     </div>
 
     @if ($tab === 'inquiries')
@@ -237,6 +354,9 @@ new #[Layout('layouts.mcmc')] class extends Component
                         <th class="px-5 py-3">{{ __('Assigned') }}</th>
                         <th class="px-5 py-3">{{ __('Resolved') }}</th>
                         <th class="px-5 py-3">{{ __('Resolution Rate') }}</th>
+                        <th class="px-5 py-3">{{ __('Pending') }}</th>
+                        <th class="px-5 py-3">{{ __('Delayed (7d+)') }}</th>
+                        <th class="px-5 py-3">{{ __('Avg. Resolution Time') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -249,13 +369,22 @@ new #[Layout('layouts.mcmc')] class extends Component
                             <td class="px-5 py-3.5">
                                 <span class="font-bold {{ $rate >= 70 ? 'text-green-600' : ($rate >= 40 ? 'text-amber-600' : 'text-brand') }}">{{ $rate }}%</span>
                             </td>
+                            <td class="px-5 py-3.5 text-gray-600">{{ $agency->pending_count }}</td>
+                            <td class="px-5 py-3.5">
+                                @if ($agency->delayed_count > 0)
+                                    <span class="font-bold text-brand">{{ $agency->delayed_count }}</span>
+                                @else
+                                    <span class="text-gray-400">0</span>
+                                @endif
+                            </td>
+                            <td class="px-5 py-3.5 text-gray-600 whitespace-nowrap">{{ $agency->avg_resolution_days !== null ? $agency->avg_resolution_days.' '.__('days') : '—' }}</td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
         </div>
     @else
-        <div class="grid grid-cols-2 gap-4 mb-6">
+        <div class="grid grid-cols-4 gap-4 mb-6">
             <div class="bg-gray-50 border border-gray-100 rounded-xl p-5">
                 <div class="text-xs font-semibold text-gray-500 mb-1">{{ __('Total Public Users') }}</div>
                 <div class="text-3xl font-extrabold text-gray-900">{{ $this->userStats['total'] }}</div>
@@ -264,8 +393,16 @@ new #[Layout('layouts.mcmc')] class extends Component
                 <div class="text-xs font-semibold text-green-700 mb-1">{{ __('Verified') }}</div>
                 <div class="text-3xl font-extrabold text-green-700">{{ $this->userStats['verified'] }}</div>
             </div>
+            <div class="bg-gray-50 border border-gray-100 rounded-xl p-5">
+                <div class="text-xs font-semibold text-gray-500 mb-1">{{ __('MCMC Staff') }}</div>
+                <div class="text-3xl font-extrabold text-gray-900">{{ $this->userStats['mcmc'] }}</div>
+            </div>
+            <div class="bg-gray-50 border border-gray-100 rounded-xl p-5">
+                <div class="text-xs font-semibold text-gray-500 mb-1">{{ __('Agency Staff') }}</div>
+                <div class="text-3xl font-extrabold text-gray-900">{{ $this->userStats['agency'] }}</div>
+            </div>
         </div>
-        <div class="bg-white border border-gray-100 rounded-2xl p-6">
+        <div class="bg-white border border-gray-100 rounded-2xl p-6 mb-6">
             <div class="font-bold text-gray-900 mb-4">{{ __('Monthly Registrations') }}</div>
             <div class="flex items-end gap-4 h-32">
                 @php $max = max(1, collect($this->userTrend)->max('count')); @endphp
@@ -276,6 +413,19 @@ new #[Layout('layouts.mcmc')] class extends Component
                         <div class="text-[11px] text-gray-400 font-semibold">{{ $point['label'] }}</div>
                     </div>
                 @endforeach
+            </div>
+        </div>
+        <div class="bg-white border border-gray-100 rounded-2xl p-6">
+            <div class="font-bold text-gray-900 mb-4">{{ __('Users by Agency') }}</div>
+            <div class="flex flex-col gap-3">
+                @forelse ($this->usersByAgency as $a)
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-gray-600">{{ $a->name }}</span>
+                        <span class="font-bold text-gray-700">{{ $a->users_count }}</span>
+                    </div>
+                @empty
+                    <p class="text-sm text-gray-400">{{ __('No agency staff registered yet.') }}</p>
+                @endforelse
             </div>
         </div>
     @endif

@@ -68,6 +68,12 @@ new #[Layout('layouts.public')] class extends Component
                     @endif
                 </div>
             </div>
+            @if ($inquiry->reviewed_at)
+                <div>
+                    <div class="text-[11px] font-bold text-gray-400 uppercase tracking-wide">{{ __('Date Assigned') }}</div>
+                    <div class="text-sm font-semibold text-gray-700 mt-0.5">{{ $inquiry->reviewed_at->format('d M Y') }}</div>
+                </div>
+            @endif
         </div>
     </div>
 

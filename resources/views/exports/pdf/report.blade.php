@@ -20,6 +20,11 @@
         table.data th { background: #C41230; color: #fff; text-align: left; padding: 5px; }
         table.data td { border: 1px solid #E4E5E8; padding: 5px; }
         table.data tr:nth-child(even) td { background: #FAFAFB; }
+        table.chart { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
+        table.chart td { text-align: center; vertical-align: bottom; height: 70px; padding: 0 4px; }
+        table.chart .bar-count { font-size: 8px; font-weight: bold; color: #4B5563; }
+        table.chart .bar { background: #C41230; margin: 2px auto 0; }
+        table.chart .bar-label { font-size: 7.5px; color: #8A8F98; padding-top: 3px; }
         .footer { color: #8A8F98; font-size: 8px; margin-top: 20px; }
     </style>
 </head>
@@ -60,6 +65,22 @@
             @if (! empty($table['heading']))
                 <div style="font-weight:bold; font-size: 10px; margin-bottom: 4px;">{{ $table['heading'] }}</div>
             @endif
+
+            @if (! empty($table['chart']))
+                @php $chartMax = max(1, collect($table['chart'])->max('value')); @endphp
+                <table class="chart">
+                    <tr>
+                        @foreach ($table['chart'] as $point)
+                            <td>
+                                <div class="bar-count">{{ $point['value'] }}</div>
+                                <div class="bar" style="width: 24px; height: {{ max(3, round(($point['value'] / $chartMax) * 55)) }}px;"></div>
+                                <div class="bar-label">{{ $point['label'] }}</div>
+                            </td>
+                        @endforeach
+                    </tr>
+                </table>
+            @endif
+
             <table class="data">
                 <thead>
                     <tr>

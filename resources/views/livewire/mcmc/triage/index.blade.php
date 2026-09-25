@@ -4,6 +4,7 @@ use App\Enums\InquiryStatus;
 use App\Models\Agency;
 use App\Models\Inquiry;
 use App\Models\InquiryActivityLog;
+use App\Notifications\InquiryStatusChanged;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
@@ -112,6 +113,8 @@ new #[Layout('layouts.mcmc')] class extends Component
             'to_status' => InquiryStatus::Discarded->value,
             'notes' => $notes,
         ]);
+
+        $inquiry->submitter?->notify(new InquiryStatusChanged($inquiry, $fromStatus, InquiryStatus::Discarded->value));
     }
 
     public function confirmAssign(): void
@@ -144,6 +147,10 @@ new #[Layout('layouts.mcmc')] class extends Component
             'to_status' => InquiryStatus::UnderInvestigation->value,
             'notes' => ($this->assignNotes ?: 'Assigned to '.$agency->name.' for review.'),
         ]);
+
+        if (! $wasReassignment) {
+            $inquiry->submitter?->notify(new InquiryStatusChanged($inquiry, $fromStatus, InquiryStatus::UnderInvestigation->value));
+        }
 
         $this->backToList();
         $this->tab = $wasReassignment ? 'reassign' : 'pending';

@@ -5,28 +5,66 @@ use App\Enums\InquiryStatus;
 use App\Models\Inquiry;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Url;
 use Livewire\Volt\Component;
 
 new #[Layout('layouts.agency')] class extends Component
 {
     use GeneratesReports;
 
+    #[Url]
+    public string $dateFrom = '';
+
+    #[Url]
+    public string $dateTo = '';
+
+    public function clearDateFilter(): void
+    {
+        $this->dateFrom = '';
+        $this->dateTo = '';
+    }
+
+    protected function inquiriesInRange()
+    {
+        return Inquiry::where('agency_id', Auth::user()->agency_id)
+            ->when($this->dateFrom, fn ($q) => $q->whereDate('created_at', '>=', $this->dateFrom))
+            ->when($this->dateTo, fn ($q) => $q->whereDate('created_at', '<=', $this->dateTo));
+    }
+
+    protected function periodLabel(): string
+    {
+        if ($this->dateFrom || $this->dateTo) {
+            return ($this->dateFrom ?: 'earliest').' to '.($this->dateTo ?: 'now');
+        }
+
+        return 'All records';
+    }
+
     public function getSummaryProperty(): array
     {
-        $agencyId = Auth::user()->agency_id;
-        $base = Inquiry::where('agency_id', $agencyId);
+        $base = $this->inquiriesInRange();
+
+        $avgResolutionDays = (clone $base)
+            ->whereIn('status', [InquiryStatus::VerifiedTrue, InquiryStatus::IdentifiedFake])
+            ->whereNotNull('resolved_at')
+            ->whereNotNull('reviewed_at')
+            ->get()
+            ->avg(fn ($i) => $i->reviewed_at->diffInDays($i->resolved_at));
 
         return [
             'total' => (clone $base)->count(),
             'verified' => (clone $base)->where('status', InquiryStatus::VerifiedTrue)->count(),
             'fake' => (clone $base)->where('status', InquiryStatus::IdentifiedFake)->count(),
             'rejected' => (clone $base)->where('status', InquiryStatus::Rejected)->count(),
+            'pending' => (clone $base)->where('status', InquiryStatus::UnderInvestigation)->count(),
+            'delayed' => (clone $base)->where('status', InquiryStatus::UnderInvestigation)->where('reviewed_at', '<=', now()->subDays(7))->count(),
+            'avg_resolution_days' => $avgResolutionDays ? round($avgResolutionDays, 1) : null,
         ];
     }
 
     public function getCategoryBreakdownProperty()
     {
-        return Inquiry::where('agency_id', Auth::user()->agency_id)
+        return (clone $this->inquiriesInRange())
             ->selectRaw('category, count(*) as total')
             ->groupBy('category')
             ->orderByDesc('total')
@@ -35,7 +73,7 @@ new #[Layout('layouts.agency')] class extends Component
 
     public function getResolvedRecordsProperty()
     {
-        return Inquiry::where('agency_id', Auth::user()->agency_id)
+        return (clone $this->inquiriesInRange())
             ->whereIn('status', [InquiryStatus::VerifiedTrue, InquiryStatus::IdentifiedFake])
             ->latest('resolved_at')
             ->limit(10)
@@ -51,6 +89,9 @@ new #[Layout('layouts.agency')] class extends Component
                 ['label' => 'Verified True', 'value' => $this->summary['verified']],
                 ['label' => 'Identified Fake', 'value' => $this->summary['fake']],
                 ['label' => 'Rejected by Us', 'value' => $this->summary['rejected']],
+                ['label' => 'Pending', 'value' => $this->summary['pending']],
+                ['label' => 'Delayed (7d+)', 'value' => $this->summary['delayed']],
+                ['label' => 'Avg. Resolution Time', 'value' => $this->summary['avg_resolution_days'] !== null ? $this->summary['avg_resolution_days'].' days' : '—'],
             ],
             'tables' => [
                 [
@@ -69,7 +110,7 @@ new #[Layout('layouts.agency')] class extends Component
 
     public function exportPdf()
     {
-        return $this->downloadPdf('SEBENARNYA_'.str(Auth::user()->agency->code)->slug().'-Report', Auth::user()->agency->name.' Performance Report', 'All records', $this->reportSections());
+        return $this->downloadPdf('SEBENARNYA_'.str(Auth::user()->agency->code)->slug().'-Report', Auth::user()->agency->name.' Performance Report', $this->periodLabel(), $this->reportSections());
     }
 
     public function exportExcel()
@@ -91,9 +132,20 @@ new #[Layout('layouts.agency')] class extends Component
             <button wire:click="exportExcel" class="border border-gray-300 hover:bg-gray-50 text-gray-700 font-bold text-xs px-3.5 py-2 rounded-lg">📊 {{ __('Export Excel') }}</button>
         </div>
     </div>
-    <p class="text-gray-500 text-sm mb-6">{{ __("Your agency's performance summary.") }}</p>
+    <p class="text-gray-500 text-sm mb-4">{{ __("Your agency's performance summary.") }}</p>
 
-    <div class="grid grid-cols-4 gap-4 mb-7">
+    <div class="flex flex-wrap items-center gap-2 mb-6">
+        <span class="text-xs font-semibold text-gray-500">{{ __('Filter by date') }}:</span>
+        <label class="text-xs text-gray-500">{{ __('From') }}</label>
+        <input type="date" wire:model.live="dateFrom" class="rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand" />
+        <label class="text-xs text-gray-500">{{ __('To') }}</label>
+        <input type="date" wire:model.live="dateTo" class="rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand" />
+        @if ($dateFrom || $dateTo)
+            <button wire:click="clearDateFilter" class="text-xs font-semibold text-brand">{{ __('Clear') }}</button>
+        @endif
+    </div>
+
+    <div class="grid grid-cols-4 gap-4 mb-4">
         <div class="bg-gray-50 border border-gray-100 rounded-xl p-5">
             <div class="text-xs font-semibold text-gray-500 mb-1">{{ __('Case Records') }}</div>
             <div class="text-3xl font-extrabold text-gray-900">{{ $this->summary['total'] }}</div>
@@ -109,6 +161,21 @@ new #[Layout('layouts.agency')] class extends Component
         <div class="bg-gray-50 border border-gray-100 rounded-xl p-5">
             <div class="text-xs font-semibold text-gray-500 mb-1">{{ __('Rejected by Us') }}</div>
             <div class="text-3xl font-extrabold text-gray-700">{{ $this->summary['rejected'] }}</div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-3 gap-4 mb-7">
+        <div class="bg-gray-50 border border-gray-100 rounded-xl p-5">
+            <div class="text-xs font-semibold text-gray-500 mb-1">{{ __('Pending') }}</div>
+            <div class="text-3xl font-extrabold text-gray-900">{{ $this->summary['pending'] }}</div>
+        </div>
+        <div class="bg-amber-50 border border-amber-100 rounded-xl p-5">
+            <div class="text-xs font-semibold text-amber-700 mb-1">{{ __('Delayed (7d+)') }}</div>
+            <div class="text-3xl font-extrabold text-amber-700">{{ $this->summary['delayed'] }}</div>
+        </div>
+        <div class="bg-gray-50 border border-gray-100 rounded-xl p-5">
+            <div class="text-xs font-semibold text-gray-500 mb-1">{{ __('Avg. Resolution Time') }}</div>
+            <div class="text-3xl font-extrabold text-gray-900">{{ $this->summary['avg_resolution_days'] !== null ? $this->summary['avg_resolution_days'].' '.__('days') : '—' }}</div>
         </div>
     </div>
 

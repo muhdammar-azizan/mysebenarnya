@@ -7,6 +7,7 @@ use App\Models\ClarificationThread;
 use App\Models\Inquiry;
 use App\Models\InquiryActivityLog;
 use App\Models\InquiryEvidence;
+use App\Notifications\InquiryStatusChanged;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
@@ -189,6 +190,9 @@ new #[Layout('layouts.agency')] class extends Component
             'notes' => $this->rejectReason,
         ]);
 
+        $this->inquiry->submitter?->notify(new InquiryStatusChanged($this->inquiry, InquiryStatus::UnderInvestigation->value, InquiryStatus::Rejected->value));
+        $this->inquiry->reviewer?->notify(new InquiryStatusChanged($this->inquiry, InquiryStatus::UnderInvestigation->value, InquiryStatus::Rejected->value));
+
         $this->rejectModalOpen = false;
         session()->flash('status', __('Inquiry rejected and returned to MCMC for reassignment.'));
         $this->redirect(route('agency.inquiries.index'), navigate: true);
@@ -263,6 +267,9 @@ new #[Layout('layouts.agency')] class extends Component
             'to_status' => $finalStatus->value,
             'notes' => $this->investigationNotes,
         ]);
+
+        $this->inquiry->submitter?->notify(new InquiryStatusChanged($this->inquiry, InquiryStatus::UnderInvestigation->value, $finalStatus->value));
+        $this->inquiry->reviewer?->notify(new InquiryStatusChanged($this->inquiry, InquiryStatus::UnderInvestigation->value, $finalStatus->value));
 
         $this->finalizeModalOpen = false;
         session()->flash('status', __('Inquiry marked as :status.', ['status' => $finalStatus->value]));

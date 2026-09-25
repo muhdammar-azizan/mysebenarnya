@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\InquiryCategory;
 use App\Enums\InquiryStatus;
 use App\Models\Inquiry;
 use Illuminate\Support\Facades\Auth;
@@ -18,6 +19,15 @@ new #[Layout('layouts.agency')] class extends Component
     #[Url]
     public string $status = 'All';
 
+    #[Url]
+    public string $category = 'All';
+
+    #[Url]
+    public string $dateFrom = '';
+
+    #[Url]
+    public string $dateTo = '';
+
     public function updating(): void
     {
         $this->resetPage();
@@ -31,8 +41,16 @@ new #[Layout('layouts.agency')] class extends Component
             ->when($this->search, fn ($q) => $q->where('title', 'like', '%'.$this->search.'%'))
             ->when($this->status === 'awaiting', fn ($q) => $q->where('status', InquiryStatus::UnderInvestigation)->whereNull('jurisdiction_accepted_at'))
             ->when($this->status !== 'All' && $this->status !== 'awaiting', fn ($q) => $q->where('status', $this->status))
+            ->when($this->category !== 'All', fn ($q) => $q->where('category', $this->category))
+            ->when($this->dateFrom, fn ($q) => $q->whereDate('created_at', '>=', $this->dateFrom))
+            ->when($this->dateTo, fn ($q) => $q->whereDate('created_at', '<=', $this->dateTo))
             ->latest()
             ->paginate(10);
+    }
+
+    public function getCategoriesProperty(): array
+    {
+        return InquiryCategory::cases();
     }
 }; ?>
 
@@ -51,6 +69,18 @@ new #[Layout('layouts.agency')] class extends Component
             <option value="{{ InquiryStatus::IdentifiedFake->value }}">{{ __('Identified Fake') }}</option>
             <option value="{{ InquiryStatus::Rejected->value }}">{{ __('Rejected by us') }}</option>
         </select>
+        <select wire:model.live="category" class="rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
+            <option value="All">{{ __('All Categories') }}</option>
+            @foreach ($this->categories as $case)
+                <option value="{{ $case->value }}">{{ $case->value }}</option>
+            @endforeach
+        </select>
+        <div class="flex items-center gap-2">
+            <label class="text-xs text-gray-500">{{ __('From') }}</label>
+            <input type="date" wire:model.live="dateFrom" class="rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand" />
+            <label class="text-xs text-gray-500">{{ __('To') }}</label>
+            <input type="date" wire:model.live="dateTo" class="rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand" />
+        </div>
     </div>
 
     <div class="bg-white border border-gray-100 rounded-2xl overflow-hidden">

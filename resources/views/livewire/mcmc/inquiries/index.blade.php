@@ -25,6 +25,12 @@ new #[Layout('layouts.mcmc')] class extends Component
     #[Url]
     public string $agency = 'All';
 
+    #[Url]
+    public string $dateFrom = '';
+
+    #[Url]
+    public string $dateTo = '';
+
     public function updating(): void
     {
         $this->resetPage();
@@ -37,6 +43,8 @@ new #[Layout('layouts.mcmc')] class extends Component
             ->when($this->status !== 'All', fn ($q) => $q->where('status', $this->status))
             ->when($this->category !== 'All', fn ($q) => $q->where('category', $this->category))
             ->when($this->agency !== 'All', fn ($q) => $q->where('agency_id', $this->agency))
+            ->when($this->dateFrom, fn ($q) => $q->whereDate('created_at', '>=', $this->dateFrom))
+            ->when($this->dateTo, fn ($q) => $q->whereDate('created_at', '<=', $this->dateTo))
             ->latest()
             ->paginate(12);
     }
@@ -77,6 +85,12 @@ new #[Layout('layouts.mcmc')] class extends Component
                 <option value="{{ $a->id }}">{{ $a->name }}</option>
             @endforeach
         </select>
+        <div class="flex items-center gap-2">
+            <label class="text-xs text-gray-500">{{ __('From') }}</label>
+            <input type="date" wire:model.live="dateFrom" class="rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand" />
+            <label class="text-xs text-gray-500">{{ __('To') }}</label>
+            <input type="date" wire:model.live="dateTo" class="rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand" />
+        </div>
     </div>
 
     <div class="bg-white border border-gray-100 rounded-2xl overflow-hidden">
