@@ -56,6 +56,9 @@ class AuthenticationTest extends TestCase
 
     public function test_navigation_menu_can_be_rendered(): void
     {
+        // Default factory role is `public`, which renders the public
+        // portal's own layout/topbar (see resources/views/dashboard.blade.php)
+        // instead of Breeze's generic layout.navigation component.
         $user = User::factory()->create();
 
         $this->actingAs($user);
@@ -64,7 +67,7 @@ class AuthenticationTest extends TestCase
 
         $response
             ->assertOk()
-            ->assertSeeVolt('layout.navigation');
+            ->assertSeeVolt('public.topbar-widgets');
     }
 
     public function test_users_can_logout(): void

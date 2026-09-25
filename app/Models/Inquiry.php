@@ -13,6 +13,23 @@ class Inquiry extends Model
 {
     use HasFactory;
 
+    protected static function booted(): void
+    {
+        static::creating(function (Inquiry $inquiry): void {
+            if (empty($inquiry->reference_no)) {
+                $inquiry->reference_no = static::nextReferenceNo();
+            }
+        });
+    }
+
+    public static function nextReferenceNo(): string
+    {
+        $year = now()->year;
+        $count = static::whereYear('created_at', $year)->count() + 1;
+
+        return sprintf('INQ-%d-%05d', $year, $count);
+    }
+
     protected $fillable = [
         'reference_no',
         'submitted_by',

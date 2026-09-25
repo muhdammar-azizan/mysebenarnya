@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             InquirySeeder::class,
             ClarificationSeeder::class,
+            NotificationSeeder::class,
         ]);
     }
 }
