@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body { margin: 0; background: #F7F7F8; }
+    a { color: #C41230; }
+    a:hover { color: #A10E27; }
+    ::placeholder { color: #A6A9AF; }
+    @keyframes flashRow { 0% { background: #FBE7E9; } 100% { background: transparent; } }
+  </style>
+  <script src="./clarify-store.js"></script>
+</helmet>
+
+<div style="font-family:'Inter',sans-serif; color:#1A1A1A;">
+
+<sc-if value="{{ isAuthView }}" hint-placeholder-val="{{ true }}">
+  <div style="min-height:100vh; box-sizing:border-box; background:#F7F7F8; padding:56px 24px; display:flex; flex-direction:column; align-items:center;">
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:24px;">
+      <div style="width:36px; height:36px; border-radius:10px; background:#fff; border:1px solid #EDEEF0; position:relative; flex-shrink:0;">
+        <div style="position:absolute; inset:3px; border-radius:50%; border:1.5px dashed #C41230;"></div>
+        <div style="position:absolute; inset:6px; border-radius:50%; border:1px dashed #C41230; opacity:0.55;"></div>
+        <div style="position:absolute; left:15px; top:17px; width:3px; height:6px; background:#C41230; border-radius:2px; transform:rotate(-45deg); transform-origin:bottom center;"></div>
+        <div style="position:absolute; left:15px; top:10px; width:3px; height:14px; background:#C41230; border-radius:2px; transform:rotate(40deg); transform-origin:bottom center;"></div>
+      </div>
+      <div style="font-family:'Poppins',sans-serif; font-weight:800; font-size:16px; letter-spacing:-0.01em;">
+        <span style="color:#1A1A1A;">SE</span><span style="color:#C41230;">BENAR</span><span style="color:#1A1A1A;">NYA.MY</span>
+      </div>
+    </div>
+
+    <div style="width:100%; max-width:420px; background:#fff; border:1px solid #EDEEF0; border-radius:10px; box-shadow:0 1px 3px rgba(0,0,0,0.06); padding:28px 24px;">
+
+      <sc-if value="{{ isLoginState }}" hint-placeholder-val="{{ true }}">
+        <div style="display:inline-block; background:#FBE7E9; color:#C41230; font-size:11px; font-weight:700; letter-spacing:0.04em; padding:4px 10px; border-radius:20px; margin-bottom:14px;">AGENCY PARTNER PORTAL</div>
+        <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:24px; margin-bottom:6px;">Agency Login</div>
+        <div style="font-size:13px; color:#8A8F98; margin-bottom:24px;">Sign in using the username and temporary password sent to your registered email.</div>
+
+        <form onSubmit="{{ handleLoginSubmit }}" style="display:flex; flex-direction:column; gap:16px;">
+          <div>
+            <div style="font-size:13px; font-weight:500; margin-bottom:6px;">Agency Username</div>
+            <input type="text" value="{{ username }}" onChange="{{ onUsernameChange }}" placeholder="e.g. moh.agency01" style="width:100%; box-sizing:border-box; height:40px; padding:0 12px; border-radius:8px; border:{{ usernameBorder }}; font-family:'Inter',sans-serif; font-size:14px; outline:none;" />
+            <sc-if value="{{ usernameError }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size:12px; color:#C41230; margin-top:6px;">{{ usernameError }}</div>
+            </sc-if>
+          </div>
+
+          <div>
+            <div style="font-size:13px; font-weight:500; margin-bottom:6px;">Password</div>
+            <div style="position:relative;">
+              <input type="{{ passwordInputType }}" value="{{ password }}" onChange="{{ onPasswordChange }}" placeholder="Enter your temporary password" style="width:100%; box-sizing:border-box; height:40px; padding:0 40px 0 12px; border-radius:8px; border:{{ passwordBorder }}; font-family:'Inter',sans-serif; font-size:14px; outline:none;" />
+              <div onClick="{{ togglePassword }}" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); width:18px; height:18px; cursor:pointer; color:#8A8F98; display:flex; align-items:center; justify-content:center;">
+                <sc-if value="{{ showPassword }}" hint-placeholder-val="{{ false }}">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 3l18 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M10.6 5.2A10.6 10.6 0 0112 5c6.5 0 10 6 10 6a15.6 15.6 0 01-3.3 4M6.6 6.6C4 8.3 2 12 2 12s1.6 3 4.6 4.7M9.9 14.1a3 3 0 004.2-4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </sc-if>
+                <sc-if value="{{ showPasswordOff }}" hint-placeholder-val="{{ true }}">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.6" stroke="currentColor" stroke-width="1.8"/></svg>
+                </sc-if>
+              </div>
+            </div>
+            <sc-if value="{{ passwordError }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size:12px; color:#C41230; margin-top:6px;">{{ passwordError }}</div>
+            </sc-if>
+          </div>
+
+          <button type="submit" style="height:40px; border-radius:8px; background:#C41230; color:#fff; border:none; font-family:'Inter',sans-serif; font-weight:600; font-size:14px; cursor:pointer;" style-hover="background:#A10E27;">Log In</button>
+        </form>
+
+        <div style="font-size:12px; color:#8A8F98; text-align:center; margin-top:20px; line-height:1.5;">Didn't receive your credentials? Contact MCMC support at support@mcmc.gov.my</div>
+        <div style="margin-top:14px; font-size:12.5px; color:#8A8F98; text-align:center;">
+          <a href="#" onClick="{{ onGoPublic }}" style="font-weight:600; text-decoration:none; margin:0 6px;">Public User Login</a>
+          ·
+          <a href="#" onClick="{{ onGoMcmc }}" style="font-weight:600; text-decoration:none; margin:0 6px;">MCMC Staff Login</a>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isForceChangeState }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex; gap:10px; background:#FEF3E6; border:1px solid #F0C48A; border-radius:8px; padding:12px 14px; margin-bottom:20px; font-size:12.5px; color:#8A4B0A; line-height:1.5;">
+          <div style="flex-shrink:0;">🔒</div>
+          <div>For your security, you must set a new password before continuing.</div>
+        </div>
+
+        <sc-if value="{{ !passwordUpdated }}" hint-placeholder-val="{{ true }}">
+          <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:22px; margin-bottom:6px;">Set a New Password</div>
+          <div style="font-size:13px; color:#8A8F98; margin-bottom:22px;">This is your first login. Please create a secure password to replace your temporary one.</div>
+
+          <div style="display:flex; flex-direction:column; gap:16px;">
+            <div>
+              <div style="font-size:13px; font-weight:500; margin-bottom:6px;">Temporary Password</div>
+              <div style="position:relative;">
+                <input type="{{ tempPwInputType }}" value="{{ tempPassword }}" onChange="{{ onTempPasswordChange }}" placeholder="The temporary password from your email" style="width:100%; box-sizing:border-box; height:40px; padding:0 40px 0 12px; border-radius:8px; border:{{ tempPwBorder }}; font-family:'Inter',sans-serif; font-size:14px;" />
+                <div onClick="{{ toggleTempPw }}" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); width:18px; height:18px; cursor:pointer; color:#8A8F98; display:flex; align-items:center; justify-content:center;">
+                  <sc-if value="{{ showTempPw }}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 3l18 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M10.6 5.2A10.6 10.6 0 0112 5c6.5 0 10 6 10 6a15.6 15.6 0 01-3.3 4M6.6 6.6C4 8.3 2 12 2 12s1.6 3 4.6 4.7M9.9 14.1a3 3 0 004.2-4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></sc-if>
+                  <sc-if value="{{ showTempPwOff }}" hint-placeholder-val="{{ true }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.6" stroke="currentColor" stroke-width="1.8"/></svg></sc-if>
+                </div>
+              </div>
+              <sc-if value="{{ tempPwError }}" hint-placeholder-val="{{ false }}"><div style="font-size:12px; color:#C41230; margin-top:6px;">{{ tempPwError }}</div></sc-if>
+            </div>
+
+            <div>
+              <div style="font-size:13px; font-weight:500; margin-bottom:6px;">New Password</div>
+              <div style="position:relative;">
+                <input type="{{ newPwInputType }}" value="{{ newPassword }}" onChange="{{ onNewPasswordChange }}" placeholder="Create a new password" style="width:100%; box-sizing:border-box; height:40px; padding:0 40px 0 12px; border-radius:8px; border:1px solid #D4D6DA; font-family:'Inter',sans-serif; font-size:14px;" />
+                <div onClick="{{ toggleNewPw }}" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); width:18px; height:18px; cursor:pointer; color:#8A8F98; display:flex; align-items:center; justify-content:center;">
+                  <sc-if value="{{ showNewPw }}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 3l18 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M10.6 5.2A10.6 10.6 0 0112 5c6.5 0 10 6 10 6a15.6 15.6 0 01-3.3 4M6.6 6.6C4 8.3 2 12 2 12s1.6 3 4.6 4.7M9.9 14.1a3 3 0 004.2-4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></sc-if>
+                  <sc-if value="{{ showNewPwOff }}" hint-placeholder-val="{{ true }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.6" stroke="currentColor" stroke-width="1.8"/></svg></sc-if>
+                </div>
+              </div>
+              <div style="display:flex; gap:4px; margin-top:8px;">
+                <div style="flex:1; height:4px; border-radius:2px; background:{{ strengthBar1 }};"></div>
+                <div style="flex:1; height:4px; border-radius:2px; background:{{ strengthBar2 }};"></div>
+                <div style="flex:1; height:4px; border-radius:2px; background:{{ strengthBar3 }};"></div>
+              </div>
+              <div style="font-size:11.5px; color:{{ strengthLabelColor }}; margin-top:5px; font-weight:600;">{{ strengthLabel }}</div>
+
+              <div style="display:flex; flex-direction:column; gap:6px; margin-top:12px;">
+                <sc-for list="{{ requirements }}" as="req" hint-placeholder-count="4">
+                  <div style="display:flex; align-items:center; gap:8px; font-size:12.5px; color:{{ req.textColor }};">
+                    <div style="width:16px; height:16px; border-radius:50%; background:{{ req.dotBg }}; color:#fff; font-size:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">{{ req.dotIcon }}</div>
+                    {{ req.label }}
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div>
+              <div style="font-size:13px; font-weight:500; margin-bottom:6px;">Confirm New Password</div>
+              <div style="position:relative;">
+                <input type="{{ confirmPwInputType }}" value="{{ confirmPassword }}" onChange="{{ onConfirmPasswordChange }}" placeholder="Re-enter your new password" style="width:100%; box-sizing:border-box; height:40px; padding:0 40px 0 12px; border-radius:8px; border:{{ confirmPwBorder }}; font-family:'Inter',sans-serif; font-size:14px;" />
+                <div onClick="{{ toggleConfirmPw }}" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); width:18px; height:18px; cursor:pointer; color:#8A8F98; display:flex; align-items:center; justify-content:center;">
+                  <sc-if value="{{ showConfirmPw }}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 3l18 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M10.6 5.2A10.6 10.6 0 0112 5c6.5 0 10 6 10 6a15.6 15.6 0 01-3.3 4M6.6 6.6C4 8.3 2 12 2 12s1.6 3 4.6 4.7M9.9 14.1a3 3 0 004.2-4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></sc-if>
+                  <sc-if value="{{ showConfirmPwOff }}" hint-placeholder-val="{{ true }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.6" stroke="currentColor" stroke-width="1.8"/></svg></sc-if>
+                </div>
+              </div>
+              <sc-if value="{{ confirmError }}" hint-placeholder-val="{{ false }}"><div style="font-size:12px; color:#C41230; margin-top:6px;">{{ confirmError }}</div></sc-if>
+            </div>
+
+            <button onClick="{{ onUpdatePassword }}" disabled="{{ updateDisabled }}" style="height:44px; border-radius:8px; background:{{ updateBtnBg }}; color:#fff; border:none; font-family:'Inter',sans-serif; font-weight:700; font-size:14px; cursor:{{ updateBtnCursor }};">Update Password & Continue</button>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ passwordUpdated }}" hint-placeholder-val="{{ false }}">
+          <div style="text-align:center; padding:20px 0;">
+            <div style="width:52px; height:52px; border-radius:50%; background:#E4F5E9; color:#1D7A3E; font-size:26px; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">✓</div>
+            <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:18px;">Password updated successfully!</div>
+          </div>
+        </sc-if>
+      </sc-if>
+
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ isDashboardView }}" hint-placeholder-val="{{ false }}">
+  <div style="height:100vh; display:flex; flex-direction:column; background:#EDEEF0; overflow:hidden;">
+
+    <div style="height:64px; background:#C41230; display:flex; align-items:center; gap:20px; padding:0 24px; flex-shrink:0; position:relative; box-shadow:0 4px 10px rgba(0,0,0,0.18); z-index:10;">
+      <div style="display:flex; align-items:center; gap:12px; flex-shrink:0;">
+        <svg width="42" height="42" viewBox="0 0 512 512" style="flex-shrink:0;">
+          <defs><clipPath id="icHdrAgency"><circle cx="256" cy="248" r="150"/></clipPath></defs>
+          <rect x="16" y="16" width="480" height="480" rx="92" ry="92" fill="#ffffff" stroke="#EDEEF0" stroke-width="4"/>
+          <g clip-path="url(#icHdrAgency)">
+            <path d="M 256 248 L 256 98 A 150 150 0 0 1 386 323 Z" fill="#0072bc" opacity="0.3"/>
+            <path d="M 256 248 L 386 323 A 150 150 0 0 1 126 323 Z" fill="#e31c79" opacity="0.3"/>
+            <path d="M 256 248 L 126 323 A 150 150 0 0 1 256 98 Z" fill="#f5a623" opacity="0.3"/>
+          </g>
+          <circle cx="256" cy="248" r="192" fill="none" stroke="#C41230" stroke-width="24" stroke-dasharray="34 22" stroke-linecap="round"/>
+          <circle cx="256" cy="248" r="165" fill="none" stroke="#C41230" stroke-width="24" stroke-dasharray="30 19" stroke-linecap="round"/>
+          <path d="M 168 248 L 224 304 L 344 178" fill="none" stroke="#ffffff" stroke-width="70" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M 168 248 L 224 304 L 344 178" fill="none" stroke="#C41230" stroke-width="52" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div style="font-family:'Poppins',sans-serif; font-weight:800; font-size:19px; letter-spacing:-0.01em; white-space:nowrap;">
+          <span style="color:#1A1A1A;">SE</span><span style="color:#fff;">BENAR</span><span style="color:#1A1A1A;">NYA.MY</span>
+        </div>
+      </div>
+      <div style="flex:1;"></div>
+      <div style="width:240px; flex-shrink:0; position:relative;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); pointer-events:none;"><circle cx="11" cy="11" r="7" stroke="#8A8F98" stroke-width="2"/><path d="M21 21l-4.3-4.3" stroke="#8A8F98" stroke-width="2" stroke-linecap="round"/></svg>
+        <input placeholder="Search assigned inquiries..." style="width:100%; padding:9px 14px 9px 36px; border-radius:8px; border:1px solid rgba(255,255,255,0.3); font-family:'Inter',sans-serif; font-size:13px; background:#fff; box-sizing:border-box;" />
+      </div>
+      <div style="display:flex; align-items:center; gap:14px; flex-shrink:0;">
+        <div onClick="{{ toggleNotif }}" style-hover="background:rgba(255,255,255,0.24);" style="position:relative; width:36px; height:36px; border-radius:8px; background:rgba(255,255,255,0.16); display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M6 9a6 6 0 0112 0c0 4 1.5 5 1.5 5h-15S6 13 6 9z" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/><path d="M10 18a2 2 0 004 0" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <div style="position:absolute; top:-4px; right:-4px; width:16px; height:16px; background:#C41230; border-radius:50%; border:1.5px solid #fff; color:#fff; font-size:9.5px; font-weight:700; display:flex; align-items:center; justify-content:center;">2</div>
+        </div>
+        <sc-if value="{{ notifOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute; top:44px; right:190px; width:300px; background:#fff; border:1px solid #EDEEF0; border-radius:10px; box-shadow:0 8px 24px rgba(0,0,0,0.12); z-index:20; overflow:hidden;">
+            <div style="padding:12px 16px; font-size:13px; font-weight:700; border-bottom:1px solid #F0F1F3;">Notifications</div>
+            <sc-for list="{{ notifItems }}" as="n" hint-placeholder-count="2">
+              <div style="padding:12px 16px; font-size:12.5px; border-bottom:1px solid #F5F5F6;">
+                <div style="font-weight:600; margin-bottom:2px;">{{ n.title }}</div>
+                <div style="color:#8A8F98; font-size:11.5px;">{{ n.time }}</div>
+              </div>
+            </sc-for>
+            <a href="#" onClick="{{ goNotifView }}" style="display:block; padding:11px 16px; font-size:12.5px; font-weight:600; text-align:center; border-top:1px solid #F0F1F3; text-decoration:none;">View all notifications</a>
+          </div>
+        </sc-if>
+        <div onMouseEnter="{{ openProfileMenu }}" onMouseLeave="{{ closeProfileMenuDelayed }}" style="position:relative; flex-shrink:0;">
+        <div style="display:flex; align-items:center; gap:8px; flex-shrink:0; cursor:pointer; padding:4px; border-radius:8px;" style-hover="background:rgba(255,255,255,0.16);">
+          <div style="width:34px; height:34px; border-radius:50%; background:#FBE7E9; color:#C41230; font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">MOH</div>
+        </div>
+        <sc-if value="{{ profileMenuOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute; top:44px; right:0; width:230px; background:#fff; border:1px solid #EDEEF0; border-radius:10px; box-shadow:0 8px 24px rgba(0,0,0,0.12); z-index:30; overflow:hidden;">
+            <div style="padding:14px 16px; border-bottom:1px solid #F0F1F3;">
+              <div style="font-size:13.5px; font-weight:700;">Ministry of Health (MOH)</div>
+              <div style="font-size:12px; color:#8A8F98; margin:2px 0 4px;">Agency Staff</div>
+              <div style="font-size:11.5px; color:#8A8F98;">contact@moh.gov.my</div>
+            </div>
+            <div style="padding:6px;">
+
+              <a href="#" onClick="{{ onLogout }}" style="display:block; padding:9px 10px; font-size:13px; font-weight:600; color:#C41230; text-decoration:none; border-radius:6px;" style-hover="background:#FBE7E9;">Log Out</a>
+            </div>
+          </div>
+        </sc-if>
+        </div>
+      </div>
+    </div>
+
+    <div style="flex:1; display:flex; gap:16px; min-height:0; overflow:hidden;">
+
+      <div style="width:216px; background:#fff; box-shadow:1px 0 0 rgba(0,0,0,0.05); display:flex; flex-direction:column; flex-shrink:0; overflow:auto;">
+        <div style="padding:16px 14px 8px; font-size:11px; font-weight:700; color:#8A8F98; text-transform:uppercase; letter-spacing:0.05em;">Menu</div>
+        <div style="flex:1; padding:0 10px; display:flex; flex-direction:column; gap:2px;">
+          <sc-for list="{{ navItems }}" as="item" hint-placeholder-count="4">
+            <sc-if value="{{ item.isActive }}" hint-placeholder-val="{{ false }}">
+            <div onClick="{{ item.onClick }}" style="display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:8px; background:#C41230; cursor:pointer; font-size:13px; font-weight:600; color:#fff; transition:background 0.15s ease;" style-hover="background:#A10E27;">
+              <sc-if value="{{ item.isGrid }}" hint-placeholder-val="{{ false }}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M3 9h18M9 21V9" stroke="currentColor" stroke-width="1.8"/></svg>
+              </sc-if>
+              <sc-if value="{{ item.isFolder }}" hint-placeholder-val="{{ false }}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M3.5 6.5A1.5 1.5 0 015 5h4.3a1.5 1.5 0 011.1.5l1.4 1.5H19a1.5 1.5 0 011.5 1.5v9a1.5 1.5 0 01-1.5 1.5H5a1.5 1.5 0 01-1.5-1.5v-11z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+              </sc-if>
+              <sc-if value="{{ item.isChart }}" hint-placeholder-val="{{ false }}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M4 19V10M10 19V4M16 19v-7M22 19H2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </sc-if>
+              <sc-if value="{{ item.isClock }}" hint-placeholder-val="{{ false }}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.8"/><path d="M12 7.5v5l3.3 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </sc-if>
+              <sc-if value="{{ item.isBell }}" hint-placeholder-val="{{ false }}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M6 9a6 6 0 0112 0c0 4 1.5 5 1.5 5h-15S6 13 6 9z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M10 18a2 2 0 004 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+              </sc-if>
+              <sc-if value="{{ item.isUser }}" hint-placeholder-val="{{ false }}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><circle cx="12" cy="8" r="3.5" stroke="currentColor" stroke-width="1.8"/><path d="M4.5 20c1-4 5-5.5 7.5-5.5s6.5 1.5 7.5 5.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+              </sc-if>
+              {{ item.label }}
+            </div>
+            </sc-if>
+            <sc-if value="{{ item.isInactive }}" hint-placeholder-val="{{ true }}">
+            <div onClick="{{ item.onClick }}" style="display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:8px; background:transparent; cursor:pointer; font-size:13px; font-weight:600; color:#4B4F58; transition:background 0.15s ease;" style-hover="background:#EDEEF0;">
+              <sc-if value="{{ item.isGrid }}" hint-placeholder-val="{{ false }}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M3 9h18M9 21V9" stroke="currentColor" stroke-width="1.8"/></svg>
+              </sc-if>
+              <sc-if value="{{ item.isFolder }}" hint-placeholder-val="{{ false }}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M3.5 6.5A1.5 1.5 0 015 5h4.3a1.5 1.5 0 011.1.5l1.4 1.5H19a1.5 1.5 0 011.5 1.5v9a1.5 1.5 0 01-1.5 1.5H5a1.5 1.5 0 01-1.5-1.5v-11z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+              </sc-if>
+              <sc-if value="{{ item.isChart }}" hint-placeholder-val="{{ false }}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M4 19V10M10 19V4M16 19v-7M22 19H2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </sc-if>
+              <sc-if value="{{ item.isClock }}" hint-placeholder-val="{{ false }}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.8"/><path d="M12 7.5v5l3.3 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </sc-if>
+              <sc-if value="{{ item.isBell }}" hint-placeholder-val="{{ false }}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M6 9a6 6 0 0112 0c0 4 1.5 5 1.5 5h-15S6 13 6 9z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M10 18a2 2 0 004 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+              </sc-if>
+              <sc-if value="{{ item.isUser }}" hint-placeholder-val="{{ false }}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><circle cx="12" cy="8" r="3.5" stroke="currentColor" stroke-width="1.8"/><path d="M4.5 20c1-4 5-5.5 7.5-5.5s6.5 1.5 7.5 5.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+              </sc-if>
+              {{ item.label }}
+            </div>
+            </sc-if>
+          </sc-for>
+        </div>
+      </div>
+
+      <div data-scroll-container="1" style="flex:1; background:#fff; border-radius:16px; box-shadow:0 1px 3px rgba(0,0,0,0.06); padding:28px 32px; overflow:auto; position:relative; min-width:0; margin:16px 16px 16px 0;">
+        <sc-if value="{{ isDashView }}" hint-placeholder-val="{{ true }}">
+        <div>
+        <h2 style="font-family:'Poppins',sans-serif; font-weight:700; font-size:22px; margin:0 0 6px;">Agency Dashboard</h2>
+        <p style="color:#8A8F98; font-size:14px; margin:0 0 24px;">Manage inquiries assigned to Ministry of Health (MOH) for verification.</p>
+
+        <sc-if value="{{ hasClarifyAlert }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:20px;">
+            <sc-for list="{{ clarifyAlerts }}" as="al" hint-placeholder-count="1">
+              <div onClick="{{ al.onClick }}" style="display:flex; align-items:center; gap:14px; background:{{ al.bg }}; border:1px solid {{ al.border }}; border-radius:10px; padding:12px 16px; cursor:pointer; transition:box-shadow 0.15s ease;" style-hover="box-shadow:0 6px 16px rgba(0,0,0,0.08);">
+                <div style="width:34px; height:34px; border-radius:50%; background:{{ al.iconBg }}; color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 5h16v11H9l-5 4V5z" stroke="#fff" stroke-width="2" stroke-linejoin="round"/></svg>
+                </div>
+                <div style="flex:1; min-width:0;">
+                  <div style="font-size:13.5px; font-weight:700; color:{{ al.titleColor }};">{{ al.title }}</div>
+                  <div style="font-size:12.5px; color:#6B6F76; margin-top:2px;">{{ al.sub }}</div>
+                </div>
+                <div style="font-size:13px; font-weight:700; color:{{ al.titleColor }}; white-space:nowrap;">{{ al.cta }} →</div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <div style="display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:16px; margin-bottom:24px;">
+          <sc-for list="{{ statCards }}" as="c" hint-placeholder-count="4">
+            <div onClick="{{ c.onClick }}" style="background:{{ c.cardBg }}; border:1px solid {{ c.cardBorder }}; border-radius:10px; padding:18px; box-shadow:0 1px 3px rgba(0,0,0,0.04); cursor:pointer; transition:transform 0.15s ease, box-shadow 0.15s ease;" style-hover="transform:translateY(-3px); box-shadow:0 8px 20px rgba(0,0,0,0.08);">
+              <div style="width:36px; height:36px; border-radius:50%; background:{{ c.badgeBg }}; color:{{ c.color }}; display:flex; align-items:center; justify-content:center; margin-bottom:12px;">
+                <sc-if value="{{ c.isFolder }}" hint-placeholder-val="{{ false }}">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M3.5 6.5A1.5 1.5 0 015 5h4.3a1.5 1.5 0 011.1.5l1.4 1.5H19a1.5 1.5 0 011.5 1.5v9a1.5 1.5 0 01-1.5 1.5H5a1.5 1.5 0 01-1.5-1.5v-11z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+                </sc-if>
+                <sc-if value="{{ c.isClock }}" hint-placeholder-val="{{ false }}">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.8"/><path d="M12 7.5v5l3.3 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </sc-if>
+                <sc-if value="{{ c.isCheck }}" hint-placeholder-val="{{ false }}">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.8"/><path d="M8.2 12.3l2.6 2.6 5-5.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </sc-if>
+                <sc-if value="{{ c.isWarning }}" hint-placeholder-val="{{ false }}">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M12 4.5L21 19.5H3L12 4.5z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 10v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="17" r="0.9" fill="currentColor"/></svg>
+                </sc-if>
+              </div>
+              <div style="font-size:12.5px; color:#8A8F98; font-weight:600; margin-bottom:6px;">{{ c.label }}</div>
+              <div style="font-family:'Poppins',sans-serif; font-weight:800; font-size:{{ c.size }}; color:{{ c.color }};">{{ c.value }}</div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="background:#fff; border:1px solid #EDEEF0; border-radius:10px; box-shadow:0 1px 3px rgba(0,0,0,0.04); padding:20px 22px; margin-bottom:24px;">
+          <div style="display:flex; align-items:center; gap:8px; margin-bottom:18px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 19V10M10 19V4M16 19v-7M22 19H2" stroke="#C41230" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div style="font-weight:700; font-size:15px;">Performance Summary</div>
+          </div>
+          <div style="display:grid; grid-template-columns:150px 1fr; gap:32px; align-items:center;">
+            <div onMouseMove="{{ onDonutMove }}" onMouseLeave="{{ onDonutLeave }}" style="width:150px; height:150px; border-radius:50%; background:{{ donutGradient }}; position:relative; cursor:default; flex-shrink:0;">
+              <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:92px; height:92px; border-radius:50%; background:#fff; display:flex; flex-direction:column; align-items:center; justify-content:center; pointer-events:none;">
+                <div style="font-family:'Poppins',sans-serif; font-weight:800; font-size:24px; color:#1A1A1A; line-height:1;">12</div>
+                <div style="font-size:10.5px; color:#8A8F98; font-weight:600; margin-top:2px;">Total Cases</div>
+              </div>
+              <sc-if value="{{ donutHoverShow }}" hint-placeholder-val="{{ false }}">
+                <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); background:#1A1A1A; color:#fff; padding:8px 12px; border-radius:8px; font-size:11.5px; font-weight:700; white-space:nowrap; pointer-events:none; text-align:center; z-index:5;">
+                  {{ donutHoverLabel }}
+                  <div style="font-weight:800; font-size:15px; margin-top:2px;">{{ donutHoverPct }}%</div>
+                </div>
+              </sc-if>
+            </div>
+            <div>
+              <div style="font-weight:700; font-size:13px; margin-bottom:12px; color:#4B4F58;">Your Resolution Breakdown</div>
+              <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:18px;">
+                <div style="display:flex; align-items:center; justify-content:space-between; font-size:13px;">
+                  <div style="display:flex; align-items:center; gap:8px;"><div style="width:9px;height:9px;border-radius:2px;background:#1D7A3E; flex-shrink:0;"></div>Verified True</div>
+                  <div style="color:#4B4F58; font-weight:600;">7 cases <span style="color:#8A8F98; font-weight:500;">· 58%</span></div>
+                </div>
+                <div style="display:flex; align-items:center; justify-content:space-between; font-size:13px;">
+                  <div style="display:flex; align-items:center; gap:8px;"><div style="width:9px;height:9px;border-radius:2px;background:#C41230; flex-shrink:0;"></div>Identified Fake</div>
+                  <div style="color:#4B4F58; font-weight:600;">4 cases <span style="color:#8A8F98; font-weight:500;">· 33%</span></div>
+                </div>
+                <div style="display:flex; align-items:center; justify-content:space-between; font-size:13px;">
+                  <div style="display:flex; align-items:center; gap:8px;"><div style="width:9px;height:9px;border-radius:2px;background:#8A8F98; flex-shrink:0;"></div>Rejected by us</div>
+                  <div style="color:#4B4F58; font-weight:600;">1 case <span style="color:#8A8F98; font-weight:500;">· 9%</span></div>
+                </div>
+              </div>
+              <div style="height:1px; background:#F0F1F3; margin-bottom:14px;"></div>
+              <div style="display:flex; gap:20px; flex-wrap:wrap;">
+                <div>
+                  <div style="font-size:11.5px; color:#8A8F98; font-weight:600; margin-bottom:2px;">AVG. RESOLUTION TIME</div>
+                  <div style="font-family:'Poppins',sans-serif; font-weight:800; font-size:17px; color:#1A1A1A;">3.2 days</div>
+                </div>
+                <div style="display:inline-flex; align-items:center; gap:6px; background:#E4F5E9; color:#1D7A3E; font-size:12px; font-weight:700; padding:6px 12px; border-radius:20px; align-self:flex-end;">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12l7-7 7 7" stroke="#1D7A3E" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Above platform average
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="background:#fff; border:1px solid #EDEEF0; border-radius:10px; box-shadow:0 1px 3px rgba(0,0,0,0.04); overflow:hidden; margin-bottom:24px;">
+          <div id="assigned-list-anchor" style="padding:16px 20px; border-bottom:1px solid #F0F1F3; display:flex; align-items:center; justify-content:space-between;">
+            <div>
+              <div style="font-weight:700; font-size:15px; margin-bottom:4px;">Recently Assigned Inquiries</div>
+              <div style="font-size:12px; color:#8A8F98;">Agency Dashboard <span style="margin:0 4px;">›</span> {{ quickFilterLabel }}</div>
+            </div>
+            <button onClick="{{ onViewFullList }}" onMouseEnter="{{ onViewFullListHoverIn }}" onMouseLeave="{{ onViewFullListHoverOut }}" style="background:{{ viewFullListBg }}; color:{{ viewFullListColor }}; border:1.5px solid {{ viewFullListBorder }}; padding:7px 14px; border-radius:8px; font-size:12.5px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:6px; transition:background 0.15s ease, border-color 0.15s ease, color 0.15s ease; flex-shrink:0;">
+              View Full List
+              <span style="display:inline-block; max-width:{{ viewFullListArrowWidth }}; opacity:{{ viewFullListArrowOpacity }}; overflow:hidden; transition:max-width 0.15s ease, opacity 0.15s ease;">→</span>
+            </button>
+          </div>
+          <div style="display:grid; grid-template-columns:1.8fr 1fr 1fr 1.2fr 1.6fr 1fr; gap:8px; padding:10px 20px; font-size:11.5px; font-weight:700; color:#8A8F98; text-transform:uppercase; letter-spacing:0.03em; border-bottom:1px solid #F0F1F3;">
+            <div>Title</div><div>Category</div><div>Date Assigned</div><div>Status</div><div>Notes from MCMC</div><div></div>
+          </div>
+          <sc-for list="{{ assignedRows }}" as="r" hint-placeholder-count="4">
+            <div onClick="{{ r.onOpenPanel }}" style="display:grid; grid-template-columns:1.8fr 1fr 1fr 1.2fr 1.6fr 1fr; gap:8px; padding:12px 20px; font-size:13px; border-bottom:1px solid #F5F5F6; align-items:center; cursor:pointer;" style-hover="background:#FAFAFA;">
+              <div style="font-weight:600;">{{ r.title }}</div>
+              <div style="color:#4B4F58;">{{ r.category }}</div>
+              <div style="color:#8A8F98;">{{ r.date }}</div>
+              <div><span style="background:{{ r.statusBg }}; color:{{ r.statusColor }}; font-size:11.5px; font-weight:700; padding:3px 9px; border-radius:20px; white-space:nowrap;">{{ r.status }}</span></div>
+              <div style="color:#8A8F98; font-size:12px;">{{ r.notesExcerpt }}</div>
+              <div><button onClick="{{ r.onUpdate }}" style="width:120px; background:#C41230; color:#fff; border:none; padding:6px 12px; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer;" style-hover="background:#A10E27;">Update Status</button></div>
+            </div>
+          </sc-for>
+          <sc-if value="{{ assignedEmpty }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:32px; text-align:center; color:#8A8F98; font-size:13px;">No inquiries in this category.</div>
+          </sc-if>
+        </div>
+        </div>
+        </sc-if>
+
+        <sc-if value="{{ isNotifView }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
+            <h2 style="font-family:'Poppins',sans-serif; font-weight:700; font-size:22px; margin:0;">Notifications</h2>
+            <a href="#" onClick="{{ markAllRead }}" style="font-size:12.5px; font-weight:600; text-decoration:none;">Mark all as read</a>
+          </div>
+          <p style="color:#8A8F98; font-size:14px; margin:6px 0 20px;">Stay updated on inquiry status and system activity.</p>
+          <div style="display:flex; gap:8px; margin-bottom:16px;">
+            <sc-for list="{{ notifFilterTabs }}" as="f" hint-placeholder-count="3">
+              <div onClick="{{ f.onClick }}" style="padding:7px 14px; border-radius:20px; font-size:12.5px; font-weight:600; cursor:pointer; background:{{ f.bg }}; color:{{ f.color }}; display:flex; align-items:center; gap:6px;">{{ f.label }}<sc-if value="{{ f.showBadge }}" hint-placeholder-val="{{ false }}"><span style="background:#C41230; color:#fff; font-size:10px; font-weight:700; border-radius:10px; padding:1px 6px;">{{ f.badgeCount }}</span></sc-if></div>
+            </sc-for>
+          </div>
+          <div style="background:#fff; border:1px solid #EDEEF0; border-radius:10px; overflow:hidden;">
+            <sc-for list="{{ visibleNotifs }}" as="n" hint-placeholder-count="5">
+              <div onClick="{{ n.onClick }}" style="display:flex; align-items:flex-start; gap:12px; padding:14px 16px; border-bottom:1px solid #F5F5F6; cursor:pointer; animation:{{ n.flashAnim }};">
+                <div style="width:30px; height:30px; border-radius:50%; background:{{ n.iconBg }}; color:{{ n.iconColor }}; display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0;">{{ n.icon }}</div>
+                <div style="flex:1; min-width:0;">
+                  <div style="font-size:13px; font-weight:{{ n.weight }}; line-height:1.4;">{{ n.text }}</div>
+                  <div style="font-size:11.5px; color:#8A8F98; margin-top:3px;">{{ n.time }}</div>
+                </div>
+                <sc-if value="{{ n.unread }}" hint-placeholder-val="{{ false }}"><div style="width:8px; height:8px; border-radius:50%; background:#C41230; flex-shrink:0; margin-top:5px;"></div></sc-if>
+              </div>
+            </sc-for>
+            <sc-if value="{{ noVisibleNotifs }}" hint-placeholder-val="{{ false }}">
+              <div style="padding:32px; text-align:center; color:#8A8F98; font-size:13px;">No notifications in this filter.</div>
+            </sc-if>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </div>
+
+  <sc-if value="{{ panelOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closePanel }}" style="position:fixed; inset:0; background:rgba(0,0,0,0.35); z-index:40;"></div>
+    <div style="position:fixed; top:0; right:0; bottom:0; width:380px; background:#fff; box-shadow:-8px 0 30px rgba(0,0,0,0.15); z-index:41; display:flex; flex-direction:column;">
+      <div style="padding:20px; border-bottom:1px solid #F0F1F3; display:flex; align-items:flex-start; justify-content:space-between; gap:12px;">
+        <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:17px; line-height:1.3;">{{ panelTitle }}</div>
+        <div onClick="{{ closePanel }}" style="cursor:pointer; color:#8A8F98; font-size:18px; line-height:1; flex-shrink:0;">✕</div>
+      </div>
+      <div style="padding:14px 20px; border-bottom:1px solid #F0F1F3; display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+        <span style="background:{{ panelBadgeBg }}; color:{{ panelBadgeColor }}; font-size:12px; font-weight:700; padding:4px 10px; border-radius:20px;">{{ panelStatus }}</span>
+        <span style="font-size:12.5px; color:#8A8F98;">{{ panelCategory }} · {{ panelDate }}</span>
+      </div>
+      <div style="display:flex; border-bottom:1px solid #F0F1F3; flex-shrink:0;">
+        <sc-for list="{{ panelTabs }}" as="pt" hint-placeholder-count="3">
+          <div onClick="{{ pt.onClick }}" style="flex:1; text-align:center; padding:11px; font-size:12.5px; font-weight:700; cursor:pointer; color:{{ pt.color }}; border-bottom:2px solid {{ pt.borderColor }};">{{ pt.label }}</div>
+        </sc-for>
+      </div>
+      <div style="flex:1; overflow:auto; padding:18px 20px;">
+        <sc-if value="{{ isPanelDetails }}" hint-placeholder-val="{{ true }}">
+          <div style="font-size:13.5px; color:#4B4F58; line-height:1.6;">{{ panelDescription }}</div>
+        </sc-if>
+        <sc-if value="{{ isPanelEvidence }}" hint-placeholder-val="{{ false }}">
+          <div style="font-size:13px; color:#9CA3AF;">No evidence files on record for this summary view.</div>
+        </sc-if>
+        <sc-if value="{{ isPanelActivity }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex; flex-direction:column; gap:14px;">
+            <sc-for list="{{ panelActivity }}" as="ac" hint-placeholder-count="2">
+              <div style="display:flex; gap:10px;">
+                <div style="width:8px; height:8px; border-radius:50%; background:#C41230; margin-top:5px; flex-shrink:0;"></div>
+                <div>
+                  <div style="font-size:11.5px; color:#8A8F98; font-weight:600; margin-bottom:2px;">{{ ac.date }}</div>
+                  <div style="font-size:13px;">{{ ac.text }}</div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
+      <div style="padding:16px 20px; border-top:1px solid #F0F1F3; flex-shrink:0;">
+        <button onClick="{{ onPanelUpdate }}" style="width:100%; background:#C41230; color:#fff; border:none; padding:11px; border-radius:8px; font-size:13.5px; font-weight:700; cursor:pointer;" style-hover="background:#A10E27;">Update Status</button>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ updateModalOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed; inset:0; background:rgba(0,0,0,0.45); display:flex; align-items:center; justify-content:center; z-index:50;">
+      <div style="width:440px; background:#fff; border-radius:12px; padding:24px; box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+        <div style="font-size:11px; font-weight:700; color:#C41230; letter-spacing:0.04em; margin-bottom:8px;">UPDATE STATUS</div>
+        <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:18px; margin-bottom:16px;">{{ updateModalTitle }}</div>
+        <div style="font-size:13px; color:#8A8F98; margin-bottom:14px;">Full status-update workflow with evidence and remarks is available in the next phase. Preview of available outcomes:</div>
+        <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:20px;">
+          <div style="padding:10px 14px; border:1px solid #EDEEF0; border-radius:8px; font-size:13px; font-weight:600; color:#1D7A3E;">Verified as True</div>
+          <div style="padding:10px 14px; border:1px solid #EDEEF0; border-radius:8px; font-size:13px; font-weight:600; color:#C41230;">Identified as Fake</div>
+          <div style="padding:10px 14px; border:1px solid #EDEEF0; border-radius:8px; font-size:13px; font-weight:600; color:#8A8F98;">Reject Assignment</div>
+        </div>
+        <button onClick="{{ onCloseUpdateModal }}" style="width:100%; background:#fff; border:1.5px solid #D4D6DA; padding:11px; border-radius:8px; font-size:13.5px; font-weight:600; cursor:pointer;">Close</button>
+      </div>
+    </div>
+  </sc-if>
+</sc-if>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  componentWillUnmount() { if (this._unsubClarify) this._unsubClarify(); clearTimeout(this._clarifyRetry); }
+  clarifyAlerts() {
+    const S = window.SBClarify; if (!S) return { hasClarifyAlert: false, clarifyAlerts: [] };
+    const mine = S.all().filter(t => t.agency === 'Ministry of Health (MOH)');
+    const replied = mine.filter(t => t.status === 'answered'), waiting = mine.filter(t => t.status === 'open');
+    const out = [];
+    if (replied.length) out.push({ bg: '#F3F7FD', border: '#D6E3F5', iconBg: '#1D5FBF', titleColor: '#1D5FBF', cta: 'Review replies',
+      title: 'MCMC responded to ' + replied.length + ' clarification request' + (replied.length === 1 ? '' : 's'),
+      sub: replied.map(t => '"' + t.inquiry.title + '"').slice(0, 2).join(', ') + (replied.length > 2 ? ' and more' : '') + ' — review and continue your investigation.',
+      onClick: () => { window.location.href = replied.length === 1 ? './09-agency-workflow.dc.html?id=' + replied[0].inquiryId : './09-agency-workflow.dc.html?filter=answered'; } });
+    if (waiting.length) out.push({ bg: '#F8F4FD', border: '#DCCDF0', iconBg: '#6B3FA0', titleColor: '#4E2D7A', cta: 'View',
+      title: waiting.length + ' inquir' + (waiting.length === 1 ? 'y' : 'ies') + ' awaiting MCMC clarification',
+      sub: 'Oldest request sent ' + waiting[waiting.length - 1].createdAt + '. These cases stay with your agency until MCMC responds.',
+      onClick: () => { window.location.href = './09-agency-workflow.dc.html?filter=clarification'; } });
+    const cons = S.consultsFor('Ministry of Health (MOH)').filter(t => t.myConsult && t.myConsult.status === 'pending' && t.status !== 'closed');
+    if (cons.length) out.unshift({ bg: '#F2FAF8', border: '#CBE9E3', iconBg: '#0E8074', titleColor: '#0B5E55', cta: 'Give advice',
+      title: 'MCMC requested MOH\u2019s advice on ' + cons.length + ' case' + (cons.length === 1 ? '' : 's') + ' owned by other agencies',
+      sub: cons.slice(0, 2).map(t => '"' + t.inquiry.title + '" (' + S.shortAgency(t.agency) + ')').join(', ') + (cons.length > 2 ? ' and more' : ''),
+      onClick: () => { window.location.href = cons.length === 1 ? './09-agency-workflow.dc.html?consult=' + encodeURIComponent(cons[0].id) : './09-agency-workflow.dc.html?tab=consult'; } });
+    return { hasClarifyAlert: out.length > 0, clarifyAlerts: out };
+  }
+
+  componentDidMount() {
+    const hook = () => {
+      if (window.SBClarify) { this._unsubClarify = window.SBClarify.subscribe(() => this.forceUpdate()); this.forceUpdate(); }
+      else this._clarifyRetry = setTimeout(hook, 150);
+    };
+    hook();
+    const p = new URLSearchParams(window.location.search).get('view');
+    if (p === 'notifications') this.setState({ view: 'notifications' });
+  }
+
+  state = {
+    username: '', password: '', showPassword: false, loginSubmitted: false,
+    tempPassword: '', newPassword: '', confirmPassword: '',
+    profileMenuOpen: false, donutHoverIdx: null,
+    showTempPw: false, showNewPw: false, showConfirmPw: false,
+    changeSubmitted: false, passwordUpdated: false,
+    activeNav: 0, notifOpen: false, updateModalRow: null, view: 'dashboard', notifFilter: 'all',
+    initReady: false,
+    panelRowIdx: null, panelTab: 'details',
+    agencyNotifsFull: [
+      { id: 1, icon: '🔔', iconBg: '#F0F1F3', iconColor: '#6B6F76', text: 'New inquiry assigned by MCMC: ‘Hospital overcapacity rumor at Klang Valley hospitals’', time: '1 hour ago', unread: true, type: 'general', goTo: './09-agency-workflow.dc.html?id=5' },
+      { id: 2, icon: '⚠', iconBg: '#FEF3E6', iconColor: '#C4670A', text: 'Reminder: 2 inquiries pending your review', time: '5 hours ago', unread: true, type: 'action', goTo: './09-agency-workflow.dc.html?filter=awaiting' },
+      { id: 3, icon: '✉', iconBg: '#F0F1F3', iconColor: '#6B6F76', text: 'MCMC added a note to inquiry ‘Water contamination outbreak claim’', time: 'Yesterday', unread: true, type: 'general', goTo: './09-agency-workflow.dc.html?id=8' },
+      { id: 4, icon: '✓', iconBg: '#E4F5E9', iconColor: '#1D7A3E', text: "Your verdict on 'Misleading clinic pricing claim' was recorded successfully", time: '2 days ago', unread: false, type: 'general' },
+      { id: 5, icon: '⚠', iconBg: '#FEF3E6', iconColor: '#C4670A', text: 'MCMC requested clarification on a rejected inquiry', time: '4 days ago', unread: false, type: 'action' }
+    ]
+  };
+
+  navDefs = [
+    { label: 'Dashboard', icon: 'grid' },
+    { label: 'Assigned Inquiries', icon: 'folder' },
+    { label: 'Reports', icon: 'chart' },
+    { label: 'Activity Log', icon: 'clock' },
+    { label: 'Profile', icon: 'user' }
+  ];
+
+  assignedData = [
+    { title: 'Counterfeit vaccine batch warning', category: 'Health', date: '30 Aug 2026', status: 'Under Investigation', notes: 'Please cross-check against the official batch registry and confirm distribution region before responding.' },
+    { title: 'Fake vaccine side-effect statistics', category: 'Health', date: '2 Sep 2026', status: 'Under Investigation', notes: 'High-visibility case — infographic has been shared over 5,000 times, please prioritize.' },
+    { title: 'Misleading clinic pricing claim', category: 'Health', date: '25 Aug 2026', status: 'Verified True', notes: 'Confirmed pricing discrepancy matches complaint records from consumer affairs.' },
+    { title: '"Miracle cure" supplement post', category: 'Health', date: '20 Aug 2026', status: 'Identified Fake', notes: 'No clinical basis found; product not registered with NPRA.' },
+    { title: 'Hospital overcapacity rumor', category: 'Health', date: '15 Aug 2026', status: 'Verified True', notes: 'Confirmed via internal capacity reports for the stated week.' },
+    { title: 'Unrelated banking scam forwarded by mistake', category: 'Financial Scam', date: '12 Aug 2026', status: 'Rejected by us', notes: 'Outside MOH jurisdiction — reassigned by MCMC to Bank Negara Malaysia.' }
+  ];
+
+  notifData = [
+    { title: 'New inquiry assigned by MCMC', time: '20 minutes ago' },
+    { title: 'Reminder: 2 inquiries pending your review', time: '3 hours ago' }
+  ];
+
+  jumpToQuickFilter(key) {
+    this.setState({ quickFilter: key });
+    requestAnimationFrame(() => {
+      const anchor = document.getElementById('assigned-list-anchor');
+      const container = anchor && anchor.closest('[data-scroll-container]');
+      if (!anchor || !container) return;
+      const top = anchor.getBoundingClientRect().top - container.getBoundingClientRect().top + container.scrollTop - 16;
+      container.scrollTo({ top, behavior: 'auto' });
+    });
+  }
+  isValidField(v) { return !!v && v.trim().length > 0; }
+
+  handleLoginSubmit(e) {
+    e.preventDefault();
+    this.setState({ loginSubmitted: true });
+    if (this.isValidField(this.state.username) && this.isValidField(this.state.password)) {
+      this.setState({ view: 'forceChange' });
+    }
+  }
+
+  checkRequirements(pw) {
+    return {
+      length: pw.length >= 8,
+      upper: /[A-Z]/.test(pw),
+      number: /[0-9]/.test(pw),
+      special: /[!@#$%^&*]/.test(pw)
+    };
+  }
+
+  strengthScore(pw) {
+    const r = this.checkRequirements(pw);
+    return [r.length, r.upper, r.number, r.special].filter(Boolean).length;
+  }
+
+  markRead(id) {
+    this.setState(s => ({ agencyNotifsFull: s.agencyNotifsFull.map(n => n.id === id ? { ...n, unread: false, justRead: true } : n) }));
+    setTimeout(() => this.setState(s => ({ agencyNotifsFull: s.agencyNotifsFull.map(n => n.id === id ? { ...n, justRead: false } : n) })), 900);
+  }
+
+  renderVals() {
+    const s = this.state;
+    const notifUnreadCount = s.agencyNotifsFull.filter(n => n.unread).length;
+    const notifFilterTabs = [
+      { key: 'all', label: 'All' },
+      { key: 'unread', label: 'Unread', showBadge: true, badgeCount: notifUnreadCount },
+      { key: 'action', label: 'Mentions/Actions Required' }
+    ].map(f => ({
+      label: f.label, showBadge: !!f.showBadge, badgeCount: f.badgeCount,
+      bg: s.notifFilter === f.key ? '#FBE7E9' : '#F0F1F3', color: s.notifFilter === f.key ? '#C41230' : '#4B4F58',
+      onClick: () => this.setState({ notifFilter: f.key })
+    }));
+    const visibleNotifs = s.agencyNotifsFull.filter(n => {
+      if (s.notifFilter === 'unread') return n.unread;
+      if (s.notifFilter === 'action') return n.type === 'action';
+      return true;
+    }).map(n => ({
+      ...n, weight: n.unread ? 700 : 500,
+      flashAnim: n.justRead ? 'flashRow 0.9s ease' : 'none',
+      onClick: () => { this.markRead(n.id); if (n.goTo) window.location.href = n.goTo; }
+    }));
+    const normalBorder = '1px solid #D4D6DA';
+    const errorBorder = '1.5px solid #C41230';
+
+    const usernameError = s.loginSubmitted && !this.isValidField(s.username) ? 'This field is required.' : '';
+    const passwordError = s.loginSubmitted && !this.isValidField(s.password) ? 'This field is required.' : '';
+
+    const navTargets = [
+      () => this.setState({ activeNav: 0, view: 'dashboard' }),
+      () => { window.location.href = './09-agency-workflow.dc.html'; },
+      () => { window.location.href = './13-agency-reports.dc.html'; },
+      () => { window.location.href = './14-agency-activity.dc.html'; },
+      () => { window.location.href = './10-agency-profile.dc.html'; }
+    ];
+    const navItems = this.navDefs.map((it, i) => {
+      const active = i === s.activeNav;
+      return {
+        label: it.label, isActive: active, isInactive: !active,
+        isGrid: it.icon === 'grid', isFolder: it.icon === 'folder', isChart: it.icon === 'chart', isClock: it.icon === 'clock', isBell: it.icon === 'bell', isUser: it.icon === 'user',
+        onClick: navTargets[i]
+      };
+    });
+
+    const reqs = this.checkRequirements(s.newPassword);
+    const requirements = [
+      { label: 'At least 8 characters', met: reqs.length },
+      { label: 'At least one uppercase letter', met: reqs.upper },
+      { label: 'At least one number', met: reqs.number },
+      { label: 'At least one special character (!@#$%^&*)', met: reqs.special }
+    ].map(r => ({
+      label: r.label,
+      dotBg: r.met ? '#1D7A3E' : '#D4D6DA',
+      dotIcon: r.met ? '✓' : '',
+      textColor: r.met ? '#1D7A3E' : '#8A8F98'
+    }));
+
+    const score = this.strengthScore(s.newPassword);
+    const allMet = score === 4;
+    const passwordsMatch = s.newPassword === s.confirmPassword && s.confirmPassword.length > 0;
+    const confirmError = s.changeSubmitted && !passwordsMatch ? 'Passwords do not match.' : '';
+    const tempPwError = s.changeSubmitted && !this.isValidField(s.tempPassword) ? 'This field is required.' : '';
+
+    let strengthLabel = '', strengthLabelColor = '#8A8F98', bar1 = '#EDEEF0', bar2 = '#EDEEF0', bar3 = '#EDEEF0';
+    if (s.newPassword.length > 0) {
+      if (score <= 1) { strengthLabel = 'Weak'; strengthLabelColor = '#C41230'; bar1 = '#C41230'; }
+      else if (score <= 3) { strengthLabel = 'Medium'; strengthLabelColor = '#C4670A'; bar1 = '#C4670A'; bar2 = '#C4670A'; }
+      else { strengthLabel = 'Strong'; strengthLabelColor = '#1D7A3E'; bar1 = '#1D7A3E'; bar2 = '#1D7A3E'; bar3 = '#1D7A3E'; }
+    }
+
+    const updateDisabled = !(allMet && passwordsMatch && this.isValidField(s.tempPassword));
+
+    const filterMatchers = {
+      all: () => true,
+      investigation: (r) => r.status === 'Under Investigation',
+      resolved: (r) => r.status === 'Verified True' || r.status === 'Identified Fake',
+      awaiting: (r) => r.status === 'Awaiting Review'
+    };
+    const quickFilterLabels = { all: 'All Assigned', investigation: 'Under Investigation', resolved: 'Resolved This Month', awaiting: 'Awaiting Your Review' };
+    const quickFilterLabel = quickFilterLabels[s.quickFilter || 'all'];
+    const assignedRows = this.assignedData.filter(filterMatchers[s.quickFilter || 'all']).slice().sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 4).map(r => {
+      const map = {
+        'Under Investigation': { bg: '#FEF3E6', color: '#C4670A' },
+        'Verified True': { bg: '#E4F5E9', color: '#1D7A3E' },
+        'Identified Fake': { bg: '#FBE7E9', color: '#C41230' },
+        'Rejected by us': { bg: '#EDEEF0', color: '#6B6F76' }
+      };
+      const st = map[r.status] || map['Under Investigation'];
+      const titleToId = {
+        'Counterfeit vaccine batch warning': 1,
+        'Fake vaccine side-effect statistics': 2,
+        'Misleading clinic pricing claim': 3,
+        '"Miracle cure" supplement post': 4,
+        'Hospital overcapacity rumor': 5,
+        'Unrelated banking scam forwarded by mistake': 6
+      };
+      const matchId = titleToId[r.title];
+      return {
+        ...r, statusBg: st.bg, statusColor: st.color, matchId,
+        notesExcerpt: r.notes.length > 55 ? r.notes.slice(0, 55) + '...' : r.notes,
+        onOpenPanel: () => this.setState({ panelRowIdx: this.assignedData.indexOf(r), panelTab: 'details' }),
+        onUpdate: (e) => { if (e) e.stopPropagation(); window.location.href = matchId ? './09-agency-workflow.dc.html?id=' + matchId : './09-agency-workflow.dc.html'; }
+      };
+    });
+
+    const panelRow = s.panelRowIdx != null ? assignedRows[s.panelRowIdx] : null;
+    const panelTabDefs = [{ key: 'details', label: 'Details' }, { key: 'evidence', label: 'Evidence' }, { key: 'activity', label: 'Activity Log' }];
+    const panelTabs = panelTabDefs.map(pt => ({ label: pt.label, color: s.panelTab === pt.key ? '#C41230' : '#8A8F98', borderColor: s.panelTab === pt.key ? '#C41230' : 'transparent', onClick: () => this.setState({ panelTab: pt.key }) }));
+    const panelActivity = panelRow ? [
+      { date: panelRow.date, text: 'Assigned to Ministry of Health (MOH) for review' },
+      { date: panelRow.date, text: 'Current status: ' + panelRow.status }
+    ] : [];
+
+    let acc = 0;
+    const donutCategories = [
+      { label: 'Verified True', pct: 58, color: '#1D7A3E' }, { label: 'Identified Fake', pct: 33, color: '#C41230' }, { label: 'Rejected by us', pct: 9, color: '#8A8F98' }
+    ];
+    const donutParts = donutCategories.map(seg => { const start = acc; acc += seg.pct; return `${seg.color} ${start}% ${acc}%`; });
+    const donutHoverCat = s.donutHoverIdx != null ? donutCategories[s.donutHoverIdx] : null;
+    const onDonutMove = (e) => {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2, cy = rect.top + rect.height / 2;
+      const dx = e.clientX - cx, dy = e.clientY - cy;
+      if (Math.sqrt(dx * dx + dy * dy) > rect.width / 2) { this.setState({ donutHoverIdx: null }); return; }
+      const angle = (Math.atan2(dy, dx) * 180 / Math.PI + 90 + 360) % 360;
+      let acc2 = 0, idx = null;
+      for (let i = 0; i < donutCategories.length; i++) {
+        const start = acc2; acc2 += donutCategories[i].pct * 3.6;
+        if (angle >= start && angle < acc2) { idx = i; break; }
+      }
+      this.setState({ donutHoverIdx: idx });
+    };
+    const onDonutLeave = () => this.setState({ donutHoverIdx: null });
+
+    return {
+      ...this.clarifyAlerts(),
+      isAuthView: s.view === 'login' || s.view === 'forceChange',
+      isDashboardView: !(s.view === 'login' || s.view === 'forceChange'),
+      isLoginState: s.view === 'login',
+      isForceChangeState: s.view === 'forceChange',
+
+      username: s.username, password: s.password,
+      showPassword: s.showPassword, showPasswordOff: !s.showPassword, passwordInputType: s.showPassword ? 'text' : 'password',
+      usernameError, passwordError,
+      usernameBorder: usernameError ? errorBorder : normalBorder,
+      passwordBorder: passwordError ? errorBorder : normalBorder,
+      onUsernameChange: (e) => this.setState({ username: e.target.value }),
+      onPasswordChange: (e) => this.setState({ password: e.target.value }),
+      togglePassword: () => this.setState(st => ({ showPassword: !st.showPassword })),
+      handleLoginSubmit: (e) => this.handleLoginSubmit(e),
+      onGoPublic: (e) => { e.preventDefault(); window.location.href = './01-login.dc.html'; },
+      onGoMcmc: (e) => { e.preventDefault(); window.location.href = './05-mcmc-auth-dashboard.dc.html'; },
+
+      tempPassword: s.tempPassword, newPassword: s.newPassword, confirmPassword: s.confirmPassword,
+      onTempPasswordChange: (e) => this.setState({ tempPassword: e.target.value }),
+      onNewPasswordChange: (e) => this.setState({ newPassword: e.target.value }),
+      onConfirmPasswordChange: (e) => this.setState({ confirmPassword: e.target.value }),
+      showTempPw: s.showTempPw, showTempPwOff: !s.showTempPw, tempPwInputType: s.showTempPw ? 'text' : 'password', toggleTempPw: () => this.setState(st => ({ showTempPw: !st.showTempPw })),
+      showNewPw: s.showNewPw, showNewPwOff: !s.showNewPw, newPwInputType: s.showNewPw ? 'text' : 'password', toggleNewPw: () => this.setState(st => ({ showNewPw: !st.showNewPw })),
+      showConfirmPw: s.showConfirmPw, showConfirmPwOff: !s.showConfirmPw, confirmPwInputType: s.showConfirmPw ? 'text' : 'password', toggleConfirmPw: () => this.setState(st => ({ showConfirmPw: !st.showConfirmPw })),
+      tempPwBorder: tempPwError ? errorBorder : normalBorder, tempPwError,
+      confirmPwBorder: confirmError ? errorBorder : normalBorder, confirmError,
+      requirements,
+      strengthBar1: bar1, strengthBar2: bar2, strengthBar3: bar3, strengthLabel, strengthLabelColor,
+      updateDisabled, updateBtnBg: updateDisabled ? '#D4D6DA' : '#C41230', updateBtnCursor: updateDisabled ? 'not-allowed' : 'pointer',
+      passwordUpdated: s.passwordUpdated,
+      onUpdatePassword: () => {
+        this.setState({ changeSubmitted: true });
+        if (allMet && passwordsMatch && this.isValidField(s.tempPassword)) {
+          this.setState({ passwordUpdated: true });
+          setTimeout(() => this.setState({ view: 'dashboard' }), 1200);
+        }
+      },
+
+      navItems,
+      notifOpen: s.notifOpen, notifItems: this.notifData,
+      toggleNotif: () => this.setState(st => ({ notifOpen: !st.notifOpen })),
+      profileMenuOpen: s.profileMenuOpen,
+      openProfileMenu: () => { clearTimeout(this.profileCloseTimer); this.setState({ profileMenuOpen: true }); },
+      closeProfileMenuDelayed: () => { this.profileCloseTimer = setTimeout(() => this.setState({ profileMenuOpen: false }), 400); },
+      onOpenProfile: (e) => { if (e && e.preventDefault) e.preventDefault(); window.location.href = './10-agency-profile.dc.html'; },
+      onOpenSettings: (e) => { if (e && e.preventDefault) e.preventDefault(); window.location.href = './10-agency-profile.dc.html?tab=B'; },
+      onLogout: (e) => { if (e && e.preventDefault) e.preventDefault(); window.location.href = './01-login.dc.html'; },
+      isDashView: s.view === 'dashboard', isNotifView: s.view === 'notifications',
+      goNotifView: () => this.setState({ view: 'notifications', notifOpen: false, activeNav: -1 }),
+      markAllRead: () => this.setState(st => ({ agencyNotifsFull: st.agencyNotifsFull.map(n => ({ ...n, unread: false })) })),
+      notifFilterTabs, visibleNotifs, noVisibleNotifs: visibleNotifs.length === 0,
+
+      statCards: [
+        { label: 'Total Assigned', value: '8', size: '26px', color: '#1D5FBF', isFolder: true, badgeBg: '#EAF1FB', cardBg: '#F7FAFE', cardBorder: '#D9E6F8', onClick: () => this.jumpToQuickFilter('all') },
+        { label: 'Under Investigation', value: '5', size: '26px', color: '#C4670A', isClock: true, badgeBg: '#FEF6EC', cardBg: '#FEFAF3', cardBorder: '#F7E1C4', onClick: () => this.jumpToQuickFilter('investigation') },
+        { label: 'Resolved This Month', value: '12', size: '26px', color: '#1D7A3E', isCheck: true, badgeBg: '#E4F5E9', cardBg: '#F5FBF7', cardBorder: '#D6EFDD', onClick: () => this.jumpToQuickFilter('resolved') },
+        { label: 'Awaiting Your Review', value: '3', size: '32px', color: '#C41230', isWarning: true, badgeBg: '#FBE7E9', cardBg: '#FDF5F6', cardBorder: '#F3C4CB', onClick: () => this.jumpToQuickFilter('awaiting') }
+      ],
+      assignedRows, assignedEmpty: assignedRows.length === 0, quickFilterLabel,
+      onViewFullList: (e) => { e.preventDefault(); window.location.href = './09-agency-workflow.dc.html?filter=' + (s.quickFilter || 'all'); },
+      viewFullListBg: s.viewFullListHover ? '#EAF1FB' : '#fff', viewFullListColor: s.viewFullListHover ? '#1D5FBF' : '#1A1A1A', viewFullListBorder: s.viewFullListHover ? '#B9D3F5' : '#D4D6DA',
+      viewFullListArrowWidth: s.viewFullListHover ? '16px' : '0px', viewFullListArrowOpacity: s.viewFullListHover ? 1 : 0,
+      onViewFullListHoverIn: () => this.setState({ viewFullListHover: true }), onViewFullListHoverOut: () => this.setState({ viewFullListHover: false }),
+      donutGradient: `conic-gradient(${donutParts.join(',')})`,
+      onDonutMove, onDonutLeave,
+      donutHoverShow: !!donutHoverCat, donutHoverLabel: donutHoverCat ? donutHoverCat.label : '', donutHoverPct: donutHoverCat ? donutHoverCat.pct : 0,
+
+      updateModalOpen: !!s.updateModalRow,
+      updateModalTitle: s.updateModalRow ? s.updateModalRow.title : '',
+      onCloseUpdateModal: () => this.setState({ updateModalRow: null }),
+
+      panelOpen: !!panelRow, panelTitle: panelRow ? panelRow.title : '', panelStatus: panelRow ? panelRow.status : '',
+      panelBadgeBg: panelRow ? panelRow.statusBg : '', panelBadgeColor: panelRow ? panelRow.statusColor : '',
+      panelCategory: panelRow ? panelRow.category : '', panelDate: panelRow ? panelRow.date : '',
+      panelTabs, isPanelDetails: s.panelTab === 'details', isPanelEvidence: s.panelTab === 'evidence', isPanelActivity: s.panelTab === 'activity',
+      panelDescription: panelRow ? panelRow.notes : '', panelActivity,
+      closePanel: () => this.setState({ panelRowIdx: null }),
+      onPanelUpdate: () => { if (panelRow) { this.setState({ panelRowIdx: null }); panelRow.onUpdate(); } }
+    };
+  }
+}
+
+</script>
+</body>
+</html>

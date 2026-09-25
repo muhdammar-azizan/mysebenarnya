@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body { margin: 0; background: #F7F7F8; font-family: 'Inter', sans-serif; }
+    a { color: #C41230; }
+    a:hover { color: #A10E27; }
+    ::placeholder { color: #A6A9AF; }
+  </style>
+  <script src="./clarify-store.js"></script>
+</helmet>
+
+<div style="font-family:'Inter',sans-serif; color:#1A1A1A; height:100vh; display:flex; flex-direction:column; background:#EDEEF0; overflow:hidden;">
+
+  <div style="height:64px; background:#C41230; display:flex; align-items:center; gap:20px; padding:0 24px; flex-shrink:0; position:relative; box-shadow:0 4px 10px rgba(0,0,0,0.18); z-index:10;">
+    <div style="display:flex; align-items:center; gap:12px; flex-shrink:0;">
+      <svg width="42" height="42" viewBox="0 0 512 512" style="flex-shrink:0;">
+        <defs><clipPath id="icHdrAgencyWf"><circle cx="256" cy="248" r="150"/></clipPath></defs>
+        <rect x="16" y="16" width="480" height="480" rx="92" ry="92" fill="#ffffff" stroke="#EDEEF0" stroke-width="4"/>
+        <g clip-path="url(#icHdrAgencyWf)">
+          <path d="M 256 248 L 256 98 A 150 150 0 0 1 386 323 Z" fill="#0072bc" opacity="0.3"/>
+          <path d="M 256 248 L 386 323 A 150 150 0 0 1 126 323 Z" fill="#e31c79" opacity="0.3"/>
+          <path d="M 256 248 L 126 323 A 150 150 0 0 1 256 98 Z" fill="#f5a623" opacity="0.3"/>
+        </g>
+        <circle cx="256" cy="248" r="192" fill="none" stroke="#C41230" stroke-width="24" stroke-dasharray="34 22" stroke-linecap="round"/>
+        <circle cx="256" cy="248" r="165" fill="none" stroke="#C41230" stroke-width="24" stroke-dasharray="30 19" stroke-linecap="round"/>
+        <path d="M 168 248 L 224 304 L 344 178" fill="none" stroke="#ffffff" stroke-width="70" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M 168 248 L 224 304 L 344 178" fill="none" stroke="#C41230" stroke-width="52" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div style="font-family:'Poppins',sans-serif; font-weight:800; font-size:19px; letter-spacing:-0.01em; white-space:nowrap;">
+        <span style="color:#1A1A1A;">SE</span><span style="color:#fff;">BENAR</span><span style="color:#1A1A1A;">NYA.MY</span>
+      </div>
+    </div>
+    <div style="flex:1;"></div>
+    <div style="width:240px; flex-shrink:0; position:relative;">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); pointer-events:none;"><circle cx="11" cy="11" r="7" stroke="#8A8F98" stroke-width="2"/><path d="M21 21l-4.3-4.3" stroke="#8A8F98" stroke-width="2" stroke-linecap="round"/></svg>
+      <input placeholder="Search assigned inquiries..." style="width:100%; padding:9px 14px 9px 36px; border-radius:8px; border:1px solid rgba(255,255,255,0.3); font-family:'Inter',sans-serif; font-size:13px; background:#fff; box-sizing:border-box;" />
+    </div>
+    <div style="display:flex; align-items:center; gap:14px; flex-shrink:0;">
+      <div onClick="{{ toggleNotif }}" style-hover="background:rgba(255,255,255,0.24);" style="position:relative; width:36px; height:36px; border-radius:8px; background:rgba(255,255,255,0.16); display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M6 9a6 6 0 0112 0c0 4 1.5 5 1.5 5h-15S6 13 6 9z" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/><path d="M10 18a2 2 0 004 0" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <div style="position:absolute; top:-4px; right:-4px; width:16px; height:16px; background:#C41230; border-radius:50%; border:1.5px solid #fff; color:#fff; font-size:9.5px; font-weight:700; display:flex; align-items:center; justify-content:center;">1</div>
+      </div>
+      <sc-if value="{{ notifOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute; top:44px; right:190px; width:290px; background:#fff; border:1px solid #EDEEF0; border-radius:10px; box-shadow:0 8px 24px rgba(0,0,0,0.12); z-index:20; overflow:hidden;">
+          <div style="padding:12px 16px; font-size:13px; font-weight:700; border-bottom:1px solid #F0F1F3;">Notifications</div>
+          <div style="padding:12px 16px; font-size:12.5px; border-bottom:1px solid #F5F5F6;"><div style="font-weight:600; margin-bottom:2px;">New inquiry assigned by MCMC</div><div style="color:#8A8F98; font-size:11.5px;">1 hour ago</div></div>
+        </div>
+      </sc-if>
+      <div onMouseEnter="{{ openProfileMenu }}" onMouseLeave="{{ closeProfileMenuDelayed }}" style="position:relative; flex-shrink:0;">
+      <div style="display:flex; align-items:center; gap:8px; flex-shrink:0; white-space:nowrap; cursor:pointer; padding:4px; border-radius:8px;" style-hover="background:rgba(255,255,255,0.16);">
+        <div style="width:34px; height:34px; border-radius:50%; background:#FBE7E9; color:#C41230; font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">MOH</div>
+      </div>
+      <sc-if value="{{ profileMenuOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute; top:44px; right:0; width:230px; background:#fff; border:1px solid #EDEEF0; border-radius:10px; box-shadow:0 8px 24px rgba(0,0,0,0.12); z-index:30; overflow:hidden;">
+          <div style="padding:14px 16px; border-bottom:1px solid #F0F1F3;">
+            <div style="font-size:13.5px; font-weight:700;">Ministry of Health (MOH)</div>
+            <div style="font-size:12px; color:#8A8F98; margin:2px 0 4px;">Agency Staff</div>
+            <div style="font-size:11.5px; color:#8A8F98;">contact@moh.gov.my</div>
+          </div>
+          <div style="padding:6px;">
+
+            <a href="#" onClick="{{ onLogout }}" style="display:block; padding:9px 10px; font-size:13px; font-weight:600; color:#C41230; text-decoration:none; border-radius:6px;" style-hover="background:#FBE7E9;">Log Out</a>
+          </div>
+        </div>
+      </sc-if>
+      </div>
+    </div>
+  </div>
+
+  <div style="flex:1; display:flex; gap:16px; min-height:0; overflow:hidden;">
+
+    <div style="width:216px; background:#fff; box-shadow:1px 0 0 rgba(0,0,0,0.05); display:flex; flex-direction:column; flex-shrink:0; overflow:auto;">
+      <div style="padding:16px 14px 8px; font-size:11px; font-weight:700; color:#8A8F98; text-transform:uppercase; letter-spacing:0.05em;">Menu</div>
+      <div style="flex:1; padding:0 10px; display:flex; flex-direction:column; gap:2px;">
+        <sc-for list="{{ navItems }}" as="item" hint-placeholder-count="4">
+          <sc-if value="{{ item.isActive }}" hint-placeholder-val="{{ false }}">
+          <div onClick="{{ item.onClick }}" style="display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:8px; background:#C41230; cursor:pointer; font-size:13px; font-weight:600; color:#fff; transition:background 0.15s ease;" style-hover="background:#A10E27;">
+            <sc-if value="{{ item.isGrid }}" hint-placeholder-val="{{ false }}">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M3 9h18M9 21V9" stroke="currentColor" stroke-width="1.8"/></svg>
+            </sc-if>
+            <sc-if value="{{ item.isFolder }}" hint-placeholder-val="{{ false }}">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M3.5 6.5A1.5 1.5 0 015 5h4.3a1.5 1.5 0 011.1.5l1.4 1.5H19a1.5 1.5 0 011.5 1.5v9a1.5 1.5 0 01-1.5 1.5H5a1.5 1.5 0 01-1.5-1.5v-11z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+            </sc-if>
+            <sc-if value="{{ item.isChart }}" hint-placeholder-val="{{ false }}">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M4 19V10M10 19V4M16 19v-7M22 19H2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </sc-if>
+            <sc-if value="{{ item.isClock }}" hint-placeholder-val="{{ false }}">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.8"/><path d="M12 7.5v5l3.3 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </sc-if>
+            <sc-if value="{{ item.isBell }}" hint-placeholder-val="{{ false }}">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M6 9a6 6 0 0112 0c0 4 1.5 5 1.5 5h-15S6 13 6 9z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M10 18a2 2 0 004 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </sc-if>
+            <sc-if value="{{ item.isUser }}" hint-placeholder-val="{{ false }}">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><circle cx="12" cy="8" r="3.5" stroke="currentColor" stroke-width="1.8"/><path d="M4.5 20c1-4 5-5.5 7.5-5.5s6.5 1.5 7.5 5.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </sc-if>
+            {{ item.label }}
+          </div>
+          </sc-if>
+          <sc-if value="{{ item.isInactive }}" hint-placeholder-val="{{ true }}">
+          <div onClick="{{ item.onClick }}" style="display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:8px; background:transparent; cursor:pointer; font-size:13px; font-weight:600; color:#4B4F58; transition:background 0.15s ease;" style-hover="background:#EDEEF0;">
+            <sc-if value="{{ item.isGrid }}" hint-placeholder-val="{{ false }}">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M3 9h18M9 21V9" stroke="currentColor" stroke-width="1.8"/></svg>
+            </sc-if>
+            <sc-if value="{{ item.isFolder }}" hint-placeholder-val="{{ false }}">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M3.5 6.5A1.5 1.5 0 015 5h4.3a1.5 1.5 0 011.1.5l1.4 1.5H19a1.5 1.5 0 011.5 1.5v9a1.5 1.5 0 01-1.5 1.5H5a1.5 1.5 0 01-1.5-1.5v-11z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+            </sc-if>
+            <sc-if value="{{ item.isChart }}" hint-placeholder-val="{{ false }}">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M4 19V10M10 19V4M16 19v-7M22 19H2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </sc-if>
+            <sc-if value="{{ item.isClock }}" hint-placeholder-val="{{ false }}">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.8"/><path d="M12 7.5v5l3.3 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </sc-if>
+            <sc-if value="{{ item.isBell }}" hint-placeholder-val="{{ false }}">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M6 9a6 6 0 0112 0c0 4 1.5 5 1.5 5h-15S6 13 6 9z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M10 18a2 2 0 004 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </sc-if>
+            <sc-if value="{{ item.isUser }}" hint-placeholder-val="{{ false }}">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><circle cx="12" cy="8" r="3.5" stroke="currentColor" stroke-width="1.8"/><path d="M4.5 20c1-4 5-5.5 7.5-5.5s6.5 1.5 7.5 5.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </sc-if>
+            {{ item.label }}
+          </div>
+          </sc-if>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="flex:1; background:#fff; border-radius:16px; box-shadow:0 1px 3px rgba(0,0,0,0.06); padding:28px 32px; overflow:auto; position:relative; min-width:0; margin:16px 16px 16px 0;">
+
+      <sc-if value="{{ isListView }}" hint-placeholder-val="{{ true }}">
+        <h2 style="font-family:'Poppins',sans-serif; font-weight:700; font-size:22px; margin:0 0 6px;">Assigned Inquiries</h2>
+        <p style="color:#8A8F98; font-size:14px; margin:0 0 22px;">Review and manage inquiries assigned to Ministry of Health (MOH).</p>
+
+        <div style="display:flex; gap:4px; border-bottom:1px solid #EDEEF0; margin-bottom:20px;">
+          <div onClick="{{ onTabAssigned }}" style="white-space:nowrap; flex-shrink:0; padding:10px 16px; font-size:13.5px; font-weight:700; cursor:pointer; color:{{ tabAssignedColor }}; border-bottom:2px solid {{ tabAssignedBorder }}; margin-bottom:-1px; display:flex; align-items:center; gap:6px;">
+            Assigned to MOH
+            <span style="background:#F0F1F3; color:#6B6F76; font-size:10.5px; font-weight:700; padding:1px 7px; border-radius:10px;">{{ assignedCount }}</span>
+          </div>
+          <div onClick="{{ onTabConsult }}" style="white-space:nowrap; flex-shrink:0; padding:10px 16px; font-size:13.5px; font-weight:700; cursor:pointer; color:{{ tabConsultColor }}; border-bottom:2px solid {{ tabConsultBorder }}; margin-bottom:-1px; display:flex; align-items:center; gap:6px;">
+            Consultations
+            <sc-if value="{{ hasConsultPending }}" hint-placeholder-val="{{ false }}"><span style="background:#0E8074; color:#fff; font-size:10.5px; font-weight:700; padding:1px 7px; border-radius:10px;">{{ consultPendingCount }}</span></sc-if>
+          </div>
+        </div>
+
+        <sc-if value="{{ isConsultTab }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex; gap:12px; margin-bottom:16px; flex-wrap:wrap; align-items:center;">
+            <input value="{{ consultSearch }}" onChange="{{ onConsultSearchChange }}" placeholder="Search by title, request ID or agency..." style="flex:1; min-width:220px; padding:9px 14px; border-radius:8px; border:1px solid #D4D6DA; font-family:'Inter',sans-serif; font-size:13px; background:#fff;" />
+            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+              <sc-for list="{{ consultFilterTabs }}" as="cf" hint-placeholder-count="4">
+                <div onClick="{{ cf.onClick }}" style="padding:7px 12px; border-radius:20px; font-size:12px; font-weight:600; cursor:pointer; background:{{ cf.bg }}; color:{{ cf.color }}; white-space:nowrap;">{{ cf.label }}</div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="background:#fff; border:1px solid #EDEEF0; border-radius:10px; box-shadow:0 1px 3px rgba(0,0,0,0.04); overflow:hidden;">
+            <div style="display:flex; align-items:center; gap:12px; padding:12px 16px; font-size:11.5px; font-weight:700; color:#8A8F98; text-transform:uppercase; letter-spacing:0.03em; border-bottom:1px solid #F0F1F3; white-space:nowrap;">
+              <div style="flex:1; min-width:0;">Case</div><div style="flex-shrink:0;">Status</div>
+            </div>
+            <sc-for list="{{ consultRowsView }}" as="cr" hint-placeholder-count="2">
+              <div onClick="{{ cr.onOpen }}" style="display:flex; align-items:center; gap:12px 14px; flex-wrap:wrap; padding:14px 16px; font-size:13px; border-bottom:1px solid #F5F5F6; cursor:pointer; background:{{ cr.rowBg }};" style-hover="background:#FAFAFA;">
+                <div style="flex:1 1 260px; min-width:0;">
+                  <div style="display:flex; align-items:center; gap:6px;">
+                    <sc-if value="{{ cr.unread }}" hint-placeholder-val="{{ false }}"><span style="width:7px; height:7px; border-radius:50%; background:#0E8074; flex-shrink:0;"></span></sc-if>
+                    <div style="font-weight:600; line-height:1.4;">{{ cr.title }}</div>
+                  </div>
+                  <div style="display:flex; flex-wrap:wrap; gap:4px 12px; color:#8A8F98; font-size:12px; margin-top:4px;">
+                    <span style="font-family:ui-monospace,monospace;">{{ cr.id }}</span>
+                    <span>Owner: <strong style="color:#4B4F58; font-weight:600;">{{ cr.ownerShort }}</strong></span>
+                    <span>Invited {{ cr.invitedAt }} by {{ cr.invitedBy }}</span>
+                  </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:10px; flex-shrink:0; margin-left:auto;">
+                  <span style="display:inline-block; background:{{ cr.chipBg }}; color:{{ cr.chipColor }}; font-size:11px; font-weight:700; padding:4px 10px; border-radius:20px; white-space:nowrap;">{{ cr.chip }}</span>
+                </div>
+              </div>
+            </sc-for>
+            <sc-if value="{{ consultEmpty }}" hint-placeholder-val="{{ false }}">
+              <div style="padding:32px; text-align:center; color:#8A8F98; font-size:13px;">{{ consultEmptyText }}</div>
+            </sc-if>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isAssignedTab }}" hint-placeholder-val="{{ true }}">
+        <sc-if value="{{ hasConsultPending }}" hint-placeholder-val="{{ false }}">
+          <div onClick="{{ onTabConsult }}" style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; background:#F2FAF8; border:1px solid #CBE9E3; border-radius:8px; padding:9px 14px; margin-bottom:16px; cursor:pointer; font-size:13px;" style-hover="border-color:#0E8074;">
+            <span style="width:8px; height:8px; border-radius:50%; background:#0E8074; flex-shrink:0;"></span>
+            <div style="flex:1; min-width:200px; color:#0B5E55;"><strong>{{ consultPendingText }}</strong> — MCMC is waiting for MOH's input on cases owned by other agencies.</div>
+            <div style="font-weight:700; color:#0E8074; white-space:nowrap;">View Consultations →</div>
+          </div>
+        </sc-if>
+
+        <div style="display:flex; gap:12px; margin-bottom:18px; flex-wrap:wrap;">
+          <input value="{{ search }}" onChange="{{ onSearchChange }}" placeholder="Search by title or keyword..." style="flex:1; min-width:220px; padding:9px 14px; border-radius:8px; border:1px solid #D4D6DA; font-family:'Inter',sans-serif; font-size:13px; background:#fff;" />
+          <select value="{{ statusFilter }}" onChange="{{ onStatusFilterChange }}" style="padding:9px 12px; border-radius:8px; border:1px solid #D4D6DA; font-family:'Inter',sans-serif; font-size:13px; background:#fff; color:#1A1A1A;">
+            <sc-for list="{{ statusFilterOptions }}" as="o" hint-placeholder-count="6"><option value="{{ o }}">{{ o }}</option></sc-for>
+          </select>
+          <select value="{{ categoryFilter }}" onChange="{{ onCategoryFilterChange }}" style="padding:9px 12px; border-radius:8px; border:1px solid #D4D6DA; font-family:'Inter',sans-serif; font-size:13px; background:#fff; color:#1A1A1A;">
+            <sc-for list="{{ categoryFilterOptions }}" as="o" hint-placeholder-count="7"><option value="{{ o }}">{{ o }}</option></sc-for>
+          </select>
+          <select value="{{ dateFilter }}" onChange="{{ onDateFilterChange }}" style="padding:9px 12px; border-radius:8px; border:1px solid #D4D6DA; font-family:'Inter',sans-serif; font-size:13px; background:#fff; color:#1A1A1A;">
+            <sc-for list="{{ dateFilterOptions }}" as="o" hint-placeholder-count="4"><option value="{{ o }}">{{ o }}</option></sc-for>
+          </select>
+        </div>
+
+        <div style="background:#fff; border:1px solid #EDEEF0; border-radius:10px; box-shadow:0 1px 3px rgba(0,0,0,0.04); overflow:hidden;">
+          <div style="display:grid; grid-template-columns:minmax(140px,1.2fr) 150px minmax(140px,1.6fr); gap:28px; padding:12px 16px; font-size:11.5px; font-weight:700; color:#8A8F98; text-transform:uppercase; letter-spacing:0.03em; border-bottom:1px solid #F0F1F3; white-space:nowrap;">
+            <div>Title</div><div>Status</div><div>Notes from MCMC</div>
+          </div>
+          <sc-for list="{{ tableRows }}" as="r" hint-placeholder-count="6">
+            <div onClick="{{ r.onOpenPanel }}" style="display:grid; grid-template-columns:minmax(140px,1.2fr) 150px minmax(140px,1.6fr); gap:28px; padding:16px; font-size:13px; border-bottom:1px solid #F5F5F6; align-items:center; cursor:pointer;" style-hover="background:#FAFAFA;">
+              <div>
+                <div style="font-weight:600; margin-bottom:3px;">{{ r.title }}</div>
+                <div style="color:#8A8F98; font-size:12px;">{{ r.categoryDateLine }}</div>
+                <sc-if value="{{ r.hasClarifyChip }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:inline-flex; align-items:center; gap:5px; margin-top:6px; background:{{ r.clarifyChipBg }}; color:{{ r.clarifyChipColor }}; font-size:10.5px; font-weight:700; padding:2px 8px; border-radius:20px;">
+                    <span style="width:6px; height:6px; border-radius:50%; background:currentColor;"></span>{{ r.clarifyChipLabel }}
+                  </div>
+                </sc-if>
+              </div>
+              <div style="min-width:0;"><span style="display:inline-block; box-sizing:border-box; text-align:left; background:{{ r.statusBg }}; color:{{ r.statusColor }}; font-size:11px; font-weight:700; padding:4px 10px; border-radius:20px; white-space:normal; line-height:1.35; max-width:100%;">{{ r.status }}</span></div>
+              <div onMouseEnter="{{ r.onNoteEnter }}" onMouseLeave="{{ r.onNoteLeave }}" style="position:relative; color:#8A8F98; font-size:12px; display:flex; align-items:center; gap:5px; min-width:0; overflow:hidden;">
+                <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ r.notesExcerpt }}</span>
+                <sc-if value="{{ r.notesTruncated }}" hint-placeholder-val="{{ false }}"><span style="color:#B8B9BD; flex-shrink:0;">ⓘ</span></sc-if>
+                <sc-if value="{{ r.showTooltip }}" hint-placeholder-val="{{ false }}">
+                  <div style="position:absolute; top:100%; left:0; margin-top:6px; background:#1A1A1A; color:#fff; padding:10px 12px; border-radius:8px; font-size:12px; line-height:1.5; width:260px; white-space:normal; box-shadow:0 8px 20px rgba(0,0,0,0.22); z-index:30;">{{ r.mcmcNotes }}</div>
+                </sc-if>
+              </div>
+            </div>
+          </sc-for>
+          <sc-if value="{{ noResults }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:32px; text-align:center; color:#8A8F98; font-size:13px;">No inquiries match your filters.</div>
+          </sc-if>
+        </div>
+        </sc-if>
+      </sc-if>
+
+      <sc-if value="{{ isDetailView }}" hint-placeholder-val="{{ false }}">
+        <div onClick="{{ backToList }}" style="display:inline-flex; align-items:center; gap:6px; color:#C41230; font-weight:600; font-size:13px; margin-bottom:18px; cursor:pointer;">← Back to Assigned Inquiries</div>
+
+        <div style="margin-bottom:22px;">
+          <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px; flex-wrap:wrap;">
+            <h2 style="font-family:'Poppins',sans-serif; font-weight:700; font-size:21px; margin:0;">{{ detail.title }}</h2>
+            <span style="background:{{ detail.statusBg }}; color:{{ detail.statusColor }}; font-size:11.5px; font-weight:700; padding:4px 11px; border-radius:20px; white-space:nowrap;">{{ detail.status }}</span>
+          </div>
+          <div style="display:flex; gap:22px; font-size:13px; color:#8A8F98; flex-wrap:wrap; margin-bottom:10px;">
+            <div>Category: <strong style="color:#1A1A1A;">{{ detail.category }}</strong></div>
+            <div>Date Assigned: <strong style="color:#1A1A1A;">{{ detail.dateAssigned }}</strong></div>
+            <div>Date Submitted: <strong style="color:#1A1A1A;">{{ detail.dateSubmitted }}</strong></div>
+          </div>
+          <sc-if value="{{ detail.mcmcNotes }}" hint-placeholder-val="{{ false }}">
+            <div style="background:#FBF8F0; border-left:3px solid #D9B25C; border-radius:6px; padding:10px 14px; font-size:12.5px; color:#6B5A2C; font-style:italic; max-width:640px;">"{{ detail.mcmcNotes }}" <span style="font-style:normal; font-weight:600;">— MCMC</span></div>
+          </sc-if>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
+          <div style="background:#fff; border:1px solid #EDEEF0; border-radius:10px; box-shadow:0 1px 3px rgba(0,0,0,0.04); padding:18px 20px;">
+            <div style="font-weight:700; font-size:14px; margin-bottom:10px;">Inquiry Details</div>
+            <div style="font-size:13px; color:#4B4F58; line-height:1.6; margin-bottom:10px;">{{ detail.description }}</div>
+            <a href="{{ detail.sourceLink }}" target="_blank" style="font-size:12.5px; word-break:break-all;">{{ detail.sourceLink }}</a>
+          </div>
+          <div style="background:#fff; border:1px solid #EDEEF0; border-radius:10px; box-shadow:0 1px 3px rgba(0,0,0,0.04); padding:18px 20px;">
+            <div style="font-weight:700; font-size:14px; margin-bottom:10px;">Supporting Evidence</div>
+            <div style="display:flex; flex-wrap:wrap; gap:8px;">
+              <sc-for list="{{ evidenceChips }}" as="f" hint-placeholder-count="2">
+                <div onClick="{{ f.onClick }}" style="display:flex; align-items:center; gap:6px; padding:7px 11px; border:1px solid #D4D6DA; border-radius:20px; font-size:12px; font-weight:600; cursor:pointer; background:#F7F7F8;">📄 {{ f.name }}</div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+
+        <sc-if value="{{ isStateA }}" hint-placeholder-val="{{ false }}">
+          <div style="background:#fff; border:1px solid #EDEEF0; border-radius:10px; box-shadow:0 1px 3px rgba(0,0,0,0.04); padding:22px 24px;">
+            <div style="font-weight:700; font-size:15px; margin-bottom:6px;">Jurisdiction Review</div>
+            <div style="font-size:13.5px; color:#4B4F58; margin-bottom:18px;">Does this inquiry fall within Ministry of Health (MOH)'s jurisdiction and area of expertise?</div>
+            <sc-if value="{{ jurisdictionLocked }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex; gap:10px; align-items:flex-start; background:#F4EFFB; border:1px solid #DCCDF0; border-radius:8px; padding:12px 14px; font-size:12.5px; color:#4E2D7A; line-height:1.55; margin-bottom:16px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="flex-shrink:0; margin-top:1px;"><circle cx="12" cy="12" r="9" stroke="#6B3FA0" stroke-width="2"/><path d="M12 7v5l3 2" stroke="#6B3FA0" stroke-width="2" stroke-linecap="round"/></svg>
+                <div><strong>Decision on hold.</strong> Waiting for MCMC to respond to clarification request {{ activeThreadId }} (sent {{ activeThreadSent }}). Accept and Reject become available once MCMC responds, or you can withdraw the request below.</div>
+              </div>
+            </sc-if>
+            <div style="display:flex; gap:14px; flex-wrap:wrap;">
+              <button onClick="{{ onAccept }}" disabled="{{ jurisdictionLocked }}" style="flex:1; min-width:240px; background:{{ acceptBtnBg }}; color:#fff; border:none; padding:14px; border-radius:8px; font-size:14px; font-weight:700; cursor:{{ lockCursor }}; transition:background 0.15s;" style-hover="background:#166139;">✓ Accept — Within Our Jurisdiction</button>
+              <button onClick="{{ openRejectModal }}" disabled="{{ jurisdictionLocked }}" style="flex:1; min-width:240px; background:#fff; color:#4B4F58; border:1.5px solid #D4D6DA; padding:14px; border-radius:8px; font-size:14px; font-weight:700; cursor:{{ lockCursor }}; opacity:{{ lockOpacity }};">✕ Reject — Outside Our Jurisdiction</button>
+            </div>
+            <sc-if value="{{ canRequestClarify }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-top:16px; padding-top:16px; border-top:1px dashed #E4E5E8;">
+                <div style="font-size:12.5px; color:#6B6F76; line-height:1.5;"><strong style="color:#1A1A1A;">Not enough information to decide?</strong> Ask MCMC first — the inquiry stays with your agency.</div>
+                <button onClick="{{ openClarifyModal }}" style="background:#fff; color:#6B3FA0; border:1.5px solid #CDB8EA; padding:9px 14px; border-radius:8px; font-size:13px; font-weight:700; cursor:pointer; white-space:nowrap; flex-shrink:0;" style-hover="background:#F4EFFB;">? Request Clarification</button>
+              </div>
+            </sc-if>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isStateB }}" hint-placeholder-val="{{ false }}">
+          <div style="background:#fff; border:1px solid #EDEEF0; border-radius:10px; box-shadow:0 1px 3px rgba(0,0,0,0.04); padding:22px 24px; margin-bottom:16px;">
+            <div style="font-weight:700; font-size:15px; margin-bottom:14px;">Final Verdict</div>
+            <span style="background:{{ detail.statusBg }}; color:{{ detail.statusColor }}; font-size:13px; font-weight:700; padding:6px 14px; border-radius:20px; display:inline-block; margin-bottom:16px;">{{ detail.status }}</span>
+            <sc-if value="{{ detail.finalNotes }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size:13px; color:#4B4F58; line-height:1.6; margin-bottom:12px;"><strong style="color:#1A1A1A;">Investigation Notes:</strong> {{ detail.finalNotes }}</div>
+            </sc-if>
+            <sc-if value="{{ detail.rejectionReason }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size:13px; color:#4B4F58; line-height:1.6; margin-bottom:12px;"><strong style="color:#1A1A1A;">Rejection Reason:</strong> {{ detail.rejectionReason }}</div>
+            </sc-if>
+            <sc-if value="{{ detail.finalFilesShown }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size:12.5px; font-weight:600; color:#8A8F98; margin-bottom:8px;">Supporting Documents</div>
+              <div style="display:flex; flex-wrap:wrap; gap:8px;">
+                <sc-for list="{{ finalFileChips }}" as="f" hint-placeholder-count="2">
+                  <div style="padding:7px 11px; border:1px solid #D4D6DA; border-radius:20px; font-size:12px; font-weight:600; background:#F7F7F8;">📄 {{ f.name }}</div>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
+
+          <div style="background:#fff; border:1px solid #EDEEF0; border-radius:10px; box-shadow:0 1px 3px rgba(0,0,0,0.04); padding:22px 24px;">
+            <div style="font-weight:700; font-size:15px; margin-bottom:16px;">Resolution Timeline</div>
+            <div style="display:flex; flex-direction:column; gap:0;">
+              <sc-for list="{{ timelineItems }}" as="t" hint-placeholder-count="4">
+                <div style="display:flex; gap:14px;">
+                  <div style="display:flex; flex-direction:column; align-items:center; flex-shrink:0;">
+                    <div style="width:11px; height:11px; border-radius:50%; background:#C41230; margin-top:3px;"></div>
+                    <sc-if value="{{ !t.isLast }}" hint-placeholder-val="{{ true }}"><div style="width:2px; flex:1; background:#EDEEF0; min-height:26px;"></div></sc-if>
+                  </div>
+                  <div style="padding-bottom:20px;">
+                    <div style="font-size:13.5px; font-weight:700;">{{ t.label }}</div>
+                    <div style="font-size:12px; color:#8A8F98; margin-bottom:4px;">{{ t.date }}</div>
+                    <div style="font-size:12.5px; color:#4B4F58;">{{ t.sub }}</div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isStateC }}" hint-placeholder-val="{{ false }}">
+          <div style="background:#fff; border:1px solid #EDEEF0; border-radius:10px; box-shadow:0 1px 3px rgba(0,0,0,0.04); padding:22px 24px; margin-bottom:16px;">
+            <div style="font-weight:700; font-size:15px; margin-bottom:14px;">Investigation &amp; Status Update</div>
+            <div style="display:inline-flex; align-items:center; gap:8px; font-size:12.5px; color:#8A8F98; margin-bottom:18px;">Current Status: <span style="background:#FEF3E6; color:#C4670A; font-weight:700; padding:3px 10px; border-radius:20px;">Under Investigation</span></div>
+
+            <div style="display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin-bottom:18px;">
+              <sc-for list="{{ verdictOptions }}" as="o" hint-placeholder-count="3">
+                <div onClick="{{ o.onClick }}" style="border:2px solid {{ o.borderColor }}; background:{{ o.bg }}; border-radius:10px; padding:16px; cursor:pointer;">
+                  <div style="width:28px; height:28px; border-radius:50%; background:{{ o.accent }}; color:#fff; font-size:14px; display:flex; align-items:center; justify-content:center; margin-bottom:10px; font-weight:700;">{{ o.icon }}</div>
+                  <div style="font-weight:700; font-size:13.5px; margin-bottom:4px;">{{ o.label }}</div>
+                  <div style="font-size:12px; color:#8A8F98; line-height:1.4;">{{ o.desc }}</div>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="margin-bottom:16px;">
+              <div style="font-size:13px; font-weight:600; margin-bottom:6px;">Investigation Notes</div>
+              <textarea value="{{ invNotesText }}" onChange="{{ onInvNotesChange }}" placeholder="Document your findings, sources consulted, and reasoning for this verdict..." style="width:100%; box-sizing:border-box; min-height:90px; padding:10px 12px; border-radius:8px; border:{{ invNotesBorder }}; font-family:'Inter',sans-serif; font-size:13px; resize:vertical;"></textarea>
+              <sc-if value="{{ invNotesError }}" hint-placeholder-val="{{ false }}"><div style="font-size:12px; color:#C41230; margin-top:6px;">{{ invNotesError }}</div></sc-if>
+            </div>
+
+            <div style="margin-bottom:16px;">
+              <div style="font-size:13px; font-weight:600; margin-bottom:6px;">Upload Supporting Documents</div>
+              <label onDragOver="{{ onDragOver }}" onDrop="{{ onDrop }}" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; border:1.5px dashed #D4D6DA; border-radius:10px; padding:22px; cursor:pointer; background:#FAFAFB;">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none"><path d="M7 18a4.5 4.5 0 01-.9-8.9A5.5 5.5 0 0117 8.1a4 4 0 01-.5 7.9" stroke="#8A8F98" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 11v7M9 14l3-3 3 3" stroke="#C41230" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <div style="font-size:13px; font-weight:600; color:#4B4F58;">Drag files here or click to browse</div>
+                <input type="file" multiple="{{ true }}" onChange="{{ onFileInputChange }}" style="display:none;" />
+              </label>
+              <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:10px;">
+                <sc-for list="{{ fileChips }}" as="f" hint-placeholder-count="0">
+                  <div style="display:flex; align-items:center; gap:8px; padding:6px 10px; border:1px solid #D4D6DA; border-radius:20px; font-size:12px; font-weight:600; background:#F7F7F8;">📄 {{ f.name }}<span onClick="{{ f.onRemove }}" style="cursor:pointer; color:#8A8F98; font-weight:700;">×</span></div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="font-size:12.5px; color:#8A8F98; background:#F7F7F8; border-radius:8px; padding:10px 14px; margin-bottom:20px;">Reviewing Officer: <strong style="color:#1A1A1A;">Dr. Aiman Rashid</strong> — will be recorded with this status update.</div>
+
+            <div style="display:flex; gap:12px; flex-wrap:wrap;">
+              <button onClick="{{ submitStatusUpdate }}" style="background:#C41230; color:#fff; border:none; padding:12px 20px; border-radius:8px; font-size:13.5px; font-weight:700; cursor:pointer;" style-hover="background:#A10E27;">Submit Status Update</button>
+              <sc-if value="{{ saveDraftVisible }}" hint-placeholder-val="{{ true }}">
+                <button onClick="{{ saveDraft }}" style="background:#fff; color:#4B4F58; border:1.5px solid #D4D6DA; padding:12px 20px; border-radius:8px; font-size:13.5px; font-weight:700; cursor:pointer;">Save as Draft</button>
+              </sc-if>
+            </div>
+
+            <sc-if value="{{ canRequestClarify }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-top:16px; padding-top:16px; border-top:1px dashed #E4E5E8;">
+                <div style="font-size:12.5px; color:#6B6F76; line-height:1.5;"><strong style="color:#1A1A1A;">Not enough information to decide?</strong> Ask MCMC — the inquiry stays with your agency while you wait for a reply.</div>
+                <button onClick="{{ openClarifyModal }}" style="background:#fff; color:#6B3FA0; border:1.5px solid #CDB8EA; padding:9px 14px; border-radius:8px; font-size:13px; font-weight:700; cursor:pointer; white-space:nowrap; flex-shrink:0;" style-hover="background:#F4EFFB;">? Request Clarification</button>
+              </div>
+            </sc-if>
+          </div>
+
+        </sc-if>
+
+        <sc-if value="{{ showClarifyCard }}" hint-placeholder-val="{{ false }}">
+          <div style="background:#fff; border:1px solid #EDEEF0; border-radius:10px; box-shadow:0 1px 3px rgba(0,0,0,0.04); padding:{{ clarifyCardPad }}; margin-top:16px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;">
+              <div style="min-width:0; display:flex; align-items:center; gap:8px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M4 5h16v11H9l-5 4V5z" stroke="#6B3FA0" stroke-width="2" stroke-linejoin="round"/><path d="M9.5 9.2a2.5 2.5 0 114 2c-.9.6-1.5 1-1.5 2" stroke="#6B3FA0" stroke-width="1.8" stroke-linecap="round"/></svg>
+                <div style="font-weight:700; font-size:14px;">Clarification with MCMC</div>
+                <sc-if value="{{ noClarifyThreads }}" hint-placeholder-val="{{ false }}"><span style="font-size:12.5px; color:#8A8F98;">— No requests yet.</span></sc-if>
+              </div>
+            </div>
+
+            <div style="margin-top:16px; border:1px solid #EDEEF0; border-radius:10px; max-height:560px; overflow-y:auto;">
+            <sc-for list="{{ clarifyThreads }}" as="th" hint-placeholder-count="0">
+              <div style="border-top:{{ th.divider }};">
+                <div onClick="{{ th.onToggle }}" style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; padding:11px 16px; background:{{ th.headBg }}; cursor:pointer;">
+                  <div style="min-width:0;">
+                    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                      <span style="font-size:11px; color:#8A8F98; transform:{{ th.chevronRotate }}; display:inline-block; transition:transform .15s;">▸</span>
+                      <span style="font-family:ui-monospace,monospace; font-size:12px; font-weight:700; color:#4B4F58;">{{ th.id }}</span>
+                      <span style="font-size:13px; font-weight:700;">{{ th.topic }}</span>
+                      <sc-if value="{{ th.isUrgent }}" hint-placeholder-val="{{ false }}"><span style="background:#FBE7E9; color:#C41230; font-size:10.5px; font-weight:700; padding:2px 8px; border-radius:20px;">URGENT</span></sc-if>
+                    </div>
+                    <div style="font-size:11.5px; color:#8A8F98; margin-top:3px;">Opened {{ th.createdAt }} · Last activity {{ th.updatedAt }}</div>
+                    <sc-if value="{{ th.hasConsulted }}" hint-placeholder-val="{{ false }}"><div style="font-size:11.5px; color:#0E8074; font-weight:600; margin-top:3px;">{{ th.consultedText }}</div></sc-if>
+                  </div>
+                  <span style="background:{{ th.statusBg }}; color:{{ th.statusColor }}; font-size:11px; font-weight:700; padding:4px 10px; border-radius:20px; white-space:nowrap;">{{ th.statusLabel }}</span>
+                </div>
+                <sc-if value="{{ th.expanded }}" hint-placeholder-val="{{ th.isOpen }}">
+                <div style="padding:16px; display:flex; flex-direction:column; gap:14px; border-top:1px solid #F0F1F3;">
+                  <sc-for list="{{ th.messages }}" as="m" hint-placeholder-count="1">
+                    <sc-if value="{{ m.isSystem }}" hint-placeholder-val="{{ false }}">
+                      <div style="display:flex; align-items:center; gap:10px; font-size:11.5px; color:#8A8F98;">
+                        <div style="flex:1; height:1px; background:#EDEEF0;"></div>
+                        <div style="text-align:center; max-width:80%;">{{ m.text }} · {{ m.at }}</div>
+                        <div style="flex:1; height:1px; background:#EDEEF0;"></div>
+                      </div>
+                    </sc-if>
+                    <sc-if value="{{ m.isUser }}" hint-placeholder-val="{{ true }}">
+                      <div style="display:flex; gap:10px; flex-direction:{{ m.dir }}; align-items:flex-start;">
+                        <div style="width:32px; height:32px; border-radius:50%; background:{{ m.avatarBg }}; color:{{ m.avatarColor }}; font-size:11.5px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0;">{{ m.initials }}</div>
+                        <div style="max-width:78%; background:{{ m.bubbleBg }}; border:1px solid {{ m.bubbleBorder }}; border-radius:10px; padding:10px 13px;">
+                          <div style="display:flex; align-items:baseline; gap:6px; flex-wrap:wrap; margin-bottom:4px;">
+                            <span style="font-size:12.5px; font-weight:700;">{{ m.author }}</span>
+                            <span style="font-size:11px; color:#8A8F98;">{{ m.role }} · {{ m.at }}</span>
+                          </div>
+                          <div style="font-size:13px; color:#1A1A1A; line-height:1.55; white-space:pre-wrap;">{{ m.text }}</div>
+                          <sc-if value="{{ m.hasFiles }}" hint-placeholder-val="{{ false }}">
+                            <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;">
+                              <sc-for list="{{ m.fileChips }}" as="fc" hint-placeholder-count="1">
+                                <div onClick="{{ fc.onClick }}" style="padding:4px 9px; background:#fff; border:1px solid #D4D6DA; border-radius:14px; font-size:11.5px; font-weight:600; cursor:pointer;">📎 {{ fc.name }}</div>
+                              </sc-for>
+                            </div>
+                          </sc-if>
+                        </div>
+                      </div>
+                    </sc-if>
+                  </sc-for>
+                </div>
+                <sc-if value="{{ th.isOpen }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; padding:12px 16px; border-top:1px solid #EDEEF0; background:#FAFAFB;">
+                    <div style="font-size:12.5px; color:#6B3FA0; font-weight:600;">Waiting for MCMC response. You will be notified when they reply.</div>
+                    <button onClick="{{ th.onWithdraw }}" style="background:#fff; color:#4B4F58; border:1.5px solid #D4D6DA; padding:7px 12px; border-radius:8px; font-size:12.5px; font-weight:600; cursor:pointer; white-space:nowrap;" style-hover="background:#F7F7F8;">Withdraw Request</button>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ th.isAnswered }}" hint-placeholder-val="{{ false }}">
+                  <div style="padding:14px 16px; border-top:1px solid #EDEEF0; background:#FAFAFB;">
+                    <div style="font-size:12.5px; font-weight:600; margin-bottom:6px;">Reply to MCMC</div>
+                    <textarea value="{{ clarifyReply }}" onChange="{{ onClarifyReplyChange }}" placeholder="Need more detail? Send a follow-up question. Otherwise, mark this request as resolved." style="width:100%; box-sizing:border-box; min-height:70px; padding:10px 12px; border-radius:8px; border:{{ clarifyReplyBorder }}; font-family:'Inter',sans-serif; font-size:13px; resize:vertical; background:#fff;"></textarea>
+                    <sc-if value="{{ clarifyReplyError }}" hint-placeholder-val="{{ false }}"><div style="font-size:12px; color:#C41230; margin-top:4px;">{{ clarifyReplyError }}</div></sc-if>
+                    <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;">
+                      <sc-for list="{{ clarifyReplyFileChips }}" as="f" hint-placeholder-count="0">
+                        <div style="display:flex; align-items:center; gap:6px; padding:4px 9px; border:1px solid #D4D6DA; border-radius:14px; font-size:11.5px; font-weight:600; background:#fff;">📎 {{ f.name }}<span onClick="{{ f.onRemove }}" style="cursor:pointer; color:#8A8F98; font-weight:700;">×</span></div>
+                      </sc-for>
+                    </div>
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-top:10px;">
+                      <label style="font-size:12.5px; font-weight:600; color:#4B4F58; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+                        📎 Attach file
+                        <input type="file" multiple="{{ true }}" onChange="{{ onClarifyReplyFiles }}" style="display:none;" />
+                      </label>
+                      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                        <button onClick="{{ th.onResolve }}" style="background:#fff; color:#1D7A3E; border:1.5px solid #A9D8B8; padding:8px 14px; border-radius:8px; font-size:12.5px; font-weight:700; cursor:pointer; white-space:nowrap;" style-hover="background:#E4F5E9;">✓ Mark as Resolved</button>
+                        <button onClick="{{ th.onFollowUp }}" style="background:#6B3FA0; color:#fff; border:none; padding:8px 14px; border-radius:8px; font-size:12.5px; font-weight:700; cursor:pointer; white-space:nowrap;" style-hover="background:#56318A;">Send Follow-up</button>
+                      </div>
+                    </div>
+                  </div>
+                </sc-if>
+                </sc-if>
+              </div>
+            </sc-for>
+            </div>
+          </div>
+        </sc-if>
+      </sc-if>
+
+      <sc-if value="{{ isConsultView }}" hint-placeholder-val="{{ false }}">
+        <div onClick="{{ backToList }}" style="display:inline-flex; align-items:center; gap:6px; color:#C41230; font-weight:600; font-size:13px; margin-bottom:18px; cursor:pointer;">← Back to Consultations</div>
+        <sc-if value="{{ consultMissing }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:32px; text-align:center; color:#8A8F98; font-size:13.5px; border:1px dashed #E4E5E8; border-radius:10px;">This consultation request could not be found.</div>
+        </sc-if>
+        <sc-if value="{{ consultFound }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:8px;">
+            <h2 style="font-family:'Poppins',sans-serif; font-weight:700; font-size:21px; margin:0;">{{ cv.title }}</h2>
+            <span style="background:{{ cv.chipBg }}; color:{{ cv.chipColor }}; font-size:11.5px; font-weight:700; padding:4px 11px; border-radius:20px; white-space:nowrap;">{{ cv.chip }}</span>
+          </div>
+          <div style="display:flex; gap:20px; flex-wrap:wrap; font-size:13px; color:#8A8F98; margin-bottom:18px;">
+            <div>Request: <strong style="color:#1A1A1A; font-family:ui-monospace,monospace; font-size:12.5px;">{{ cv.id }}</strong></div>
+            <div>Case owner: <strong style="color:#1A1A1A;">{{ cv.owner }}</strong></div>
+            <div>Category: <strong style="color:#1A1A1A;">{{ cv.category }}</strong></div>
+          </div>
+          <div style="display:flex; flex-wrap:wrap; gap:16px; align-items:flex-start;">
+            <div style="flex:1.6 1 420px; min-width:0; display:flex; flex-direction:column; gap:16px;">
+              <div style="background:#fff; border:1px solid #EDEEF0; border-radius:10px; box-shadow:0 1px 3px rgba(0,0,0,0.04); overflow:hidden;">
+                <div style="padding:14px 18px; border-bottom:1px solid #F0F1F3; font-weight:700; font-size:14.5px;">Clarification Thread</div>
+                <div style="padding:16px 18px; display:flex; flex-direction:column; gap:14px;">
+                  <sc-for list="{{ cv.messages }}" as="m" hint-placeholder-count="2">
+                    <sc-if value="{{ m.isSystem }}" hint-placeholder-val="{{ false }}">
+                      <div style="display:flex; align-items:center; gap:10px; font-size:11.5px; color:#8A8F98;">
+                        <div style="flex:1; height:1px; background:#EDEEF0;"></div>
+                        <div style="text-align:center; max-width:80%;">{{ m.text }} · {{ m.at }}</div>
+                        <div style="flex:1; height:1px; background:#EDEEF0;"></div>
+                      </div>
+                    </sc-if>
+                    <sc-if value="{{ m.isUser }}" hint-placeholder-val="{{ true }}">
+                      <div style="display:flex; gap:10px; flex-direction:{{ m.dir }}; align-items:flex-start;">
+                        <div style="width:32px; height:32px; border-radius:50%; background:{{ m.avatarBg }}; color:{{ m.avatarColor }}; font-size:11.5px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0;">{{ m.initials }}</div>
+                        <div style="max-width:78%; background:{{ m.bubbleBg }}; border:1px solid {{ m.bubbleBorder }}; border-radius:10px; padding:10px 13px;">
+                          <div style="display:flex; align-items:baseline; gap:6px; flex-wrap:wrap; margin-bottom:4px;">
+                            <span style="font-size:12.5px; font-weight:700;">{{ m.author }}</span>
+                            <span style="font-size:11px; color:#8A8F98;">{{ m.role }} · {{ m.at }}</span>
+                          </div>
+                          <div style="font-size:13px; line-height:1.55; white-space:pre-wrap;">{{ m.text }}</div>
+                          <sc-if value="{{ m.hasFiles }}" hint-placeholder-val="{{ false }}">
+                            <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;">
+                              <sc-for list="{{ m.fileChips }}" as="fc" hint-placeholder-count="1">
+                                <div onClick="{{ fc.onClick }}" style="padding:4px 9px; background:#fff; border:1px solid #D4D6DA; border-radius:14px; font-size:11.5px; font-weight:600; cursor:pointer;">📎 {{ fc.name }}</div>
+                              </sc-for>
+                            </div>
+                          </sc-if>
+                        </div>
+                      </div>
+                    </sc-if>
+                  </sc-for>
+                </div>
+                <sc-if value="{{ cv.canReply }}" hint-placeholder-val="{{ true }}">
+                  <div style="padding:14px 18px; border-top:1px solid #EDEEF0; background:#FAFAFB;">
+                    <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px;">
+                      <div style="font-size:13px; font-weight:600;">{{ cv.replyHeading }}</div>
+                      <div style="font-size:11.5px; color:#8A8F98;">{{ consultReplyCount }} / 1500</div>
+                    </div>
+                    <textarea value="{{ consultReply }}" onChange="{{ onConsultReplyChange }}" placeholder="Share MOH's position, official references or data that answers MCMC's question..." style="width:100%; box-sizing:border-box; min-height:90px; padding:10px 12px; border-radius:8px; border:{{ consultReplyBorder }}; font-family:'Inter',sans-serif; font-size:13px; resize:vertical; background:#fff;"></textarea>
+                    <sc-if value="{{ consultReplyError }}" hint-placeholder-val="{{ false }}"><div style="font-size:12px; color:#C41230; margin-top:4px;">{{ consultReplyError }}</div></sc-if>
+                    <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;">
+                      <sc-for list="{{ consultReplyFileChips }}" as="f" hint-placeholder-count="0">
+                        <div style="display:flex; align-items:center; gap:6px; padding:4px 9px; border:1px solid #D4D6DA; border-radius:14px; font-size:11.5px; font-weight:600; background:#fff;">📎 {{ f.name }}<span onClick="{{ f.onRemove }}" style="cursor:pointer; color:#8A8F98; font-weight:700;">×</span></div>
+                      </sc-for>
+                    </div>
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-top:10px;">
+                      <label style="font-size:12.5px; font-weight:600; color:#4B4F58; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+                        📎 Attach file
+                        <input type="file" multiple="{{ true }}" onChange="{{ onConsultReplyFiles }}" style="display:none;" />
+                      </label>
+                      <button onClick="{{ onSendConsultReply }}" style="background:#0E8074; color:#fff; border:none; padding:9px 16px; border-radius:8px; font-size:13px; font-weight:700; cursor:pointer; white-space:nowrap;" style-hover="background:#0B665D;">Send Advice to MCMC</button>
+                    </div>
+                    <div style="font-size:11.5px; color:#8A8F98; margin-top:10px;">Responding as <strong style="color:#1A1A1A;">Dr. Aiman Rashid</strong> (MOH Agency Staff). Your name and timestamp are recorded.</div>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ cv.isEnded }}" hint-placeholder-val="{{ false }}">
+                  <div style="padding:12px 18px; border-top:1px solid #EDEEF0; background:#F7F7F8; font-size:12.5px; color:#6B6F76; font-weight:600;">{{ cv.endedText }}</div>
+                </sc-if>
+              </div>
+            </div>
+            <div style="flex:1 1 260px; min-width:0; display:flex; flex-direction:column; gap:16px;">
+              <div style="background:#FFFBF3; border:1px solid #F3E2BF; border-radius:10px; padding:16px 18px;">
+                <div style="font-size:11.5px; font-weight:700; color:#8A6414; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:6px;">MCMC's question for MOH</div>
+                <div style="font-size:13.5px; line-height:1.6; color:#1A1A1A;">{{ cv.question }}</div>
+                <div style="font-size:11.5px; color:#8A8F98; margin-top:8px;">{{ cv.invitedBy }} (MCMC Staff) · {{ cv.invitedAt }}</div>
+              </div>
+              <div style="background:#fff; border:1px solid #EDEEF0; border-radius:10px; box-shadow:0 1px 3px rgba(0,0,0,0.04); padding:18px 20px;">
+              <div style="font-weight:700; font-size:14px; margin-bottom:10px;">Inquiry Summary (shared by MCMC)</div>
+              <div style="font-size:12.5px; color:#8A8F98; margin-bottom:8px;">Submitted {{ cv.dateSubmitted }} · Assigned to {{ cv.ownerShort }} {{ cv.dateAssigned }}</div>
+              <div style="font-size:13px; color:#4B4F58; line-height:1.6; margin-bottom:12px;">{{ cv.description }}</div>
+              <div style="font-size:11.5px; font-weight:700; color:#8A8F98; text-transform:uppercase; letter-spacing:0.03em; margin-bottom:6px;">Evidence</div>
+              <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px;">
+                <sc-for list="{{ cv.evidenceChips }}" as="ev" hint-placeholder-count="2">
+                  <div onClick="{{ ev.onClick }}" style="padding:5px 10px; background:#F7F7F8; border:1px solid #EDEEF0; border-radius:14px; font-size:11.5px; font-weight:600; cursor:pointer;">📎 {{ ev.name }}</div>
+                </sc-for>
+              </div>
+              <div style="font-size:11.5px; color:#8A8F98; line-height:1.5; border-top:1px solid #F0F1F3; padding-top:10px;">Submitter identity is not shared with consulted agencies.</div>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+      </sc-if>
+
+    </div>
+  </div>
+</div>
+
+<sc-if value="{{ panelOpen }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closePanel }}" style="position:fixed; inset:0; background:rgba(0,0,0,0.35); z-index:40;"></div>
+  <div style="position:fixed; top:0; right:0; bottom:0; width:380px; background:#fff; box-shadow:-8px 0 30px rgba(0,0,0,0.15); z-index:41; display:flex; flex-direction:column;">
+    <div style="padding:20px; border-bottom:1px solid #F0F1F3; display:flex; align-items:flex-start; justify-content:space-between; gap:12px;">
+      <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:17px; line-height:1.3;">{{ panelTitle }}</div>
+      <div onClick="{{ closePanel }}" style="cursor:pointer; color:#8A8F98; font-size:18px; line-height:1; flex-shrink:0;">✕</div>
+    </div>
+    <div style="padding:14px 20px; border-bottom:1px solid #F0F1F3; display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+      <span style="font-family:'Inter',sans-serif; background:{{ panelBadgeBg }}; color:{{ panelBadgeColor }}; font-size:12px; font-weight:700; padding:4px 10px; border-radius:20px;">{{ panelStatus }}</span>
+      <span style="font-family:'Inter',sans-serif; font-size:12.5px; color:#8A8F98;">{{ panelCategory }} · {{ panelDate }}</span>
+    </div>
+    <div style="display:flex; border-bottom:1px solid #F0F1F3; flex-shrink:0;">
+      <sc-for list="{{ panelTabs }}" as="pt" hint-placeholder-count="3">
+        <div onClick="{{ pt.onClick }}" style="font-family:'Inter',sans-serif; flex:1; text-align:center; padding:11px; font-size:12.5px; font-weight:700; cursor:pointer; color:{{ pt.color }}; border-bottom:2px solid {{ pt.borderColor }};">{{ pt.label }}</div>
+      </sc-for>
+    </div>
+    <div style="flex:1; overflow:auto; padding:18px 20px;">
+      <sc-if value="{{ isPanelDetails }}" hint-placeholder-val="{{ true }}">
+        <div style="font-family:'Inter',sans-serif; font-size:13.5px; color:#4B4F58; line-height:1.6;">{{ panelDescription }}</div>
+      </sc-if>
+      <sc-if value="{{ isPanelEvidence }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <sc-for list="{{ panelEvidence }}" as="ef" hint-placeholder-count="2">
+            <div style="display:flex; align-items:center; gap:10px; padding:10px 12px; background:#F7F7F8; border-radius:8px; font-size:12.5px; font-weight:600;">📄 {{ ef.name }}</div>
+          </sc-for>
+        </div>
+      </sc-if>
+      <sc-if value="{{ isPanelActivity }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex; flex-direction:column; gap:14px;">
+          <sc-for list="{{ panelActivity }}" as="ac" hint-placeholder-count="3">
+            <div style="display:flex; gap:10px;">
+              <div style="width:8px; height:8px; border-radius:50%; background:#C41230; margin-top:5px; flex-shrink:0;"></div>
+              <div>
+                <div style="font-size:11.5px; color:#8A8F98; font-weight:600; margin-bottom:2px;">{{ ac.date }}</div>
+                <div style="font-size:13px; font-weight:600;">{{ ac.label }}</div>
+                <div style="font-size:12.5px; color:#6B7280; margin-top:2px;">{{ ac.sub }}</div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+    </div>
+    <div style="padding:16px 20px; border-top:1px solid #F0F1F3; flex-shrink:0;">
+      <button onClick="{{ onPanelAction }}" style="width:100%; background:{{ panelActionBg }}; color:{{ panelActionColor }}; border:{{ panelActionBorder }}; padding:11px; border-radius:8px; font-size:13.5px; font-weight:700; cursor:pointer;">{{ panelActionLabel }}</button>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ rejectModalOpen }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed; inset:0; background:rgba(0,0,0,0.45); display:flex; align-items:center; justify-content:center; z-index:50;">
+    <div style="width:460px; background:#fff; border-radius:12px; padding:26px; box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+      <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:18px; margin-bottom:10px;">Reject Inquiry — Outside Jurisdiction</div>
+      <div style="font-size:13px; color:#8A8F98; line-height:1.5; margin-bottom:16px;">This inquiry will be returned to MCMC for reassignment to a more appropriate agency. Please provide a clear reason.</div>
+      <div style="font-size:13px; font-weight:600; margin-bottom:6px;">Reason for Rejection</div>
+      <textarea value="{{ rejectReason }}" onChange="{{ onRejectReasonChange }}" placeholder="e.g. This matter falls under consumer finance regulation, not health policy..." style="width:100%; box-sizing:border-box; min-height:90px; padding:10px 12px; border-radius:8px; border:{{ rejectReasonBorder }}; font-family:'Inter',sans-serif; font-size:13px; resize:vertical;"></textarea>
+      <sc-if value="{{ rejectReasonError }}" hint-placeholder-val="{{ false }}"><div style="font-size:12px; color:#C41230; margin-top:6px; margin-bottom:6px;">{{ rejectReasonError }}</div></sc-if>
+      <div style="display:flex; gap:10px; margin-top:18px;">
+        <button onClick="{{ closeRejectModal }}" style="flex:1; background:#fff; border:1.5px solid #D4D6DA; padding:11px; border-radius:8px; font-size:13.5px; font-weight:600; cursor:pointer;">Cancel</button>
+        <button onClick="{{ confirmReject }}" style="flex:1; background:#C41230; color:#fff; border:none; padding:11px; border-radius:8px; font-size:13.5px; font-weight:700; cursor:pointer;" style-hover="background:#A10E27;">Confirm Rejection</button>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ clarifyModalOpen }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closeClarifyModal }}" style="position:fixed; inset:0; background:rgba(0,0,0,0.45); display:flex; align-items:center; justify-content:center; z-index:50; padding:24px;">
+    <div onClick="{{ stopProp }}" style="width:540px; max-width:100%; max-height:calc(100vh - 48px); background:#fff; border-radius:12px; box-shadow:0 20px 60px rgba(0,0,0,0.25); display:flex; flex-direction:column; overflow:hidden;">
+      <div style="padding:22px 26px 14px; border-bottom:1px solid #F0F1F3; flex-shrink:0;">
+        <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:18px; margin-bottom:6px;">Request Clarification from MCMC</div>
+        <div style="font-size:13px; color:#8A8F98; line-height:1.5;">{{ detail.title }}</div>
+      </div>
+      <div style="flex:1; min-height:0; overflow-y:auto; overflow-x:hidden; padding:18px 26px; display:flex; flex-direction:column; gap:16px;">
+        <div style="display:flex; gap:10px; background:#F4EFFB; border-radius:8px; padding:11px 13px; font-size:12.5px; color:#4E2D7A; line-height:1.55;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="flex-shrink:0; margin-top:1px;"><circle cx="12" cy="12" r="9" stroke="#6B3FA0" stroke-width="2"/><path d="M12 11v5M12 8h.01" stroke="#6B3FA0" stroke-width="2.2" stroke-linecap="round"/></svg>
+          <div>This is <strong>not a rejection</strong>. The inquiry stays assigned to your agency and is marked <strong>Awaiting Clarification</strong> until MCMC responds.</div>
+        </div>
+        <div>
+          <div style="font-size:13px; font-weight:600; margin-bottom:6px;">Topic <span style="color:#C41230;">*</span></div>
+          <select value="{{ clarifyTopic }}" onChange="{{ onClarifyTopicChange }}" style="width:100%; height:40px; padding:0 10px; border-radius:8px; border:{{ clarifyTopicBorder }}; font-family:'Inter',sans-serif; font-size:13.5px; background:#fff;">
+            <option value="">Select what you need clarified…</option>
+            <sc-for list="{{ clarifyTopics }}" as="tp" hint-placeholder-count="6"><option value="{{ tp }}">{{ tp }}</option></sc-for>
+          </select>
+          <sc-if value="{{ clarifyTopicError }}" hint-placeholder-val="{{ false }}"><div style="font-size:12px; color:#C41230; margin-top:4px;">{{ clarifyTopicError }}</div></sc-if>
+        </div>
+        <div>
+          <div style="font-size:13px; font-weight:600; margin-bottom:6px;">Priority</div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <sc-for list="{{ clarifyPriorities }}" as="p" hint-placeholder-count="2">
+              <div onClick="{{ p.onClick }}" style="flex:1 1 180px; min-width:0; box-sizing:border-box; border:1.5px solid {{ p.border }}; background:{{ p.bg }}; border-radius:8px; padding:9px 12px; cursor:pointer;">
+                <div style="font-size:13px; font-weight:700; color:{{ p.color }};">{{ p.label }}</div>
+                <div style="font-size:11.5px; color:#8A8F98; margin-top:2px;">{{ p.desc }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px;">
+            <div style="font-size:13px; font-weight:600;">Your question <span style="color:#C41230;">*</span></div>
+            <div style="font-size:11.5px; color:{{ clarifyCountColor }};">{{ clarifyCount }} / 1000</div>
+          </div>
+          <textarea value="{{ clarifyText }}" onChange="{{ onClarifyTextChange }}" maxLength="1000" placeholder="Be specific about what is missing and why it is needed, e.g. the original post URL, submitter's first-seen timestamp, uncropped evidence..." style="width:100%; box-sizing:border-box; min-height:110px; padding:10px 12px; border-radius:8px; border:{{ clarifyTextBorder }}; font-family:'Inter',sans-serif; font-size:13px; resize:vertical;"></textarea>
+          <sc-if value="{{ clarifyTextError }}" hint-placeholder-val="{{ false }}"><div style="font-size:12px; color:#C41230; margin-top:4px;">{{ clarifyTextError }}</div></sc-if>
+        </div>
+        <div>
+          <div style="font-size:13px; font-weight:600; margin-bottom:6px;">Attachments <span style="font-weight:400; color:#8A8F98;">(optional)</span></div>
+          <label style="display:flex; align-items:center; justify-content:center; gap:8px; border:1.5px dashed #D4D6DA; border-radius:8px; padding:12px; cursor:pointer; background:#FAFAFB; font-size:12.5px; font-weight:600; color:#4B4F58;">
+            📎 Click to attach files
+            <input type="file" multiple="{{ true }}" onChange="{{ onClarifyFiles }}" style="display:none;" />
+          </label>
+          <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;">
+            <sc-for list="{{ clarifyFileChips }}" as="f" hint-placeholder-count="0">
+              <div style="display:flex; align-items:center; gap:6px; padding:4px 9px; border:1px solid #D4D6DA; border-radius:14px; font-size:11.5px; font-weight:600; background:#F7F7F8;">📎 {{ f.name }}<span onClick="{{ f.onRemove }}" style="cursor:pointer; color:#8A8F98; font-weight:700;">×</span></div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="font-size:12.5px; color:#8A8F98; background:#F7F7F8; border-radius:8px; padding:10px 14px;">Requesting Officer: <strong style="color:#1A1A1A;">Dr. Aiman Rashid</strong> — name and timestamp will be recorded in the audit trail.</div>
+      </div>
+      <div style="display:flex; gap:10px; padding:14px 26px; border-top:1px solid #F0F1F3; flex-shrink:0;">
+        <button onClick="{{ closeClarifyModal }}" style="flex:1; background:#fff; border:1.5px solid #D4D6DA; padding:11px; border-radius:8px; font-size:13.5px; font-weight:600; cursor:pointer;">Cancel</button>
+        <button onClick="{{ submitClarify }}" style="flex:1; background:#6B3FA0; color:#fff; border:none; padding:11px; border-radius:8px; font-size:13.5px; font-weight:700; cursor:pointer;" style-hover="background:#56318A;">Send to MCMC</button>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ finalizeModalOpen }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed; inset:0; background:rgba(0,0,0,0.45); display:flex; align-items:center; justify-content:center; z-index:50;">
+    <div style="width:440px; background:#fff; border-radius:12px; padding:26px; box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+      <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:18px; margin-bottom:12px;">Finalize this verdict?</div>
+      <div style="font-size:13.5px; color:#4B4F58; line-height:1.6; margin-bottom:20px;">This will notify the original submitter and MCMC, and cannot be easily undone.</div>
+      <div style="display:flex; gap:10px;">
+        <button onClick="{{ cancelFinalize }}" style="flex:1; background:#fff; border:1.5px solid #D4D6DA; padding:11px; border-radius:8px; font-size:13.5px; font-weight:600; cursor:pointer;">Cancel</button>
+        <button onClick="{{ confirmFinalize }}" style="flex:1; background:#C41230; color:#fff; border:none; padding:11px; border-radius:8px; font-size:13.5px; font-weight:700; cursor:pointer;" style-hover="background:#A10E27;">Confirm &amp; Finalize</button>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ withdrawConfirmOpen }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed; inset:0; background:rgba(0,0,0,0.45); display:flex; align-items:center; justify-content:center; z-index:50;">
+    <div style="width:420px; background:#fff; border-radius:12px; padding:26px; box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+      <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:18px; margin-bottom:12px;">Withdraw this request?</div>
+      <div style="font-size:13.5px; color:#4B4F58; line-height:1.6; margin-bottom:20px;">MCMC will be notified and this clarification thread will be closed. This cannot be undone.</div>
+      <div style="display:flex; gap:10px;">
+        <button onClick="{{ cancelWithdraw }}" style="flex:1; background:#fff; border:1.5px solid #D4D6DA; padding:11px; border-radius:8px; font-size:13.5px; font-weight:600; cursor:pointer;">Cancel</button>
+        <button onClick="{{ confirmWithdraw }}" style="flex:1; background:#C41230; color:#fff; border:none; padding:11px; border-radius:8px; font-size:13.5px; font-weight:700; cursor:pointer;" style-hover="background:#A10E27;">Withdraw</button>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ toastShow }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed; bottom:28px; right:28px; background:#1A1A1A; color:#fff; padding:14px 20px; border-radius:8px; font-size:13.5px; font-weight:600; box-shadow:0 8px 24px rgba(0,0,0,0.25); z-index:60; max-width:340px;">{{ toastMsg }}</div>
+</sc-if>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    view: 'list', selectedId: null,
+    profileMenuOpen: false,
+    search: '', statusFilter: 'All', categoryFilter: 'All', dateFilter: 'All Time',
+    notifOpen: false,
+    rejectModalOpen: false, rejectReason: '', rejectSubmitted: false,
+    clarifyModalOpen: false, clarifyTopic: '', clarifyPriority: 'Normal', clarifyText: '', clarifyFiles: [], clarifySubmitted: false,
+    clarifyExpandedId: '',
+    clarifyReply: '', clarifyReplyFiles: [], clarifyReplySubmitted: false,
+    listTab: new URLSearchParams(location.search).get('tab') === 'consult' ? 'consult' : 'assigned', consultFilter: 'active', consultSearch: '',
+    selectedConsultId: null, consultReply: '', consultReplyFiles: [], consultReplySubmitted: false,
+    invVerdict: 'keep', invNotesText: '', invFilesList: [], invSubmitted: false,
+    finalizeModalOpen: false, pendingVerdictKey: null,
+    withdrawConfirmOpen: false, pendingWithdrawThread: null,
+    notifyMsg: '',
+    toastShow: false, toastMsg: '',
+    panelId: null, panelTab: 'details',
+    rows: [
+      { id: 1, title: 'Counterfeit vaccine batch warning circulating on WhatsApp', category: 'Health', dateAssigned: '2 Sep 2026', dateSubmitted: '30 Aug 2026', status: 'Awaiting Jurisdiction Review',
+        mcmcNotes: 'Please confirm if the batch number matches any recalled stock and verify jurisdiction before proceeding.',
+        description: 'A viral WhatsApp message claims a specific vaccine batch (Lot #VX-2291) causes severe adverse reactions and urges recipients to avoid the national immunization program. The message includes an unverified photo of a vaccine vial with a highlighted lot number.',
+        sourceLink: 'https://chatapp-forward.example/msg/8823',
+        evidence: [{ name: 'whatsapp_screenshot.jpg' }, { name: 'vial_photo.jpg' }],
+        timeline: [{ label: 'Submitted by Public', date: '30 Aug 2026', sub: 'Original inquiry filed via public portal.' }, { label: 'Reviewed & Assigned by MCMC', date: '2 Sep 2026', sub: 'Assigned to Ministry of Health (MOH) for jurisdiction review.' }] },
+      { id: 2, title: 'Fake vaccine side-effect statistics infographic', category: 'Health', dateAssigned: '28 Aug 2026', dateSubmitted: '24 Aug 2026', status: 'Under Investigation',
+        mcmcNotes: 'High-visibility case — infographic has been shared over 5,000 times, please prioritize.',
+        description: 'An infographic circulating on social media presents fabricated statistics claiming a 40% adverse reaction rate for a nationally administered vaccine, attributing the data to a non-existent "National Health Audit 2026."',
+        sourceLink: 'https://socialpost.example/p/44210',
+        evidence: [{ name: 'infographic.png' }, { name: 'shared_post_screenshot.jpg' }],
+        timeline: [{ label: 'Submitted by Public', date: '24 Aug 2026', sub: 'Original inquiry filed via public portal.' }, { label: 'Reviewed & Assigned by MCMC', date: '28 Aug 2026', sub: 'Assigned to Ministry of Health (MOH).' }, { label: 'Jurisdiction Accepted', date: '29 Aug 2026', sub: 'Accepted by Dr. Aiman Rashid — within MOH jurisdiction.' }] },
+      { id: 3, title: 'Misleading clinic pricing claim', category: 'Health', dateAssigned: '20 Aug 2026', dateSubmitted: '18 Aug 2026', status: 'Verified as True',
+        mcmcNotes: 'Please verify against consumer affairs pricing complaint records.',
+        description: 'A public post alleges that a named private clinic is charging patients triple the government-set rate for a basic health screening package, with a photo of a receipt as evidence.',
+        sourceLink: 'https://forum.example/thread/9981',
+        evidence: [{ name: 'receipt_photo.jpg' }],
+        invNotes: 'Cross-checked the receipt against the MOH-regulated fee schedule for private health screenings. The listed price exceeds the approved rate by 3.1x, confirmed via three additional patient complaints on record with Consumer Affairs. Claim is substantiated.',
+        invFiles: [{ name: 'fee_schedule_comparison.pdf' }, { name: 'complaint_records_extract.pdf' }],
+        timeline: [{ label: 'Submitted by Public', date: '18 Aug 2026', sub: '' }, { label: 'Reviewed & Assigned by MCMC', date: '20 Aug 2026', sub: '' }, { label: 'Jurisdiction Accepted', date: '20 Aug 2026', sub: 'Accepted by Dr. Aiman Rashid.' }, { label: 'Investigation Started', date: '20 Aug 2026', sub: '' }, { label: 'Final Verdict: Verified as True', date: '24 Aug 2026', sub: 'Finalized by Dr. Aiman Rashid.' }] },
+      { id: 4, title: '"Miracle cure" supplement post', category: 'Health', dateAssigned: '15 Aug 2026', dateSubmitted: '12 Aug 2026', status: 'Identified as Fake',
+        mcmcNotes: 'Product not currently registered — please confirm with NPRA registry.',
+        description: 'A sponsored social media post advertises a supplement claiming to "cure diabetes within 7 days," citing an unnamed clinical trial.',
+        sourceLink: 'https://socialpost.example/p/33012',
+        evidence: [{ name: 'ad_screenshot.jpg' }],
+        invNotes: 'Verified against the National Pharmaceutical Regulatory Agency (NPRA) product registry — the supplement is not registered for sale in Malaysia. No clinical trial matching the cited claim could be located. Claim is false and constitutes a health risk.',
+        invFiles: [{ name: 'npra_registry_check.pdf' }],
+        timeline: [{ label: 'Submitted by Public', date: '12 Aug 2026', sub: '' }, { label: 'Reviewed & Assigned by MCMC', date: '15 Aug 2026', sub: '' }, { label: 'Jurisdiction Accepted', date: '15 Aug 2026', sub: 'Accepted by Dr. Aiman Rashid.' }, { label: 'Investigation Started', date: '15 Aug 2026', sub: '' }, { label: 'Final Verdict: Identified as Fake', date: '19 Aug 2026', sub: 'Finalized by Dr. Aiman Rashid.' }] },
+      { id: 5, title: 'Hospital overcapacity rumor at Klang Valley hospitals', category: 'Health', dateAssigned: '5 Sep 2026', dateSubmitted: '3 Sep 2026', status: 'Awaiting Jurisdiction Review',
+        mcmcNotes: 'Multiple similar reports received — please confirm current bed capacity status.',
+        description: 'A message claims that all major public hospitals in the Klang Valley have reached full capacity and are turning away emergency patients, without citing any official source.',
+        sourceLink: 'https://chatapp-forward.example/msg/9014',
+        evidence: [{ name: 'forwarded_message.jpg' }],
+        timeline: [{ label: 'Submitted by Public', date: '3 Sep 2026', sub: '' }, { label: 'Reviewed & Assigned by MCMC', date: '5 Sep 2026', sub: 'Assigned to Ministry of Health (MOH).' }] },
+      { id: 6, title: 'Unrelated banking scam forwarded by mistake', category: 'Finance', dateAssigned: '10 Aug 2026', dateSubmitted: '8 Aug 2026', status: 'Rejected (Out of Jurisdiction)',
+        mcmcNotes: 'Please assess if this falls under health-related consumer protection.',
+        description: 'A message warning about a fraudulent SMS banking scheme was mistakenly routed to Ministry of Health for review; it concerns financial fraud, not health misinformation.',
+        sourceLink: 'https://chatapp-forward.example/msg/7765',
+        evidence: [{ name: 'sms_screenshot.jpg' }],
+        rejectionReason: 'This matter concerns financial fraud (fraudulent SMS banking scheme) and falls under the jurisdiction of Bank Negara Malaysia / financial regulators, not the Ministry of Health.',
+        timeline: [{ label: 'Submitted by Public', date: '8 Aug 2026', sub: '' }, { label: 'Reviewed & Assigned by MCMC', date: '10 Aug 2026', sub: '' }, { label: 'Rejected — Returned to MCMC', date: '11 Aug 2026', sub: 'Rejected by Dr. Aiman Rashid — outside MOH jurisdiction.' }] },
+      { id: 7, title: 'Mental health subsidy clinic rumor', category: 'Health', dateAssigned: '1 Sep 2026', dateSubmitted: '29 Aug 2026', status: 'Under Investigation',
+        mcmcNotes: 'Please confirm if the subsidy program mentioned actually exists.',
+        description: 'A post claims a new government mental health subsidy allows free unlimited therapy sessions at any private clinic nationwide starting immediately, without any official announcement being cited.',
+        sourceLink: 'https://socialpost.example/p/50213',
+        evidence: [{ name: 'post_screenshot.jpg' }],
+        timeline: [{ label: 'Submitted by Public', date: '29 Aug 2026', sub: '' }, { label: 'Reviewed & Assigned by MCMC', date: '1 Sep 2026', sub: '' }, { label: 'Jurisdiction Accepted', date: '1 Sep 2026', sub: 'Accepted by Dr. Aiman Rashid.' }] },
+      { id: 8, title: 'Water contamination outbreak claim in Selangor', category: 'Health', dateAssigned: '6 Sep 2026', dateSubmitted: '4 Sep 2026', status: 'Awaiting Jurisdiction Review',
+        mcmcNotes: 'Please assess urgency — public health risk claims require expedited review.',
+        description: 'A viral post claims a contamination outbreak in Selangor drinking water has caused mass hospitalizations, urging residents to stop using tap water immediately, without citing any water authority source.',
+        sourceLink: 'https://socialpost.example/p/61890',
+        evidence: [{ name: 'viral_post.jpg' }, { name: 'photo_evidence.jpg' }],
+        timeline: [{ label: 'Submitted by Public', date: '4 Sep 2026', sub: '' }, { label: 'Reviewed & Assigned by MCMC', date: '6 Sep 2026', sub: 'Assigned to Ministry of Health (MOH).' }] }
+    ]
+  };
+
+  navDefs = [
+    { label: 'Dashboard', icon: 'grid' },
+    { label: 'Assigned Inquiries', icon: 'folder' },
+    { label: 'Reports', icon: 'chart' },
+    { label: 'Activity Log', icon: 'clock' },
+    { label: 'Profile', icon: 'user' }
+  ];
+
+  statusBadge(status) {
+    const map = {
+      'Awaiting Jurisdiction Review': { bg: '#EDEEF0', color: '#6B6F76' },
+      'Under Investigation': { bg: '#FEF3E6', color: '#C4670A' },
+      'Verified as True': { bg: '#E4F5E9', color: '#1D7A3E' },
+      'Identified as Fake': { bg: '#FBE7E9', color: '#C41230' },
+      'Rejected (Out of Jurisdiction)': { bg: '#E2E3E5', color: '#4B4F58' },
+      'Awaiting Clarification': { bg: '#F1EAFA', color: '#6B3FA0' }
+    };
+    return map[status] || map['Under Investigation'];
+  }
+
+  truncateAtWord(str, max) {
+    if (!str) return { text: '—', truncated: false };
+    if (str.length <= max) return { text: str, truncated: false };
+    const slice = str.slice(0, max);
+    const lastSpace = slice.lastIndexOf(' ');
+    const cut = lastSpace > 20 ? slice.slice(0, lastSpace) : slice;
+    return { text: cut + '…', truncated: true };
+  }
+
+  officer = { author: 'Dr. Aiman Rashid', role: 'MOH Agency Staff' };
+  store() { return window.SBClarify || null; }
+  activeThread(row) { const S = this.store(); return S && row ? S.active(row.id) : null; }
+  effStatus(row) { const th = this.activeThread(row); return th && th.status === 'open' ? 'Awaiting Clarification' : row.status; }
+  isOpenCase(row) { return row && (row.status === 'Awaiting Jurisdiction Review' || row.status === 'Under Investigation'); }
+  excerpt(s, n) { s = String(s || ''); return s.length > n ? s.slice(0, n).replace(/\s+\S*$/, '') + '…' : s; }
+
+  threadEvents(row) {
+    const S = this.store(); if (!S || !row) return [];
+    const out = [];
+    S.forInquiry(row.id).slice().reverse().forEach(th => {
+      th.messages.forEach((m, i) => {
+        const label = m.kind === 'invite' ? 'MCMC Consulting ' + S.shortAgency(m.agency) + ' (' + th.id + ')' : m.kind === 'endConsult' ? 'Consultation Ended — ' + S.shortAgency(m.agency) : m.from === 'consult' ? 'Advice from ' + S.shortAgency(m.agency) + ' via MCMC (' + th.id + ')' : m.from === 'system' ? 'Clarification Closed (' + th.id + ')'
+          : m.from === 'mcmc' ? 'MCMC Clarification Received (' + th.id + ')'
+          : i === 0 ? 'Clarification Requested — ' + th.topic : 'Follow-up Sent to MCMC (' + th.id + ')';
+        out.push({ label, date: m.at, sub: m.from === 'system' ? m.text : m.author + ': "' + this.excerpt(m.text, 110) + '"' });
+      });
+    });
+    return out;
+  }
+
+  autoCloseThread(row, action) {
+    const S = this.store(), th = this.activeThread(row);
+    if (S && th) S.close(th.id, { ...this.officer, side: 'agency', notifyMcmc: true, note: 'Closed automatically — inquiry ' + action + ' by ' + this.officer.author + '.' });
+  }
+
+  submitClarify() {
+    const s = this.state, S = this.store(), row = this.getSelected();
+    const text = s.clarifyText.trim();
+    if (!s.clarifyTopic || text.length < 20) { this.setState({ clarifySubmitted: true }); return; }
+    if (!S || !row) { this.showToast('Clarification service unavailable. Please reload the page.'); return; }
+    try {
+      const th = S.create({ inquiryId: row.id, topic: s.clarifyTopic, priority: s.clarifyPriority, text, files: s.clarifyFiles.map(f => f.name), ...this.officer,
+        inquiry: { title: row.title, category: row.category, dateAssigned: row.dateAssigned, dateSubmitted: row.dateSubmitted, description: row.description, mcmcNotes: row.mcmcNotes || '', evidence: (row.evidence || []).map(e => e.name) } });
+      this.setState({ clarifyModalOpen: false });
+      this.showToast('Clarification request ' + th.id + ' sent to MCMC.');
+    } catch (e) { this.showToast(e.message); }
+  }
+
+  sendFollowUp(th) {
+    const s = this.state, S = this.store(), text = s.clarifyReply.trim();
+    if (text.length < 10) { this.setState({ clarifyReplySubmitted: true }); return; }
+    S.reply(th.id, { from: 'agency', ...this.officer, text, files: s.clarifyReplyFiles.map(f => f.name) });
+    this.setState({ clarifyReply: '', clarifyReplyFiles: [], clarifyReplySubmitted: false });
+    this.showToast('Follow-up sent to MCMC. Inquiry is awaiting clarification again.');
+  }
+
+  resolveThread(th, row) {
+    const S = this.store();
+    const next = row.status === 'Awaiting Jurisdiction Review' ? 'jurisdiction review' : 'investigation';
+    S.close(th.id, { ...this.officer, side: 'agency', notifyMcmc: false, note: 'Marked as resolved by ' + this.officer.author + ' — proceeding with ' + next + '.' });
+    this.setState({ clarifyReply: '', clarifyReplyFiles: [], clarifyReplySubmitted: false });
+    this.showToast('Clarification ' + th.id + ' resolved. You can continue the ' + next + '.');
+  }
+
+  withdrawThread(th) {
+    this.setState({ withdrawConfirmOpen: true, pendingWithdrawThread: th });
+  }
+
+  confirmWithdraw() {
+    const th = this.state.pendingWithdrawThread;
+    if (!th) return;
+    this.store().close(th.id, { ...this.officer, side: 'agency', notifyMcmc: true, note: 'Request withdrawn by ' + this.officer.author + '.' });
+    this.setState({ withdrawConfirmOpen: false, pendingWithdrawThread: null });
+    this.showToast('Clarification request ' + th.id + ' withdrawn.');
+  }
+
+  componentWillUnmount() { if (this._unsub) this._unsub(); clearTimeout(this._storeRetry); }
+
+  openConsult(id) {
+    this.setState({ view: 'consult', listTab: 'consult', selectedConsultId: id, consultReply: '', consultReplyFiles: [], consultReplySubmitted: false });
+    if (this.store()) this.store().markConsultRead(id, 'Ministry of Health (MOH)');
+  }
+  sendConsultReply() {
+    const s = this.state, text = s.consultReply.trim();
+    if (text.length < 15) { this.setState({ consultReplySubmitted: true }); return; }
+    try {
+      this.store().consultReply(s.selectedConsultId, { agency: 'Ministry of Health (MOH)', ...this.officer, text, files: s.consultReplyFiles.map(f => f.name) });
+      this.setState({ consultReply: '', consultReplyFiles: [], consultReplySubmitted: false });
+      this.showToast('Advice sent to MCMC for ' + s.selectedConsultId + '.');
+    } catch (e) { this.showToast(e.message); }
+  }
+
+  actionLabel(status) {
+    if (status === 'Awaiting Clarification') return 'View Clarification';
+    if (status === 'Awaiting Jurisdiction Review') return 'Review Jurisdiction';
+    if (status === 'Under Investigation') return 'Update Status';
+    return 'View Details';
+  }
+
+  getSelected() { return this.state.rows.find(r => r.id === this.state.selectedId); }
+
+  updateRow(id, patch) { this.setState(s => ({ rows: s.rows.map(r => r.id === id ? { ...r, ...patch } : r) })); }
+
+  showToast(msg) {
+    this.setState({ toastShow: true, toastMsg: msg });
+    clearTimeout(this._toastTimer);
+    this._toastTimer = setTimeout(() => this.setState({ toastShow: false }), 3000);
+  }
+
+  componentDidMount() {
+    const hook = () => {
+      if (window.SBClarify) { this._unsub = window.SBClarify.subscribe(() => this.forceUpdate()); this.forceUpdate(); }
+      else this._storeRetry = setTimeout(hook, 150);
+    };
+    hook();
+    const cid = new URLSearchParams(location.search).get('consult');
+    if (cid) { const go = () => window.SBClarify ? this.openConsult(cid) : setTimeout(go, 150); go(); }
+    const id = new URLSearchParams(location.search).get('id');
+    if (id) {
+      const row = this.state.rows.find(r => r.id === parseInt(id, 10));
+      if (row) this.openDetail(row);
+    }
+    const filter = new URLSearchParams(location.search).get('filter');
+    const filterMap = {
+      investigation: { statusFilter: 'Under Investigation' },
+      awaiting: { statusFilter: 'Awaiting Jurisdiction Review' },
+      resolved: { statusFilter: 'Resolved', dateFilter: 'Last 30 Days' },
+      clarification: { statusFilter: 'Awaiting Clarification' },
+      answered: { statusFilter: 'Clarification Answered' }
+    };
+    if (filter && filterMap[filter]) this.setState(filterMap[filter]);
+  }
+
+  openDetail(row) {
+    const patch = { view: 'detail', selectedId: row.id, rejectReason: '', rejectSubmitted: false, invSubmitted: false, clarifyReply: '', clarifyReplyFiles: [], clarifyReplySubmitted: false };
+    const th = this.activeThread(row);
+    if (th && th.unreadAgency) this.store().markRead(th.id, 'agency');
+    if (row.status === 'Under Investigation') {
+      patch.invVerdict = row.invVerdict || 'keep';
+      patch.invNotesText = row.invNotes || '';
+      patch.invFilesList = row.invFiles ? [...row.invFiles] : [];
+    }
+    this.setState(patch);
+  }
+
+  onAccept() {
+    const row = this.getSelected();
+    const th = this.activeThread(row);
+    if (th && th.status === 'open') return;
+    this.autoCloseThread(row, 'accepted');
+    this.updateRow(row.id, { status: 'Under Investigation', timeline: [...row.timeline, { label: 'Jurisdiction Accepted', date: '7 Sep 2026', sub: 'Accepted by Dr. Aiman Rashid — within Ministry of Health (MOH) jurisdiction.' }] });
+    this.setState({ invVerdict: 'keep', invNotesText: '', invFilesList: [], invSubmitted: false });
+  }
+
+  confirmReject() {
+    const s = this.state;
+    if (!s.rejectReason.trim()) { this.setState({ rejectSubmitted: true }); return; }
+    const row = this.getSelected();
+    this.autoCloseThread(row, 'rejected');
+    this.updateRow(row.id, { status: 'Rejected (Out of Jurisdiction)', rejectionReason: s.rejectReason, timeline: [...row.timeline, { label: 'Rejected — Returned to MCMC', date: '7 Sep 2026', sub: 'Rejected by Dr. Aiman Rashid: "' + s.rejectReason + '"' }] });
+    this.setState({ rejectModalOpen: false, view: 'list' });
+    this.showToast('Inquiry rejected and returned to MCMC.');
+  }
+
+  addFiles(fileList) {
+    const names = Array.from(fileList).map(f => ({ name: f.name }));
+    this.setState(s => ({ invFilesList: [...s.invFilesList, ...names] }));
+  }
+
+  submitStatusUpdate() {
+    const s = this.state, row = this.getSelected();
+    if (s.invVerdict === 'keep') {
+      this.updateRow(row.id, { invNotes: s.invNotesText, invFiles: s.invFilesList, invVerdict: 'keep',
+        timeline: [...row.timeline, { label: 'Progress Update', date: '7 Sep 2026', sub: 'Notes updated by Dr. Aiman Rashid — still under investigation.' }] });
+      this.setState({ view: 'list' });
+      this.showToast('Status notes saved. Inquiry remains under investigation.');
+      return;
+    }
+    if (!s.invNotesText.trim()) { this.setState({ invSubmitted: true }); return; }
+    this.setState({ finalizeModalOpen: true, pendingVerdictKey: s.invVerdict });
+  }
+
+  saveDraft() {
+    const s = this.state, row = this.getSelected();
+    this.updateRow(row.id, { invNotes: s.invNotesText, invFiles: s.invFilesList, invVerdict: s.invVerdict,
+      timeline: [...row.timeline, { label: 'Draft Saved', date: '7 Sep 2026', sub: 'Investigation notes drafted by Dr. Aiman Rashid.' }] });
+    this.setState({ view: 'list' });
+    this.showToast('Draft saved.');
+  }
+
+  confirmFinalize() {
+    const s = this.state, row = this.getSelected();
+    const map = { verified: 'Verified as True', fake: 'Identified as Fake' };
+    const finalStatus = map[s.pendingVerdictKey];
+    this.autoCloseThread(row, 'finalised as ' + finalStatus);
+    this.updateRow(row.id, {
+      status: finalStatus, invNotes: s.invNotesText, invFiles: s.invFilesList, invVerdict: s.pendingVerdictKey,
+      timeline: [...row.timeline, { label: 'Final Verdict: ' + finalStatus, date: '7 Sep 2026', sub: 'Finalized by Dr. Aiman Rashid.' }]
+    });
+    this.setState({ finalizeModalOpen: false, view: 'list' });
+    this.showToast('Inquiry marked as ' + finalStatus + '.');
+  }
+
+  renderVals() {
+    const s = this.state;
+    const normalBorder = '1px solid #D4D6DA';
+    const errorBorder = '1.5px solid #C41230';
+    const now = new Date('2026-09-07');
+
+    const navTargets = [
+      () => { window.location.href = './08-agency-auth-dashboard.dc.html'; },
+      () => this.setState({ view: 'list' }),
+      () => { window.location.href = './13-agency-reports.dc.html'; },
+      () => { window.location.href = './14-agency-activity.dc.html'; },
+      () => { window.location.href = './10-agency-profile.dc.html'; }
+    ];
+    const navItems = this.navDefs.map((it, i) => {
+      const active = it.label === 'Assigned Inquiries';
+      return {
+        label: it.label, isActive: active, isInactive: !active,
+        cursor: 'pointer',
+        isGrid: it.icon === 'grid', isFolder: it.icon === 'folder', isChart: it.icon === 'chart', isClock: it.icon === 'clock', isBell: it.icon === 'bell', isUser: it.icon === 'user',
+        onClick: navTargets[i]
+      };
+    });
+
+    const openPanel = (id) => this.setState({ panelId: id, panelTab: 'details' });
+    const closePanel = () => this.setState({ panelId: null });
+
+    const filteredRows = s.rows.filter(r => {
+      if (s.search && !r.title.toLowerCase().includes(s.search.toLowerCase())) return false;
+      if (s.statusFilter !== 'All') {
+        if (s.statusFilter === 'Resolved') {
+          if (r.status !== 'Verified as True' && r.status !== 'Identified as Fake') return false;
+        } else if (s.statusFilter === 'Clarification Answered') {
+          const th = this.activeThread(r); if (!th || th.status !== 'answered') return false;
+        } else if (this.effStatus(r) !== s.statusFilter) return false;
+      }
+      if (s.categoryFilter !== 'All' && r.category !== s.categoryFilter) return false;
+      if (s.dateFilter !== 'All Time') {
+        const diff = (now - new Date(r.dateAssigned)) / 86400000;
+        if (s.dateFilter === 'Last 7 Days' && diff > 7) return false;
+        if (s.dateFilter === 'Last 30 Days' && diff > 30) return false;
+        if (s.dateFilter === 'Last Year' && diff > 365) return false;
+      }
+      return true;
+    });
+
+    const tableRows = filteredRows.map(r => {
+      const eff = this.effStatus(r), rth = this.activeThread(r);
+      const b = this.statusBadge(eff);
+      const chip = rth && rth.status === 'answered' ? (rth.unreadAgency ? { l: 'MCMC replied — new', bg: '#E4EEFB', c: '#1D5FBF' } : { l: 'Clarification answered', bg: '#F1EAFA', c: '#6B3FA0' }) : null;
+      const isTerminalAction = r.status !== 'Awaiting Jurisdiction Review' && r.status !== 'Under Investigation';
+      const noteInfo = this.truncateAtWord(r.mcmcNotes || '', 80);
+      return {
+        ...r, status: eff, statusBg: b.bg, statusColor: b.color,
+        hasClarifyChip: !!chip, clarifyChipLabel: chip ? chip.l : '', clarifyChipBg: chip ? chip.bg : '', clarifyChipColor: chip ? chip.c : '',
+        categoryDateLine: r.category + ' · ' + r.dateAssigned,
+        notesExcerpt: noteInfo.text, notesTruncated: noteInfo.truncated,
+        showTooltip: s.hoveredRowId === r.id,
+        onNoteEnter: () => this.setState({ hoveredRowId: r.id }),
+        onNoteLeave: () => this.setState({ hoveredRowId: null }),
+        actionLabel: this.actionLabel(eff),
+        actionBg: isTerminalAction ? '#fff' : '#C41230',
+        actionColor: isTerminalAction ? '#4B4F58' : '#fff',
+        actionBorder: isTerminalAction ? '1.5px solid #D4D6DA' : 'none',
+        onOpenPanel: () => openPanel(r.id),
+        onAction: (e) => { if (e) e.stopPropagation(); this.openDetail(r); }
+      };
+    });
+
+    const panelRow = s.rows.find(x => x.id === s.panelId) || null;
+    const panelEff = panelRow ? this.effStatus(panelRow) : '';
+    const panelSt = panelRow ? this.statusBadge(panelEff) : { bg: '', color: '' };
+    const panelTabDefs = [{ key: 'details', label: 'Details' }, { key: 'evidence', label: 'Evidence' }, { key: 'activity', label: 'Activity Log' }];
+    const panelTabs = panelTabDefs.map(pt => ({ label: pt.label, color: s.panelTab === pt.key ? '#C41230' : '#8A8F98', borderColor: s.panelTab === pt.key ? '#C41230' : 'transparent', onClick: () => this.setState({ panelTab: pt.key }) }));
+    const panelEvidence = panelRow ? (panelRow.evidence || []) : [];
+    const panelActivity = panelRow ? [...(panelRow.timeline || []), ...this.threadEvents(panelRow)] : [];
+    const panelIsTerminal = panelRow && panelRow.status !== 'Awaiting Jurisdiction Review' && panelRow.status !== 'Under Investigation';
+
+    const row = this.getSelected();
+    let detail = {};
+    let isStateA = false, isStateB = false, isStateC = false;
+    let timelineItems = [], evidenceChips = [], finalFileChips = [], verdictOptions = [];
+    let invNotesError = '', saveDraftVisible = true;
+    let clarifyThreads = [], activeTh = null;
+
+    if (row) {
+      activeTh = this.activeThread(row);
+      const b = this.statusBadge(this.effStatus(row));
+      isStateA = row.status === 'Awaiting Jurisdiction Review';
+      isStateB = ['Verified as True', 'Identified as Fake', 'Rejected (Out of Jurisdiction)'].includes(row.status);
+      isStateC = row.status === 'Under Investigation';
+      detail = { ...row, status: this.effStatus(row), statusBg: b.bg, statusColor: b.color, finalNotes: row.invNotes || '', finalFilesShown: !!(row.invFiles && row.invFiles.length) };
+
+      evidenceChips = (row.evidence || []).map(f => ({ name: f.name, onClick: () => this.showToast('Opening preview: ' + f.name) }));
+      finalFileChips = row.invFiles || [];
+
+      timelineItems = [...(row.timeline || []), ...this.threadEvents(row)].map((t, i, arr) => ({ ...t, isLast: i === arr.length - 1 }));
+
+      const S = this.store();
+      const stMap = { open: { bg: '#F1EAFA', c: '#6B3FA0' }, answered: { bg: '#E4EEFB', c: '#1D5FBF' }, closed: { bg: '#E4F5E9', c: '#1D7A3E' } };
+      const initials = n => n.replace(/^(Dr\.|Encik|Puan)\s+/, '').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+      clarifyThreads = (S ? S.forInquiry(row.id) : []).map((th, idx) => ({
+        id: th.id, topic: th.topic, isUrgent: th.priority === 'Urgent', createdAt: th.createdAt, updatedAt: th.updatedAt,
+        statusLabel: S.STATUS_LABEL[th.status], statusBg: stMap[th.status].bg, statusColor: stMap[th.status].c,
+        border: th.status === 'closed' ? '#EDEEF0' : '#DCCDF0', headBg: th.status === 'closed' ? '#FAFAFB' : '#FBF8FE',
+        divider: idx === 0 ? 'none' : '1px solid #EDEEF0',
+        expanded: (s.clarifyExpandedId ? s.clarifyExpandedId === th.id : th.status !== 'closed'),
+        chevronRotate: (s.clarifyExpandedId ? s.clarifyExpandedId === th.id : th.status !== 'closed') ? 'rotate(90deg)' : 'rotate(0deg)',
+        onToggle: () => this.setState(st => ({ clarifyExpandedId: st.clarifyExpandedId === th.id ? '__none__' : th.id })),
+        isOpen: th.status === 'open', isAnswered: th.status === 'answered',
+        onWithdraw: () => this.withdrawThread(th), onResolve: () => this.resolveThread(th, row), onFollowUp: () => this.sendFollowUp(th),
+        hasConsulted: (th.consults || []).length > 0,
+        consultedText: 'MCMC is consulting ' + (th.consults || []).map(c => S.shortAgency(c.agency) + (c.status === 'ended' ? ' (ended)' : c.status === 'responded' ? ' (advice given)' : '')).join(', ') + ' on this request.',
+        messages: th.messages.map(m => {
+          const mine = m.from === 'agency';
+          if (m.from === 'consult') return { ...m, isSystem: false, isUser: true, initials: initials(m.author), dir: 'row', avatarBg: '#E9F6F3', avatarColor: '#0E8074',
+            bubbleBg: '#F2FAF8', bubbleBorder: '#CBE9E3', role: m.role + ' · ' + S.shortAgency(m.agency) + ' (Consulted by MCMC)',
+            hasFiles: (m.files || []).length > 0, fileChips: (m.files || []).map(n => ({ name: n, onClick: () => this.showToast('Opening preview: ' + n) })) };
+          return { ...m, isSystem: m.from === 'system', isUser: m.from !== 'system', initials: initials(m.author),
+            dir: mine ? 'row-reverse' : 'row', avatarBg: mine ? '#FBE7E9' : '#E4EEFB', avatarColor: mine ? '#C41230' : '#1D5FBF',
+            bubbleBg: mine ? '#FDF5F6' : '#F3F7FD', bubbleBorder: mine ? '#F3D3D9' : '#D6E3F5', role: mine ? m.role : m.role + ' (MCMC)',
+            hasFiles: (m.files || []).length > 0, fileChips: (m.files || []).map(n => ({ name: n, onClick: () => this.showToast('Opening preview: ' + n) })) };
+        })
+      }));
+
+      const verdictDefs = [
+        { key: 'verified', label: 'Verified as True', desc: 'Confirmed as genuine, accurate news.', accent: '#1D7A3E', icon: '✓' },
+        { key: 'fake', label: 'Identified as Fake', desc: 'Determined to be false or misleading information.', accent: '#C41230', icon: '✕' },
+        { key: 'keep', label: 'Keep as Under Investigation', desc: 'Still reviewing, not ready for a final verdict yet.', accent: '#C4670A', icon: '⏱' }
+      ];
+      verdictOptions = verdictDefs.map(o => ({
+        ...o, borderColor: s.invVerdict === o.key ? o.accent : '#EDEEF0', bg: s.invVerdict === o.key ? o.accent + '14' : '#fff',
+        onClick: () => this.setState({ invVerdict: o.key })
+      }));
+
+      invNotesError = s.invSubmitted && s.invVerdict !== 'keep' && !s.invNotesText.trim() ? 'Please document your findings before finalizing this verdict.' : '';
+      saveDraftVisible = s.invVerdict === 'keep';
+    }
+
+    const fileChips = s.invFilesList.map((f, i) => ({ name: f.name, onRemove: () => this.setState(st => ({ invFilesList: st.invFilesList.filter((_, j) => j !== i) })) }));
+
+    const rejectReasonError = s.rejectSubmitted && !s.rejectReason.trim() ? 'This field is required' : '';
+    const CS = this.store(), ME = 'Ministry of Health (MOH)';
+    const consultList = CS ? CS.consultsFor(ME) : [];
+    const cChip = (c, th) => th.status === 'closed' || c.status === 'ended' ? ['Consultation ended', '#F1F2F4', '#8A8F98'] : c.status === 'responded' ? ['Advice sent', '#E9F6F3', '#0E8074'] : ['Awaiting your advice', '#FEF6EC', '#C4670A'];
+    const consultRows = consultList.filter(th => th.myConsult).map(th => { const c = th.myConsult, ch = cChip(c, th), pend = ch[0] === 'Awaiting your advice';
+      return { id: th.id, title: th.inquiry.title, owner: th.agency, invitedBy: c.invitedBy, invitedAt: c.invitedAt, unread: !!c.unread, chip: ch[0], chipBg: ch[1], chipColor: ch[2],
+        btnLabel: pend ? 'Give Advice' : 'View', btnBg: pend ? '#0E8074' : '#fff', btnColor: pend ? '#fff' : '#4B4F58', btnBorder: pend ? 'none' : '1.5px solid #D4D6DA',
+        onOpen: (e) => { if (e) e.stopPropagation(); this.openConsult(th.id); } }; });
+    const consultPendingCount = consultRows.filter(r => r.chip === 'Awaiting your advice').length;
+    const cq = s.consultSearch.trim().toLowerCase(), cfk = s.consultFilter;
+    const cState = r => r.chip === 'Awaiting your advice' ? 'pending' : r.chip === 'Advice sent' ? 'sent' : 'ended';
+    const consultRowsView = consultRows.filter(r => {
+      const st = cState(r);
+      if (cfk === 'active' && st === 'ended') return false;
+      if (cfk !== 'active' && cfk !== 'all' && st !== cfk) return false;
+      if (cq && !(r.title.toLowerCase().includes(cq) || r.id.toLowerCase().includes(cq) || r.owner.toLowerCase().includes(cq))) return false;
+      return true;
+    }).sort((a, b) => (cState(a) === 'pending' ? 0 : 1) - (cState(b) === 'pending' ? 0 : 1))
+      .map(r => ({ ...r, ownerShort: CS ? CS.shortAgency(r.owner) : r.owner, rowBg: r.unread ? '#F7FCFB' : '#fff' }));
+    const consultFilterTabs = [['active', 'Active'], ['pending', 'Awaiting Advice (' + consultPendingCount + ')'], ['sent', 'Advice Sent'], ['ended', 'Ended'], ['all', 'All']].map(([k, l]) => ({
+      label: l, bg: cfk === k ? '#E9F6F3' : '#F7F7F8', color: cfk === k ? '#0E8074' : '#6B6F76', onClick: () => this.setState({ consultFilter: k }) }));
+    const cth = CS && s.selectedConsultId ? CS.get(s.selectedConsultId) : null;
+    const myC = cth ? (cth.consults || []).filter(c => c.agency === ME).slice(-1)[0] : null;
+    const iniC = n => n.replace(/^(Dr\.|Encik|Puan)\s+/, '').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+    const cv = cth && myC ? (() => { const ch = cChip(myC, cth), live = cth.status !== 'closed' && myC.status !== 'ended';
+      return { id: cth.id, title: cth.inquiry.title, owner: cth.agency, ownerShort: CS.shortAgency(cth.agency), category: cth.inquiry.category, chip: ch[0], chipBg: ch[1], chipColor: ch[2],
+        question: myC.question, invitedBy: myC.invitedBy, invitedAt: myC.invitedAt, description: cth.inquiry.description, dateSubmitted: cth.inquiry.dateSubmitted, dateAssigned: cth.inquiry.dateAssigned,
+        evidenceChips: (cth.inquiry.evidence || []).map(n => ({ name: n, onClick: () => this.showToast('Opening preview: ' + n) })),
+        canReply: live, isEnded: !live, replyHeading: myC.status === 'responded' ? 'Add further advice' : 'Your advice to MCMC',
+        endedText: cth.status === 'closed' ? 'The clarification request has been closed. No further advice can be sent.' : 'MCMC has ended this consultation. No further advice can be sent.',
+        messages: cth.messages.map(m => { const mine = m.from === 'consult' && m.agency === ME, mc = m.from === 'mcmc', con = m.from === 'consult';
+          return { ...m, isSystem: m.from === 'system', isUser: m.from !== 'system', initials: iniC(m.author), dir: mine ? 'row-reverse' : 'row',
+            avatarBg: mine ? '#E9F6F3' : mc ? '#E4EEFB' : con ? '#E9F6F3' : '#F1F2F4', avatarColor: mine ? '#0E8074' : mc ? '#1D5FBF' : con ? '#0E8074' : '#4B4F58',
+            bubbleBg: mine ? '#F2FAF8' : mc ? '#F3F7FD' : '#F7F7F8', bubbleBorder: mine ? '#CBE9E3' : mc ? '#D6E3F5' : '#EDEEF0',
+            role: mc ? m.role + ' (MCMC)' : con ? m.role + ' · ' + CS.shortAgency(m.agency) + (mine ? '' : ' (Consulted)') : m.role + ' · ' + CS.shortAgency(cth.agency) + ' (Case owner)',
+            hasFiles: (m.files || []).length > 0, fileChips: (m.files || []).map(n => ({ name: n, onClick: () => this.showToast('Opening preview: ' + n) })) }; })
+      }; })() : {};
+    const crLen = s.consultReply.trim().length;
+    const consultReplyError = s.consultReplySubmitted && crLen < 15 ? (crLen ? 'Please add more detail (at least 15 characters).' : 'Please write your advice before sending.') : '';
+    const locked = !!(activeTh && activeTh.status === 'open') && isStateA;
+    const canRequestClarify = !!row && this.isOpenCase(row) && !activeTh && !!this.store();
+    const cLen = s.clarifyText.trim().length;
+    const clarifyTopicError = s.clarifySubmitted && !s.clarifyTopic ? 'Please choose a topic.' : '';
+    const clarifyTextError = s.clarifySubmitted && cLen < 20 ? (cLen === 0 ? 'Please describe what you need clarified.' : 'Please add more detail (at least 20 characters).') : '';
+    const clarifyReplyError = s.clarifyReplySubmitted && s.clarifyReply.trim().length < 10 ? 'Please write at least 10 characters for your follow-up.' : '';
+    const namesOf = fl => Array.from(fl).map(f => ({ name: f.name }));
+    const clarifyPriorities = [
+      { key: 'Normal', label: 'Normal', desc: 'Response expected within 2 working days' },
+      { key: 'Urgent', label: 'Urgent', desc: 'Time-sensitive / high public risk' }
+    ].map(p => { const on = s.clarifyPriority === p.key, u = p.key === 'Urgent';
+      return { ...p, border: on ? (u ? '#C41230' : '#6B3FA0') : '#E4E5E8', bg: on ? (u ? '#FDF3F4' : '#F8F4FD') : '#fff', color: on ? (u ? '#C41230' : '#6B3FA0') : '#1A1A1A', onClick: () => this.setState({ clarifyPriority: p.key }) }; });
+
+    return {
+      navItems,
+      isListView: s.view === 'list', isDetailView: s.view === 'detail', isConsultView: s.view === 'consult',
+      hasConsultPending: consultPendingCount > 0, consultPendingCount,
+      consultPendingText: consultPendingCount + ' consultation request' + (consultPendingCount === 1 ? '' : 's') + ' awaiting your advice',
+      isAssignedTab: s.listTab === 'assigned', isConsultTab: s.listTab === 'consult',
+      tabAssignedColor: s.listTab === 'assigned' ? '#C41230' : '#8A8F98', tabAssignedBorder: s.listTab === 'assigned' ? '#C41230' : 'transparent',
+      tabConsultColor: s.listTab === 'consult' ? '#0E8074' : '#8A8F98', tabConsultBorder: s.listTab === 'consult' ? '#0E8074' : 'transparent',
+      onTabAssigned: () => this.setState({ listTab: 'assigned' }), onTabConsult: () => this.setState({ listTab: 'consult' }),
+      assignedCount: s.rows.length,
+      consultRowsView, consultFilterTabs, consultSearch: s.consultSearch, onConsultSearchChange: e => this.setState({ consultSearch: e.target.value }),
+      consultEmpty: consultRowsView.length === 0, consultEmptyText: consultRows.length === 0 ? 'MCMC has not requested MOH\u2019s advice on any case yet.' : 'No consultations match this filter.',
+      consultFound: !!cth && !!myC, consultMissing: s.view === 'consult' && !!CS && !(cth && myC), cv,
+      consultReply: s.consultReply, consultReplyCount: s.consultReply.length, onConsultReplyChange: e => this.setState({ consultReply: e.target.value.slice(0, 1500) }),
+      consultReplyBorder: consultReplyError ? '1.5px solid #C41230' : '1px solid #D4D6DA', consultReplyError,
+      onConsultReplyFiles: e => { if (e.target.files) { const n = Array.from(e.target.files).map(f => ({ name: f.name })); this.setState(st => ({ consultReplyFiles: [...st.consultReplyFiles, ...n] })); } e.target.value = ''; },
+      consultReplyFileChips: s.consultReplyFiles.map((f, i) => ({ name: f.name, onRemove: () => this.setState(st => ({ consultReplyFiles: st.consultReplyFiles.filter((_, j) => j !== i) })) })),
+      onSendConsultReply: () => this.sendConsultReply(),
+      notifOpen: s.notifOpen, toggleNotif: () => this.setState(st => ({ notifOpen: !st.notifOpen })),
+      profileMenuOpen: s.profileMenuOpen,
+      openProfileMenu: () => { clearTimeout(this.profileCloseTimer); this.setState({ profileMenuOpen: true }); },
+      closeProfileMenuDelayed: () => { this.profileCloseTimer = setTimeout(() => this.setState({ profileMenuOpen: false }), 400); },
+      onOpenProfile: (e) => { if (e && e.preventDefault) e.preventDefault(); window.location.href = './10-agency-profile.dc.html'; },
+      onOpenSettings: (e) => { if (e && e.preventDefault) e.preventDefault(); window.location.href = './10-agency-profile.dc.html?tab=B'; },
+      onLogout: (e) => { if (e && e.preventDefault) e.preventDefault(); window.location.href = './01-login.dc.html'; },
+
+      search: s.search, onSearchChange: e => this.setState({ search: e.target.value }),
+      statusFilter: s.statusFilter, onStatusFilterChange: e => this.setState({ statusFilter: e.target.value }),
+      categoryFilter: s.categoryFilter, onCategoryFilterChange: e => this.setState({ categoryFilter: e.target.value }),
+      dateFilter: s.dateFilter, onDateFilterChange: e => this.setState({ dateFilter: e.target.value }),
+      statusFilterOptions: ['All', 'Awaiting Jurisdiction Review', 'Under Investigation', 'Awaiting Clarification', 'Clarification Answered', 'Resolved', 'Verified as True', 'Identified as Fake', 'Rejected (Out of Jurisdiction)'],
+      categoryFilterOptions: ['All', 'Health', 'Finance', 'Politics', 'Technology', 'Social Issues', 'Other'],
+      dateFilterOptions: ['All Time', 'Last 7 Days', 'Last 30 Days', 'Last Year'],
+      tableRows, noResults: tableRows.length === 0,
+
+      backToList: () => this.setState({ view: 'list' }),
+      detail, isStateA, isStateB, isStateC,
+      evidenceChips, finalFileChips, timelineItems,
+
+      onAccept: () => { if (!locked) this.onAccept(); },
+      openRejectModal: () => { if (!locked) this.setState({ rejectModalOpen: true, rejectReason: '', rejectSubmitted: false }); },
+      jurisdictionLocked: locked, acceptBtnBg: locked ? '#9BC4AC' : '#1E7A46', lockCursor: locked ? 'not-allowed' : 'pointer', lockOpacity: locked ? 0.55 : 1,
+      activeThreadId: activeTh ? activeTh.id : '', activeThreadSent: activeTh ? activeTh.updatedAt : '',
+      canRequestClarify, showClarifyCard: !!row && (this.isOpenCase(row) || clarifyThreads.length > 0),
+      clarifyThreads, noClarifyThreads: clarifyThreads.length === 0,
+      showClarifyHeaderBtn: canRequestClarify && clarifyThreads.length > 0,
+      clarifyCardPad: clarifyThreads.length === 0 ? '13px 20px' : '22px 24px',
+      openClarifyModal: () => this.setState({ clarifyModalOpen: true, clarifyTopic: '', clarifyPriority: 'Normal', clarifyText: '', clarifyFiles: [], clarifySubmitted: false }),
+      closeClarifyModal: () => this.setState({ clarifyModalOpen: false }),
+      clarifyModalOpen: s.clarifyModalOpen, stopProp: e => e.stopPropagation(),
+      clarifyTopics: this.store() ? this.store().TOPICS : [], clarifyTopic: s.clarifyTopic, onClarifyTopicChange: e => this.setState({ clarifyTopic: e.target.value }),
+      clarifyTopicBorder: clarifyTopicError ? errorBorder : normalBorder, clarifyTopicError,
+      clarifyPriorities,
+      clarifyText: s.clarifyText, onClarifyTextChange: e => this.setState({ clarifyText: e.target.value.slice(0, 1000) }),
+      clarifyTextBorder: clarifyTextError ? errorBorder : normalBorder, clarifyTextError,
+      clarifyCount: s.clarifyText.length, clarifyCountColor: s.clarifyText.length > 950 ? '#C41230' : '#8A8F98',
+      onClarifyFiles: e => { if (e.target.files) { const n = namesOf(e.target.files); this.setState(st => ({ clarifyFiles: [...st.clarifyFiles, ...n] })); } e.target.value = ''; },
+      clarifyFileChips: s.clarifyFiles.map((f, i) => ({ name: f.name, onRemove: () => this.setState(st => ({ clarifyFiles: st.clarifyFiles.filter((_, j) => j !== i) })) })),
+      submitClarify: () => this.submitClarify(),
+      clarifyReply: s.clarifyReply, onClarifyReplyChange: e => this.setState({ clarifyReply: e.target.value }),
+      clarifyReplyBorder: clarifyReplyError ? errorBorder : normalBorder, clarifyReplyError,
+      onClarifyReplyFiles: e => { if (e.target.files) { const n = namesOf(e.target.files); this.setState(st => ({ clarifyReplyFiles: [...st.clarifyReplyFiles, ...n] })); } e.target.value = ''; },
+      clarifyReplyFileChips: s.clarifyReplyFiles.map((f, i) => ({ name: f.name, onRemove: () => this.setState(st => ({ clarifyReplyFiles: st.clarifyReplyFiles.filter((_, j) => j !== i) })) })),
+
+      rejectModalOpen: s.rejectModalOpen, rejectReason: s.rejectReason,
+      onRejectReasonChange: e => this.setState({ rejectReason: e.target.value }),
+      rejectReasonBorder: rejectReasonError ? errorBorder : normalBorder, rejectReasonError,
+      closeRejectModal: () => this.setState({ rejectModalOpen: false }),
+      confirmReject: () => this.confirmReject(),
+
+      verdictOptions, invNotesText: s.invNotesText, onInvNotesChange: e => this.setState({ invNotesText: e.target.value }),
+      invNotesBorder: invNotesError ? errorBorder : normalBorder, invNotesError,
+      onDragOver: e => e.preventDefault(),
+      onDrop: e => { e.preventDefault(); if (e.dataTransfer && e.dataTransfer.files) this.addFiles(e.dataTransfer.files); },
+      onFileInputChange: e => { if (e.target.files) this.addFiles(e.target.files); e.target.value = ''; },
+      fileChips,
+      saveDraftVisible,
+      submitStatusUpdate: () => this.submitStatusUpdate(),
+      saveDraft: () => this.saveDraft(),
+
+      withdrawConfirmOpen: s.withdrawConfirmOpen,
+      cancelWithdraw: () => this.setState({ withdrawConfirmOpen: false, pendingWithdrawThread: null }),
+      confirmWithdraw: () => this.confirmWithdraw(),
+
+      finalizeModalOpen: s.finalizeModalOpen,
+      cancelFinalize: () => this.setState({ finalizeModalOpen: false }),
+      confirmFinalize: () => this.confirmFinalize(),
+
+      notifyMsg: s.notifyMsg, onNotifyMsgChange: e => this.setState({ notifyMsg: e.target.value }),
+      notifyDisabled: !s.notifyMsg.trim(),
+      notifyBtnBg: s.notifyMsg.trim() ? '#C41230' : '#D4D6DA', notifyBtnCursor: s.notifyMsg.trim() ? 'pointer' : 'not-allowed',
+      sendNotification: () => { this.setState({ notifyMsg: '' }); this.showToast('Notification sent to MCMC.'); },
+
+      toastShow: s.toastShow, toastMsg: s.toastMsg,
+
+      panelOpen: !!panelRow, panelTitle: panelRow ? panelRow.title : '', panelStatus: panelEff,
+      panelBadgeBg: panelSt.bg, panelBadgeColor: panelSt.color,
+      panelCategory: panelRow ? panelRow.category : '', panelDate: panelRow ? panelRow.dateAssigned : '',
+      panelTabs, isPanelDetails: s.panelTab === 'details', isPanelEvidence: s.panelTab === 'evidence', isPanelActivity: s.panelTab === 'activity',
+      panelDescription: panelRow ? panelRow.description : '', panelEvidence, panelActivity,
+      closePanel,
+      panelActionLabel: panelRow ? this.actionLabel(panelEff) : '',
+      panelActionBg: panelIsTerminal ? '#fff' : '#C41230', panelActionColor: panelIsTerminal ? '#4B4F58' : '#fff', panelActionBorder: panelIsTerminal ? '1.5px solid #D4D6DA' : 'none',
+      onPanelAction: () => { if (panelRow) { closePanel(); this.openDetail(panelRow); } }
+    };
+  }
+}
+
+</script>
+</body>
+</html>

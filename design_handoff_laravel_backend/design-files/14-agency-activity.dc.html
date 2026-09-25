@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body { margin: 0; background: #F7F7F8; }
+    a { color: #C41230; }
+    a:hover { color: #A10E27; }
+    @keyframes sbSpin { to { transform:rotate(360deg); } }
+  </style>
+  <script src="./export-utils.js"></script>
+  <script src="./clarify-store.js"></script>
+</helmet>
+
+<div style="font-family:'Inter',sans-serif; color:#1A1A1A; height:100vh; display:flex; flex-direction:column; background:#EDEEF0; overflow:hidden;">
+
+  <div style="height:64px; background:#C41230; display:flex; align-items:center; gap:20px; padding:0 24px; flex-shrink:0; position:relative; box-shadow:0 4px 10px rgba(0,0,0,0.18); z-index:10;">
+    <div style="display:flex; align-items:center; gap:12px; flex-shrink:0;">
+      <svg width="42" height="42" viewBox="0 0 512 512" style="flex-shrink:0;">
+        <defs><clipPath id="icHdrAgencyAct"><circle cx="256" cy="248" r="150"/></clipPath></defs>
+        <rect x="16" y="16" width="480" height="480" rx="92" ry="92" fill="#ffffff" stroke="#EDEEF0" stroke-width="4"/>
+        <g clip-path="url(#icHdrAgencyAct)">
+          <path d="M 256 248 L 256 98 A 150 150 0 0 1 386 323 Z" fill="#0072bc" opacity="0.3"/>
+          <path d="M 256 248 L 386 323 A 150 150 0 0 1 126 323 Z" fill="#e31c79" opacity="0.3"/>
+          <path d="M 256 248 L 126 323 A 150 150 0 0 1 256 98 Z" fill="#f5a623" opacity="0.3"/>
+        </g>
+        <circle cx="256" cy="248" r="192" fill="none" stroke="#C41230" stroke-width="24" stroke-dasharray="34 22" stroke-linecap="round"/>
+        <circle cx="256" cy="248" r="165" fill="none" stroke="#C41230" stroke-width="24" stroke-dasharray="30 19" stroke-linecap="round"/>
+        <path d="M 168 248 L 224 304 L 344 178" fill="none" stroke="#ffffff" stroke-width="70" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M 168 248 L 224 304 L 344 178" fill="none" stroke="#C41230" stroke-width="52" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div style="font-family:'Poppins',sans-serif; font-weight:800; font-size:19px; letter-spacing:-0.01em; white-space:nowrap;">
+        <span style="color:#1A1A1A;">SE</span><span style="color:#fff;">BENAR</span><span style="color:#1A1A1A;">NYA.MY</span>
+      </div>
+    </div>
+    <div style="flex:1;"></div>
+    <div style="display:flex; align-items:center; gap:14px; flex-shrink:0;">
+      <div onMouseEnter="{{ openProfileMenu }}" onMouseLeave="{{ closeProfileMenuDelayed }}" style="position:relative; flex-shrink:0;">
+        <div style="display:flex; align-items:center; gap:8px; flex-shrink:0; cursor:pointer; padding:4px; border-radius:8px;" style-hover="background:rgba(255,255,255,0.16);">
+          <div style="width:34px; height:34px; border-radius:50%; background:#FBE7E9; color:#C41230; font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">MOH</div>
+        </div>
+        <sc-if value="{{ profileMenuOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute; top:44px; right:0; width:230px; background:#fff; border:1px solid #EDEEF0; border-radius:10px; box-shadow:0 8px 24px rgba(0,0,0,0.12); z-index:30; overflow:hidden;">
+            <div style="padding:14px 16px; border-bottom:1px solid #F0F1F3;">
+              <div style="font-size:13.5px; font-weight:700;">Ministry of Health (MOH)</div>
+              <div style="font-size:12px; color:#8A8F98; margin:2px 0 4px;">Agency Staff</div>
+              <div style="font-size:11.5px; color:#8A8F98;">contact@moh.gov.my</div>
+            </div>
+            <div style="padding:6px;">
+              <a href="#" onClick="{{ onOpenProfile }}" style="display:block; padding:9px 10px; font-size:13px; font-weight:600; color:#4B4F58; text-decoration:none; border-radius:6px;" style-hover="background:#F7F7F8;">View Profile</a>
+              <a href="#" onClick="{{ onLogout }}" style="display:block; padding:9px 10px; font-size:13px; font-weight:600; color:#C41230; text-decoration:none; border-radius:6px;" style-hover="background:#FBE7E9;">Log Out</a>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </div>
+
+  <div style="flex:1; display:flex; gap:16px; min-height:0; overflow:hidden;">
+
+    <div style="width:216px; background:#fff; box-shadow:1px 0 0 rgba(0,0,0,0.05); display:flex; flex-direction:column; flex-shrink:0; overflow:auto;">
+      <div style="padding:16px 14px 8px; font-size:11px; font-weight:700; color:#8A8F98; text-transform:uppercase; letter-spacing:0.05em;">Menu</div>
+      <div style="flex:1; padding:0 10px; display:flex; flex-direction:column; gap:2px;">
+        <sc-for list="{{ navItems }}" as="item" hint-placeholder-count="6">
+          <sc-if value="{{ item.isActive }}" hint-placeholder-val="{{ false }}">
+          <div onClick="{{ item.onClick }}" style="display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:8px; background:#C41230; cursor:pointer; font-size:13px; font-weight:600; color:#fff; transition:background 0.15s ease;" style-hover="background:#A10E27;">
+            <sc-if value="{{ item.isGrid }}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M3 9h18M9 21V9" stroke="currentColor" stroke-width="1.8"/></svg></sc-if>
+            <sc-if value="{{ item.isFolder }}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M3.5 6.5A1.5 1.5 0 015 5h4.3a1.5 1.5 0 011.1.5l1.4 1.5H19a1.5 1.5 0 011.5 1.5v9a1.5 1.5 0 01-1.5 1.5H5a1.5 1.5 0 01-1.5-1.5v-11z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></sc-if>
+            <sc-if value="{{ item.isChart }}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M4 19V10M10 19V4M16 19v-7M22 19H2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></sc-if>
+            <sc-if value="{{ item.isClock }}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.8"/><path d="M12 7.5v5l3.3 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></sc-if>
+            <sc-if value="{{ item.isBell }}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M6 9a6 6 0 0112 0c0 4 1.5 5 1.5 5h-15S6 13 6 9z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M10 18a2 2 0 004 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></sc-if>
+            <sc-if value="{{ item.isUser }}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><circle cx="12" cy="8" r="3.5" stroke="currentColor" stroke-width="1.8"/><path d="M4.5 20c1-4 5-5.5 7.5-5.5s6.5 1.5 7.5 5.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></sc-if>
+            {{ item.label }}
+          </div>
+          </sc-if>
+          <sc-if value="{{ item.isInactive }}" hint-placeholder-val="{{ true }}">
+          <div onClick="{{ item.onClick }}" style="display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:8px; background:transparent; cursor:pointer; font-size:13px; font-weight:600; color:#4B4F58; transition:background 0.15s ease;" style-hover="background:#EDEEF0;">
+            <sc-if value="{{ item.isGrid }}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M3 9h18M9 21V9" stroke="currentColor" stroke-width="1.8"/></svg></sc-if>
+            <sc-if value="{{ item.isFolder }}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M3.5 6.5A1.5 1.5 0 015 5h4.3a1.5 1.5 0 011.1.5l1.4 1.5H19a1.5 1.5 0 011.5 1.5v9a1.5 1.5 0 01-1.5 1.5H5a1.5 1.5 0 01-1.5-1.5v-11z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></sc-if>
+            <sc-if value="{{ item.isChart }}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M4 19V10M10 19V4M16 19v-7M22 19H2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></sc-if>
+            <sc-if value="{{ item.isClock }}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.8"/><path d="M12 7.5v5l3.3 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></sc-if>
+            <sc-if value="{{ item.isBell }}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M6 9a6 6 0 0112 0c0 4 1.5 5 1.5 5h-15S6 13 6 9z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M10 18a2 2 0 004 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></sc-if>
+            <sc-if value="{{ item.isUser }}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><circle cx="12" cy="8" r="3.5" stroke="currentColor" stroke-width="1.8"/><path d="M4.5 20c1-4 5-5.5 7.5-5.5s6.5 1.5 7.5 5.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></sc-if>
+            {{ item.label }}
+          </div>
+          </sc-if>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="flex:1; background:#fff; border-radius:16px; box-shadow:0 1px 3px rgba(0,0,0,0.06); padding:28px 32px; overflow:auto; position:relative; min-width:0; margin:16px 16px 16px 0;">
+      <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:22px;">
+          <div>
+            <h2 style="font-family:'Poppins',sans-serif; font-weight:700; font-size:22px; margin:0 0 6px;">Activity Log</h2>
+            <p style="color:#8A8F98; font-size:14px; margin:0;">A record of actions your agency has taken on assigned inquiries.</p>
+          </div>
+          <button onClick="{{ onExport }}" style="background:#C41230; color:#fff; border:none; padding:10px 16px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:8px; flex-shrink:0; white-space:nowrap; font-family:'Inter',sans-serif;" style-hover="background:#A10E27;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 3v12M7 10l5 5 5-5M4 21h16" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Export Report
+          </button>
+        </div>
+
+      <div style="display:flex; gap:12px; margin-bottom:20px;">
+        <sc-for list="{{ filterTabs }}" as="f" hint-placeholder-count="4">
+          <div onClick="{{ f.onClick }}" style="padding:7px 14px; border-radius:20px; font-size:12.5px; font-weight:600; cursor:pointer; background:{{ f.bg }}; color:{{ f.color }};">{{ f.label }}</div>
+        </sc-for>
+      </div>
+
+      <div style="position:relative;">
+        <div style="position:absolute; left:15px; top:6px; bottom:6px; width:2px; background:#EDEEF0;"></div>
+        <sc-for list="{{ visibleLog }}" as="e" hint-placeholder-count="6">
+          <div style="display:flex; gap:14px; padding-bottom:22px; position:relative;">
+            <div style="width:32px; height:32px; border-radius:50%; background:{{ e.iconBg }}; color:{{ e.iconColor }}; display:flex; align-items:center; justify-content:center; flex-shrink:0; z-index:1;">
+              <sc-if value="{{ e.isUpdate }}" hint-placeholder-val="{{ false }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M4 20l1-4L16 5l3 3L8 19l-4 1z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></sc-if>
+              <sc-if value="{{ e.isComment }}" hint-placeholder-val="{{ false }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M4 4h16v12H9l-5 5V4z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></sc-if>
+              <sc-if value="{{ e.isClarify }}" hint-placeholder-val="{{ false }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M4 5h16v11H9l-5 4V5z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M10 9.5a2 2 0 113 1.7c-.7.4-1 .8-1 1.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></sc-if>
+              <sc-if value="{{ e.isResolve }}" hint-placeholder-val="{{ false }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></sc-if>
+            </div>
+            <div style="flex:1; min-width:0;">
+              <div style="font-size:13.5px; line-height:1.5;"><strong>{{ e.actor }}</strong> {{ e.text }}</div>
+              <div style="font-size:11.5px; color:#8A8F98; margin-top:3px;">{{ e.time }} · {{ e.inquiryTitle }}</div>
+            </div>
+          </div>
+        </sc-for>
+        <sc-if value="{{ logEmpty }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:32px; text-align:center; color:#8A8F98; font-size:13px;">No activity in this filter.</div>
+        </sc-if>
+      </div>
+    </div>
+  </div>
+  <sc-if value="{{ exportOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ onCloseExport }}" style="position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:60; display:flex; align-items:center; justify-content:center; padding:24px;">
+      <div onClick="{{ exportStopProp }}" style="width:580px; max-width:100%; max-height:calc(100vh - 48px); background:#fff; border-radius:14px; box-shadow:0 24px 60px rgba(0,0,0,0.25); display:flex; flex-direction:column; overflow:hidden;">
+        <div style="padding:20px 24px 16px; border-bottom:1px solid #F0F1F3; display:flex; align-items:flex-start; justify-content:space-between; gap:16px;">
+          <div>
+            <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:18px; margin-bottom:4px;">Export Report</div>
+            <div style="font-size:13px; color:#8A8F98;">{{ exportIntro }}</div>
+          </div>
+          <div onClick="{{ onCloseExport }}" style="cursor:pointer; color:#8A8F98; font-size:18px; line-height:1; padding:4px 6px; border-radius:6px;" style-hover="background:#F7F7F8; color:#C41230;">✕</div>
+        </div>
+
+        <sc-if value="{{ exportIsForm }}" hint-placeholder-val="{{ true }}">
+          <div style="flex:1; min-height:0; overflow:auto; padding:20px 24px; display:flex; flex-direction:column; gap:20px;">
+            <div>
+              <div style="font-size:11.5px; font-weight:700; color:#8A8F98; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:10px;">File Format</div>
+              <div style="display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:10px;">
+                <sc-for list="{{ exportFormats }}" as="f" hint-placeholder-count="3">
+                  <div onClick="{{ f.onSelect }}" style="border:1.5px solid {{ f.border }}; background:{{ f.bg }}; border-radius:10px; padding:12px; cursor:pointer; display:flex; flex-direction:column; gap:8px; transition:border-color 0.15s ease, background 0.15s ease;" style-hover="border-color:#C41230;">
+                    <div style="display:flex; align-items:center; justify-content:space-between;">
+                      <div style="width:34px; height:40px; border-radius:4px 10px 4px 4px; background:{{ f.iconBg }}; color:#fff; font-size:9.5px; font-weight:800; letter-spacing:0.03em; display:flex; align-items:flex-end; justify-content:center; padding-bottom:6px; box-sizing:border-box;">{{ f.ext }}</div>
+                      <div style="width:16px; height:16px; border-radius:50%; border:2px solid {{ f.radioBorder }}; display:flex; align-items:center; justify-content:center; box-sizing:border-box;">
+                        <div style="width:8px; height:8px; border-radius:50%; background:{{ f.radioDot }};"></div>
+                      </div>
+                    </div>
+                    <div style="font-size:13.5px; font-weight:700;">{{ f.label }}</div>
+                    <div style="font-size:11.5px; color:#6B6F76; line-height:1.45;">{{ f.desc }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div>
+              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+                <div style="font-size:11.5px; font-weight:700; color:#8A8F98; text-transform:uppercase; letter-spacing:0.05em;">Include Reports</div>
+                <div onClick="{{ onToggleAllSections }}" style="font-size:12px; font-weight:600; color:#C41230; cursor:pointer;">{{ toggleAllLabel }}</div>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:8px;">
+                <sc-for list="{{ exportSections }}" as="sec" hint-placeholder-count="3">
+                  <div onClick="{{ sec.onToggle }}" style="display:flex; align-items:center; gap:12px; padding:12px 14px; border:1px solid {{ sec.rowBorder }}; background:{{ sec.rowBg }}; border-radius:10px; cursor:pointer; transition:background 0.15s ease;">
+                    <div style="width:18px; height:18px; border-radius:5px; border:1.5px solid {{ sec.boxBorder }}; background:{{ sec.boxBg }}; display:flex; align-items:center; justify-content:center; flex-shrink:0; box-sizing:border-box;">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                    <div style="flex:1; min-width:0;">
+                      <div style="font-size:13.5px; font-weight:700;">{{ sec.label }}</div>
+                      <div style="font-size:12px; color:#8A8F98; margin-top:2px;">{{ sec.desc }}</div>
+                    </div>
+                    <div style="font-size:11.5px; font-weight:600; color:#6B6F76; background:#F0F1F3; padding:3px 9px; border-radius:20px; white-space:nowrap;">{{ sec.count }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="display:flex; flex-wrap:wrap; gap:14px;">
+              <sc-if value="{{ exportShowRange }}" hint-placeholder-val="{{ true }}">
+              <div style="flex:1; min-width:200px;">
+                <div style="font-size:11.5px; font-weight:700; color:#8A8F98; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:8px;">Reporting Period</div>
+                <select value="{{ exportRange }}" onChange="{{ onExportRangeChange }}" style="width:100%; height:38px; padding:0 10px; border-radius:8px; border:1px solid #D4D6DA; font-size:13.5px; background:#fff; font-family:'Inter',sans-serif;">
+                  <sc-for list="{{ exportRanges }}" as="rg" hint-placeholder-count="4"><option value="{{ rg.value }}">{{ rg.label }}</option></sc-for>
+                </select>
+              </div>
+              </sc-if>
+              <div style="flex:1; min-width:200px;">
+                <div style="font-size:11.5px; font-weight:700; color:#8A8F98; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:8px;">Options</div>
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                  <sc-for list="{{ exportToggles }}" as="t" hint-placeholder-count="2">
+                    <div onClick="{{ t.onToggle }}" style="display:flex; align-items:center; gap:10px; cursor:{{ t.cursor }}; opacity:{{ t.opacity }};">
+                      <div style="width:32px; height:18px; border-radius:10px; background:{{ t.trackBg }}; position:relative; flex-shrink:0; transition:background 0.15s ease;">
+                        <div style="position:absolute; top:2px; left:{{ t.knobLeft }}; width:14px; height:14px; border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,0.25); transition:left 0.15s ease;"></div>
+                      </div>
+                      <div style="font-size:12.5px; font-weight:600; color:#4B4F58;">{{ t.label }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </div>
+
+            <div style="background:#F7F7F8; border-radius:10px; padding:12px 14px; display:flex; flex-direction:column; gap:6px; font-size:12.5px;">
+              <div style="display:flex; gap:10px;"><div style="width:96px; color:#8A8F98; font-weight:600; flex-shrink:0;">Filters</div><div style="color:#1A1A1A;">{{ exportFiltersText }}</div></div>
+              <div style="display:flex; gap:10px;"><div style="width:96px; color:#8A8F98; font-weight:600; flex-shrink:0;">File name</div><div style="color:#1A1A1A; font-family:ui-monospace,monospace; font-size:12px; word-break:break-all;">{{ exportFilename }}</div></div>
+              <div style="display:flex; gap:10px;"><div style="width:96px; color:#8A8F98; font-weight:600; flex-shrink:0;">Prepared by</div><div style="color:#1A1A1A;">{{ exportPreparedBy }}</div></div>
+            </div>
+
+            <sc-if value="{{ exportHasError }}" hint-placeholder-val="{{ false }}">
+              <div style="background:#FBE7E9; color:#A10E27; border-radius:8px; padding:10px 12px; font-size:12.5px; font-weight:600;">{{ exportError }}</div>
+            </sc-if>
+
+            <sc-if value="{{ exportHasHistory }}" hint-placeholder-val="{{ false }}">
+              <div>
+                <div style="font-size:11.5px; font-weight:700; color:#8A8F98; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:8px;">Recent Exports (this session)</div>
+                <div style="display:flex; flex-direction:column; gap:6px;">
+                  <sc-for list="{{ exportHistory }}" as="h" hint-placeholder-count="1">
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; font-size:12px; padding:8px 10px; border:1px solid #EDEEF0; border-radius:8px;">
+                      <div style="font-family:ui-monospace,monospace; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ h.filename }}</div>
+                      <div style="color:#8A8F98; white-space:nowrap;">{{ h.meta }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
+          </div>
+          <div style="flex-shrink:0; padding:14px 24px; border-top:1px solid #F0F1F3; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px;">
+            <div style="font-size:12px; color:#8A8F98;">{{ exportSummaryText }}</div>
+            <div style="display:flex; gap:10px;">
+              <button onClick="{{ onCloseExport }}" style="white-space:nowrap; flex-shrink:0; background:#fff; border:1.5px solid #D4D6DA; padding:9px 16px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer;" style-hover="background:#F7F7F8;">Cancel</button>
+              <button onClick="{{ onGenerateExport }}" disabled="{{ exportBtnDisabled }}" style="white-space:nowrap; flex-shrink:0; background:{{ exportBtnBg }}; color:#fff; border:none; padding:9px 18px; border-radius:8px; font-size:13px; font-weight:700; cursor:{{ exportBtnCursor }}; display:inline-flex; align-items:center; gap:8px; min-width:150px; justify-content:center;">
+                <sc-if value="{{ exportIsWorking }}" hint-placeholder-val="{{ false }}">
+                  <span style="width:13px; height:13px; border-radius:50%; border:2px solid rgba(255,255,255,0.4); border-top-color:#fff; display:inline-block; animation:sbSpin 0.7s linear infinite;"></span>
+                </sc-if>
+                {{ exportBtnLabel }}
+              </button>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ exportIsDone }}" hint-placeholder-val="{{ false }}">
+          <div style="flex:1; min-height:0; overflow:auto; padding:32px 28px 24px; display:flex; flex-direction:column; align-items:center; text-align:center; gap:10px;">
+            <div style="width:56px; height:56px; border-radius:50%; background:#E4F5E9; display:flex; align-items:center; justify-content:center;">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="#1D7A3E" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:18px;">Report Exported</div>
+            <div style="font-size:13px; color:#6B6F76; max-width:400px; line-height:1.5;">Your file has been downloaded. Check your browser's downloads folder.</div>
+            <div style="width:100%; box-sizing:border-box; flex-shrink:0; background:#F7F7F8; border-radius:10px; padding:14px 16px; margin-top:8px; display:flex; flex-direction:column; gap:8px; text-align:left; font-size:12.5px;">
+              <div style="display:flex; gap:10px; flex-shrink:0;"><div style="width:90px; color:#8A8F98; font-weight:600; flex-shrink:0;">File</div><div style="flex:1; min-width:0; font-family:ui-monospace,monospace; font-size:12px; word-break:break-all;">{{ exportResultFile }}</div></div>
+              <div style="display:flex; gap:10px; flex-shrink:0;"><div style="width:90px; color:#8A8F98; font-weight:600; flex-shrink:0;">Report ID</div><div style="flex:1; min-width:0;">{{ exportResultId }}</div></div>
+              <div style="display:flex; gap:10px; flex-shrink:0;"><div style="width:90px; color:#8A8F98; font-weight:600; flex-shrink:0;">Contents</div><div style="flex:1; min-width:0;">{{ exportResultContents }}</div></div>
+              <div style="display:flex; gap:10px; flex-shrink:0;"><div style="width:90px; color:#8A8F98; font-weight:600; flex-shrink:0;">Generated</div><div style="flex:1; min-width:0;">{{ exportResultTime }}</div></div>
+            </div>
+            <sc-if value="{{ exportResultHasNote }}" hint-placeholder-val="{{ false }}">
+              <div style="width:100%; background:#FEF6EC; color:#8A4A06; border-radius:8px; padding:10px 12px; font-size:12.5px; font-weight:600; text-align:left; box-sizing:border-box;">{{ exportResultNote }}</div>
+            </sc-if>
+          </div>
+          <div style="flex-shrink:0; padding:14px 24px; border-top:1px solid #F0F1F3; display:flex; flex-wrap:wrap; justify-content:space-between; gap:10px;">
+            <button onClick="{{ onExportAnother }}" style="white-space:nowrap; flex-shrink:0; background:#fff; border:1.5px solid #D4D6DA; padding:9px 16px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer;" style-hover="background:#F7F7F8;">Export Another</button>
+            <div style="display:flex; gap:10px;">
+              <button onClick="{{ onDownloadAgain }}" style="white-space:nowrap; flex-shrink:0; background:#fff; border:1.5px solid #C41230; color:#C41230; padding:9px 16px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer;" style-hover="background:#FBE7E9;">Download Again</button>
+              <button onClick="{{ onCloseExport }}" style="white-space:nowrap; flex-shrink:0; background:#C41230; color:#fff; border:none; padding:9px 18px; border-radius:8px; font-size:13px; font-weight:700; cursor:pointer;" style-hover="background:#A10E27;">Done</button>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ toastMsg }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed; top:84px; left:50%; transform:translateX(-50%); background:#1A1A1A; color:#fff; padding:12px 22px; border-radius:8px; font-size:13.5px; font-weight:500; box-shadow:0 8px 24px rgba(0,0,0,0.2); z-index:80;">{{ toastMsg }}</div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { profileMenuOpen: false, filter: 'all', toastMsg: '' };
+
+  showToast(msg) { this.setState({ toastMsg: msg }); clearTimeout(this._toastT); this._toastT = setTimeout(() => this.setState({ toastMsg: '' }), 2800); }
+  typeLabel(t) { return { update: 'Status Update', comment: 'Comment', resolve: 'Resolution', clarify: 'Clarification' }[t] || t; }
+
+  componentDidMount() {
+    const hook = () => {
+      if (window.SBClarify) { this._unsubClarify = window.SBClarify.subscribe(() => this.forceUpdate()); this.forceUpdate(); }
+      else this._clarifyRetry = setTimeout(hook, 150);
+    };
+    hook();
+  }
+  componentWillUnmount() { if (this._unsubClarify) this._unsubClarify(); clearTimeout(this._clarifyRetry); }
+
+  parseAt(s) { const t = Date.parse(String(s).replace(',', '')); return isNaN(t) ? 0 : t; }
+  allLog() {
+    const S = window.SBClarify, ev = [];
+    if (S) S.all().filter(t => t.agency === 'Ministry of Health (MOH)').forEach(th => th.messages.forEach((m, i) => {
+      const short = m.text.length > 80 ? m.text.slice(0, 80).replace(/\s+\S*$/, '') + '…' : m.text;
+      if (m.kind === 'invite') { ev.push({ actor: m.author + ' (MCMC)', text: 'invited ' + S.shortAgency(m.agency) + ' to consult on clarification ' + th.id, time: m.at, at: m.at, inquiryTitle: th.inquiry.title, type: 'clarify', agencySide: false }); return; }
+      if (m.kind === 'endConsult') { ev.push({ actor: m.author + ' (MCMC)', text: 'ended consultation with ' + S.shortAgency(m.agency) + ' on ' + th.id, time: m.at, at: m.at, inquiryTitle: th.inquiry.title, type: 'clarify', agencySide: false }); return; }
+      if (m.from === 'consult') { ev.push({ actor: m.author + ' (' + S.shortAgency(m.agency) + ')', text: 'advised via MCMC on clarification ' + th.id + ': "' + short + '"', time: m.at, at: m.at, inquiryTitle: th.inquiry.title, type: 'clarify', agencySide: false }); return; }
+      const text = m.from === 'system' ? 'closed clarification ' + th.id + ' — ' + m.text.replace(/^Closed by [^:]+: /, '')
+        : m.from === 'mcmc' ? 'responded to clarification ' + th.id + ': "' + short + '"'
+        : i === 0 ? 'requested clarification from MCMC (' + th.topic + ', ' + th.id + '): "' + short + '"'
+        : 'sent a follow-up on clarification ' + th.id + ': "' + short + '"';
+      ev.push({ actor: m.from === 'mcmc' ? m.author + ' (MCMC)' : m.author, text, time: m.at, at: m.at, inquiryTitle: th.inquiry.title, type: 'clarify', agencySide: m.from !== 'mcmc' });
+    }));
+    if (S) S.consultsFor('Ministry of Health (MOH)').forEach(th => th.messages.forEach(m => {
+      const own = th.agency === 'Ministry of Health (MOH)';
+      if (own) return;
+      const short = m.text.length > 80 ? m.text.slice(0, 80).replace(/\s+\S*$/, '') + '…' : m.text;
+      if (m.kind === 'invite' && m.agency === 'Ministry of Health (MOH)') ev.push({ actor: m.author + ' (MCMC)', text: 'invited MOH to consult on ' + th.id + ' (case owned by ' + S.shortAgency(th.agency) + ')', time: m.at, at: m.at, inquiryTitle: th.inquiry.title, type: 'clarify', agencySide: false });
+      else if (m.from === 'consult' && m.agency === 'Ministry of Health (MOH)') ev.push({ actor: m.author, text: 'sent consultation advice to MCMC on ' + th.id + ' (case owned by ' + S.shortAgency(th.agency) + '): "' + short + '"', time: m.at, at: m.at, inquiryTitle: th.inquiry.title, type: 'clarify', agencySide: true });
+      else if (m.kind === 'endConsult' && m.agency === 'Ministry of Health (MOH)') ev.push({ actor: m.author + ' (MCMC)', text: 'ended MOH\u2019s consultation on ' + th.id, time: m.at, at: m.at, inquiryTitle: th.inquiry.title, type: 'clarify', agencySide: false });
+    }));
+    return [...this.logData.map(e => ({ ...e, agencySide: true })), ...ev].sort((x, y) => this.parseAt(y.at) - this.parseAt(x.at));
+  }
+
+  buildExportSpec(o) {
+    const f = this.state.filter;
+    const rows = this.allLog().filter(e => f === 'all' || e.type === f);
+    const groups = [];
+    if (o.sel.log) {
+      groups.push({ key: 'log', name: 'Activity Log', kpis: [
+        { label: 'Entries in Export', value: rows.length, tone: 'ink' }, { label: 'Status Updates', value: rows.filter(e => e.type === 'update').length, tone: 'amber' },
+        { label: 'Comments & Clarifications', value: rows.filter(e => e.type === 'comment' || e.type === 'clarify').length, tone: 'blue' }, { label: 'Resolutions', value: rows.filter(e => e.type === 'resolve').length, tone: 'green' }],
+        blocks: [{ type: 'table', heading: 'Activity Entries', sheet: 'Activity Log', columns: ['Date & Time', 'Officer', 'Action', 'Type'].concat(o.detail ? ['Inquiry'] : []),
+          rows: rows.map(e => [e.at, e.actor, e.text.charAt(0).toUpperCase() + e.text.slice(1), this.typeLabel(e.type)].concat(o.detail ? [e.inquiryTitle] : [])), empty: 'No activity in this filter.' }] });
+    }
+    if (o.sel.officers) {
+      const officers = [...new Set(rows.filter(e => e.agencySide).map(e => e.actor))];
+      const data = officers.map(n => { const r = rows.filter(e => e.actor === n); return { n, u: r.filter(e => e.type === 'update').length, c: r.filter(e => e.type === 'comment').length, z: r.filter(e => e.type === 'resolve').length, t: r.length }; });
+      groups.push({ key: 'officers', name: 'Actions by Officer', blocks: [
+        ...(o.charts ? [{ type: 'chart', heading: 'Total Actions per Officer', data: data.map(x => ({ label: x.n, value: x.t })) }] : []),
+        { type: 'table', heading: 'Officer Activity Summary', sheet: 'By Officer', columns: ['Officer', 'Status Updates', 'Comments', 'Resolutions', 'Total Actions'],
+          rows: data.map(x => [x.n, x.u, x.c, x.z, x.t]).concat(data.length ? [['Total', data.reduce((a, x) => a + x.u, 0), data.reduce((a, x) => a + x.c, 0), data.reduce((a, x) => a + x.z, 0), rows.length]] : []) }] });
+    }
+    const fl = { all: 'All Activity', update: 'Status Updates', comment: 'Comments', resolve: 'Resolutions', clarify: 'Clarifications' }[f];
+    return { title: 'Agency Activity Log — Ministry of Health (MOH)', subtitle: groups.map(g => g.name).join(' · ') || 'No sections selected', filename: 'SEBENARNYA_MOH-Activity-Log',
+      org: 'Ministry of Health (MOH)', generatedBy: 'Dr. Aiman Rashid (MOH Agency Staff)', period: 'All recorded activity (Aug – Sep 2026)', filters: [['Activity type', fl]], groups };
+  }
+
+  exportVals() {
+    if (!window.SBExport) { clearTimeout(this._exRetry); this._exRetry = setTimeout(() => this.forceUpdate(), 300); this._ex = { exportOpen: false }; return this._ex; }
+    this._ex = window.SBExport.vals(this, {
+      sections: [
+        { key: 'log', label: 'Activity Entries', desc: 'Timestamped audit trail of every action' },
+        { key: 'officers', label: 'Actions by Officer', desc: 'Updates, comments and resolutions per officer' }
+      ],
+      buildSpec: (o) => this.buildExportSpec(o), ranges: false,
+      intro: 'Export the audit trail using the activity filter currently selected.',
+      preparedBy: 'Dr. Aiman Rashid · MOH Agency Staff', detailLabel: 'Include inquiry titles',
+      filename: 'SEBENARNYA_MOH-Activity-Log', onExported: (r) => this.showToast(`Exported: ${r.filename}`)
+    });
+    return this._ex;
+  }
+
+  openProfileMenu() { clearTimeout(this.profileCloseTimer); this.setState({ profileMenuOpen: true }); }
+  closeProfileMenuDelayed() { this.profileCloseTimer = setTimeout(() => this.setState({ profileMenuOpen: false }), 400); }
+
+  navDefs = [
+    { label: 'Dashboard', icon: 'grid' },
+    { label: 'Assigned Inquiries', icon: 'folder' },
+    { label: 'Reports', icon: 'chart' },
+    { label: 'Activity Log', icon: 'clock' },
+    { label: 'Profile', icon: 'user' }
+  ];
+
+  logData = [
+    { actor: 'Dr. Aisha Kamal', text: 'updated status to Under Investigation', time: '2 hours ago', at: '23 Sep 2026, 08:42', inquiryTitle: 'Fake vaccine side-effect statistics', type: 'update' },
+    { actor: 'Encik Farid Rahman', text: 'added a note on evidence review', time: 'Yesterday', at: '22 Sep 2026, 15:10', inquiryTitle: 'Counterfeit vaccine batch warning', type: 'comment' },
+    { actor: 'Puan Siti Norain', text: 'resolved inquiry as Verified True', time: '2 days ago', at: '21 Sep 2026, 11:27', inquiryTitle: 'Misleading clinic pricing claim', type: 'resolve' },
+    { actor: 'Dr. Aisha Kamal', text: 'resolved inquiry as Identified Fake', time: '5 days ago', at: '18 Sep 2026, 16:05', inquiryTitle: '"Miracle cure" supplement post', type: 'resolve' },
+    { actor: 'Encik Farid Rahman', text: 'resolved inquiry as Verified True', time: '8 days ago', at: '15 Sep 2026, 10:33', inquiryTitle: 'Hospital overcapacity rumor', type: 'resolve' },
+    { actor: 'Puan Siti Norain', text: 'rejected inquiry — outside jurisdiction', time: '12 days ago', at: '11 Sep 2026, 14:48', inquiryTitle: 'Unrelated banking scam forwarded by mistake', type: 'update' }
+  ];
+
+  renderVals() {
+    const s = this.state;
+    const navTargets = [
+      () => { window.location.href = './08-agency-auth-dashboard.dc.html'; },
+      () => { window.location.href = './09-agency-workflow.dc.html'; },
+      () => { window.location.href = './13-agency-reports.dc.html'; },
+      () => {},
+      () => { window.location.href = './10-agency-profile.dc.html'; }
+    ];
+    const navItems = this.navDefs.map((it, i) => {
+      const active = it.label === 'Activity Log';
+      return {
+        label: it.label, isActive: active, isInactive: !active,
+        isGrid: it.icon === 'grid', isFolder: it.icon === 'folder', isChart: it.icon === 'chart', isClock: it.icon === 'clock', isBell: it.icon === 'bell', isUser: it.icon === 'user',
+        onClick: navTargets[i]
+      };
+    });
+
+    const filterDefs = [
+      { key: 'all', label: 'All Activity' },
+      { key: 'update', label: 'Status Updates' },
+      { key: 'comment', label: 'Comments' },
+      { key: 'resolve', label: 'Resolutions' },
+      { key: 'clarify', label: 'Clarifications' }
+    ];
+    const filterTabs = filterDefs.map(f => ({
+      label: f.label,
+      bg: s.filter === f.key ? '#FBE7E9' : '#F7F7F8',
+      color: s.filter === f.key ? '#C41230' : '#4B4F58',
+      onClick: () => this.setState({ filter: f.key })
+    }));
+
+    const visibleLog = this.allLog().filter(e => s.filter === 'all' || e.type === s.filter).map(e => ({
+      ...e,
+      isUpdate: e.type === 'update', isComment: e.type === 'comment', isResolve: e.type === 'resolve', isClarify: e.type === 'clarify',
+      iconBg: e.type === 'update' ? '#FEF6EC' : e.type === 'comment' ? '#EAF1FB' : e.type === 'clarify' ? '#F1EAFA' : '#E4F5E9',
+      iconColor: e.type === 'update' ? '#C4670A' : e.type === 'comment' ? '#1D5FBF' : e.type === 'clarify' ? '#6B3FA0' : '#1D7A3E'
+    }));
+
+    return {
+      navItems,
+      profileMenuOpen: s.profileMenuOpen,
+      openProfileMenu: () => this.openProfileMenu(),
+      closeProfileMenuDelayed: () => this.closeProfileMenuDelayed(),
+      onOpenProfile: (e) => { e.preventDefault(); window.location.href = './10-agency-profile.dc.html'; },
+      onLogout: (e) => { e.preventDefault(); window.location.href = './01-login.dc.html'; },
+      filterTabs, visibleLog, logEmpty: visibleLog.length === 0,
+      toastMsg: s.toastMsg,
+      ...this.exportVals(),
+      onExport: () => this._ex.openExport && this._ex.openExport('pdf')
+    };
+  }
+}
+
+</script>
+</body>
+</html>

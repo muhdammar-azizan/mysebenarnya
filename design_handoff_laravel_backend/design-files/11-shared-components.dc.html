@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body { margin: 0; background: #F0F1F3; font-family: 'Inter', sans-serif; }
+    a { color: #C41230; }
+    a:hover { color: #A10E27; }
+    ::placeholder { color: #A6A9AF; }
+    @keyframes flashRow { 0% { background: #FBE7E9; } 100% { background: transparent; } }
+    @keyframes nf-pulse { 0%, 100% { transform: scale(0.9); opacity: 0.7; } 50% { transform: scale(1.05); opacity: 1; } }
+    @keyframes nf-search { 0%, 100% { transform: translate(-50%,-50%) rotate(0deg); } 50% { transform: translate(-50%,-50%) rotate(-12deg); } }
+  </style>
+</helmet>
+
+<div style="color:#1A1A1A;">
+
+  <div style="padding:28px 32px 8px;">
+    <h1 style="font-family:'Poppins',sans-serif; font-weight:800; font-size:24px; margin:0 0 4px;">Shared Components</h1>
+    <p style="color:#8A8F98; font-size:14px; margin:0;">Reusable patterns across the Public, MCMC, and Agency portals — notifications, empty states, error states, and 404.</p>
+  </div>
+
+  <!-- SECTION 1: NOTIFICATION CENTER -->
+  <div style="padding:20px 32px 8px;">
+    <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:16px; margin-bottom:10px;">1. Notification Center</div>
+    <div style="display:inline-flex; gap:4px; background:#fff; border:1px solid #EDEEF0; border-radius:10px; padding:4px; margin-bottom:16px;">
+      <sc-for list="{{ roleTabs }}" as="t" hint-placeholder-count="3">
+        <div onClick="{{ t.onClick }}" style="padding:8px 16px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; background:{{ t.bg }}; color:{{ t.color }};">{{ t.label }}</div>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="margin:0 32px 28px; border-radius:16px; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,0.06); border:1px solid #EDEEF0;" id="notification-center">
+    <div style="display:flex; flex-direction:column; min-height:640px; background:linear-gradient(180deg, #E8C3CB 0px, #E8C3CB 90px, #55555A 90px, #55555A 100%);">
+
+      <div style="height:56px; flex-shrink:0; display:flex; align-items:center; gap:16px; padding:0 20px;">
+        <div style="font-family:'Poppins',sans-serif; font-weight:800; font-size:13px; white-space:nowrap;">
+          <span style="color:#1A1A1A;">SE</span><span style="color:#C41230;">BENAR</span><span style="color:#1A1A1A;">NYA.MY</span>
+        </div>
+        <div style="flex:1;"></div>
+        <div style="font-size:12px; color:#8A8F98; background:#fff; border:1px solid #D4D6DA; border-radius:8px; padding:6px 14px;">Search...</div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <div style="width:26px; height:26px; border-radius:{{ shell.avatarRadius }}; background:{{ shell.avatarBg }}; color:{{ shell.avatarColor }}; font-weight:700; font-size:10.5px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">{{ shell.initials }}</div>
+          <div>
+            <div style="font-size:12px; font-weight:600; white-space:nowrap;">{{ shell.name }}</div>
+            <div style="font-size:10.5px; color:#8A8F98; white-space:nowrap;">{{ shell.roleLabel }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="flex:1; display:flex; gap:12px; padding:12px; min-height:0;">
+        <div style="width:190px; background:#fff; border-radius:14px; box-shadow:0 1px 3px rgba(0,0,0,0.06); display:flex; flex-direction:column; flex-shrink:0; padding:10px 8px;">
+          <div style="padding:4px 6px 8px; font-size:10px; font-weight:700; color:#8A8F98; text-transform:uppercase; letter-spacing:0.05em;">Menu</div>
+          <sc-for list="{{ shell.navItems }}" as="item" hint-placeholder-count="5">
+            <div style="display:flex; align-items:center; gap:8px; padding:8px 9px; border-radius:7px; background:{{ item.rowBg }}; color:{{ item.rowColor }}; font-size:12px; font-weight:600;">
+              <div style="width:6px; height:6px; border-radius:2px; background:currentColor; flex-shrink:0;"></div>
+              <div>{{ item.label }}</div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="flex:1; background:#fff; border-radius:14px; box-shadow:0 1px 3px rgba(0,0,0,0.06); padding:20px 22px; overflow:auto; min-width:0;">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
+            <h2 style="font-family:'Poppins',sans-serif; font-weight:700; font-size:19px; margin:0;">Notifications</h2>
+            <a href="#" onClick="{{ markAllRead }}" style="font-size:12.5px; font-weight:600; text-decoration:none;">Mark all as read</a>
+          </div>
+          <p style="color:#8A8F98; font-size:13px; margin:0 0 16px;">Stay updated on inquiry status and system activity.</p>
+
+          <div style="display:flex; gap:8px; margin-bottom:14px;">
+            <sc-for list="{{ notifFilterTabs }}" as="f" hint-placeholder-count="3">
+              <div onClick="{{ f.onClick }}" style="padding:7px 14px; border-radius:20px; font-size:12.5px; font-weight:600; cursor:pointer; background:{{ f.bg }}; color:{{ f.color }}; display:flex; align-items:center; gap:6px;">{{ f.label }}<sc-if value="{{ f.showBadge }}" hint-placeholder-val="{{ false }}"><span style="background:#C41230; color:#fff; font-size:10px; font-weight:700; border-radius:10px; padding:1px 6px;">{{ f.badgeCount }}</span></sc-if></div>
+            </sc-for>
+          </div>
+
+          <div style="background:#fff; border:1px solid #EDEEF0; border-radius:10px; overflow:hidden;">
+            <sc-for list="{{ visibleNotifs }}" as="n" hint-placeholder-count="5">
+              <div onClick="{{ n.onClick }}" style="display:flex; align-items:flex-start; gap:12px; padding:14px 16px; border-bottom:1px solid #F5F5F6; cursor:pointer; animation:{{ n.flashAnim }};">
+                <div style="width:30px; height:30px; border-radius:50%; background:{{ n.iconBg }}; color:{{ n.iconColor }}; display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0;">{{ n.icon }}</div>
+                <div style="flex:1; min-width:0;">
+                  <div style="font-size:13px; font-weight:{{ n.weight }}; line-height:1.4;">{{ n.text }}</div>
+                  <div style="font-size:11.5px; color:#8A8F98; margin-top:3px;">{{ n.time }}</div>
+                </div>
+                <sc-if value="{{ n.unread }}" hint-placeholder-val="{{ false }}"><div style="width:8px; height:8px; border-radius:50%; background:#C41230; flex-shrink:0; margin-top:5px;"></div></sc-if>
+              </div>
+            </sc-for>
+            <sc-if value="{{ noVisibleNotifs }}" hint-placeholder-val="{{ false }}">
+              <div style="padding:32px; text-align:center; color:#8A8F98; font-size:13px;">No notifications in this filter.</div>
+            </sc-if>
+          </div>
+
+          <div style="text-align:center; margin-top:16px;">
+            <button style="background:#fff; color:#4B4F58; border:1.5px solid #D4D6DA; padding:9px 20px; border-radius:8px; font-size:12.5px; font-weight:600; cursor:pointer;">Load More</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: EMPTY STATES -->
+  <div style="padding:8px 32px;">
+    <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:16px; margin-bottom:14px;">2. Empty States</div>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px; margin-bottom:28px;">
+
+      <div>
+        <div style="font-size:12px; font-weight:600; color:#8A8F98; margin-bottom:8px;">Empty: No Inquiries Yet — Public Dashboard</div>
+        <div style="background:#fff; border:1px solid #EDEEF0; border-radius:10px; padding:40px 24px; text-align:center; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+          <div style="width:56px; height:56px; border-radius:50%; background:#FBE7E9; color:#E39AA4; font-size:24px; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">📄</div>
+          <div style="font-weight:700; font-size:15px; margin-bottom:6px;">No inquiries yet</div>
+          <div style="color:#8A8F98; font-size:13px; margin-bottom:18px;">Submit your first inquiry to start verifying news.</div>
+          <button onClick="{{ empty1.onClick }}" style="background:{{ empty1.bg }}; color:#fff; border:none; padding:10px 18px; border-radius:8px; font-size:12.5px; font-weight:700; cursor:pointer;">Submit an Inquiry</button>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size:12px; font-weight:600; color:#8A8F98; margin-bottom:8px;">Empty: No Notifications</div>
+        <div style="background:#fff; border:1px solid #EDEEF0; border-radius:10px; padding:40px 24px; text-align:center; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+          <div style="width:56px; height:56px; border-radius:50%; background:#F0F1F3; color:#C6C8CC; font-size:24px; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">🔔</div>
+          <div style="font-weight:700; font-size:15px; margin-bottom:6px;">You're all caught up</div>
+          <div style="color:#8A8F98; font-size:13px;">No new notifications at the moment.</div>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size:12px; font-weight:600; color:#8A8F98; margin-bottom:8px;">Empty: No Search Results</div>
+        <div style="background:#fff; border:1px solid #EDEEF0; border-radius:10px; padding:40px 24px; text-align:center; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+          <div style="width:56px; height:56px; border-radius:50%; background:#F0F1F3; color:#C6C8CC; font-size:24px; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">🔍</div>
+          <div style="font-weight:700; font-size:15px; margin-bottom:6px;">No results found</div>
+          <div style="color:#8A8F98; font-size:13px; margin-bottom:18px;">Try adjusting your filters or search terms.</div>
+          <button onClick="{{ empty3.onClick }}" style="background:#fff; color:{{ empty3.color }}; border:1.5px solid {{ empty3.color }}; padding:10px 18px; border-radius:8px; font-size:12.5px; font-weight:700; cursor:pointer;">Clear Filters</button>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size:12px; font-weight:600; color:#8A8F98; margin-bottom:8px;">Empty: No Agencies Registered — MCMC</div>
+        <div style="background:#fff; border:1px solid #EDEEF0; border-radius:10px; padding:40px 24px; text-align:center; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+          <div style="width:56px; height:56px; border-radius:50%; background:#FBE7E9; color:#E39AA4; font-size:24px; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">🏢</div>
+          <div style="font-weight:700; font-size:15px; margin-bottom:6px;">No agencies registered yet</div>
+          <div style="color:#8A8F98; font-size:13px; margin-bottom:18px;">Register your first verification agency to start assigning inquiries.</div>
+          <button onClick="{{ empty4.onClick }}" style="background:{{ empty4.bg }}; color:#fff; border:none; padding:10px 18px; border-radius:8px; font-size:12.5px; font-weight:700; cursor:pointer;">Register New Agency</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SECTION 3: ERROR STATES -->
+  <div style="padding:8px 32px;">
+    <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:16px; margin-bottom:14px;">3. Error States</div>
+    <div style="display:flex; flex-direction:column; gap:18px; margin-bottom:28px;">
+
+      <div>
+        <div style="font-size:12px; font-weight:600; color:#8A8F98; margin-bottom:8px;">Error: Network / Connection Failure</div>
+        <div style="background:#FBE7E9; border:1px solid #F3AEB6; border-radius:10px; padding:14px 18px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+          <span style="font-size:18px;">⚠️</span>
+          <div style="flex:1; min-width:200px; font-size:13px; color:#8A2530; font-weight:500;">Unable to connect. Please check your internet connection and try again.</div>
+          <button onClick="{{ retryNet.onClick }}" style="background:#C41230; color:#fff; border:none; padding:8px 16px; border-radius:7px; font-size:12.5px; font-weight:700; cursor:pointer; flex-shrink:0;">{{ retryNet.label }}</button>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size:12px; font-weight:600; color:#8A8F98; margin-bottom:8px;">Error: Form Submission Failed</div>
+        <div style="max-width:520px; background:#fff; border:1px solid #EDEEF0; border-radius:10px; padding:18px; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+          <div style="height:38px; background:#F7F7F8; border-radius:7px; margin-bottom:10px;"></div>
+          <button style="background:#EDEEF0; color:#8A8F98; border:none; padding:9px 18px; border-radius:8px; font-size:12.5px; font-weight:700; margin-bottom:12px;">Submit Inquiry</button>
+          <div style="background:#FBE7E9; border:1px solid #F3AEB6; border-radius:8px; padding:12px 14px; display:flex; align-items:flex-start; gap:10px;">
+            <span style="font-size:15px;">⚠️</span>
+            <div style="flex:1;">
+              <div style="font-size:12.5px; color:#8A2530; line-height:1.5; margin-bottom:8px;">Something went wrong while submitting your inquiry. Please try again, or contact support if the issue persists.</div>
+              <button onClick="{{ retryForm.onClick }}" style="background:#fff; color:#C41230; border:1.5px solid #C41230; padding:7px 14px; border-radius:6px; font-size:12px; font-weight:700; cursor:pointer;">{{ retryForm.label }}</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size:12px; font-weight:600; color:#8A8F98; margin-bottom:8px;">Error: Session Expired</div>
+        <div style="background:#1A1A1A; border-radius:12px; padding:40px 24px; text-align:center; max-width:420px;">
+          <div style="width:52px; height:52px; border-radius:50%; background:rgba(255,255,255,0.08); color:#fff; font-size:22px; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">🔒</div>
+          <div style="font-weight:700; font-size:16px; color:#fff; margin-bottom:6px;">Your session has expired</div>
+          <div style="color:#B8B9BD; font-size:13px; margin-bottom:18px;">For your security, please log in again to continue.</div>
+          <button onClick="{{ sessionExpired.onClick }}" style="background:{{ sessionExpired.bg }}; color:#fff; border:none; padding:10px 22px; border-radius:8px; font-size:12.5px; font-weight:700; cursor:pointer;">Log In Again</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SECTION 4: 404 PAGE -->
+  <div style="padding:8px 32px 40px;">
+    <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:16px; margin-bottom:14px;">4. 404 Page</div>
+    <div style="background:#fff; border:1px solid #EDEEF0; border-radius:12px; padding:60px 24px; text-align:center; box-shadow:0 1px 3px rgba(0,0,0,0.04); overflow:hidden;">
+      <div style="position:relative; width:96px; height:96px; margin:0 auto 18px;">
+        <div style="position:absolute; inset:0; border-radius:50%; background:#FDE8EA; animation:nf-pulse 2.2s ease-in-out infinite;"></div>
+        <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="#C41230" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); animation:nf-search 2.6s ease-in-out infinite;">
+          <circle cx="10.5" cy="10.5" r="6.5"></circle>
+          <line x1="15.3" y1="15.3" x2="21" y2="21"></line>
+        </svg>
+      </div>
+      <div style="font-family:'Poppins',sans-serif; font-weight:800; font-size:64px; color:#C41230; line-height:1; margin-bottom:10px;">404</div>
+      <div style="font-weight:700; font-size:19px; margin-bottom:8px;">Page Not Found</div>
+      <div style="color:#8A8F98; font-size:14px; margin-bottom:24px;">The page you're looking for doesn't exist or may have been moved.</div>
+      <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+        <button onClick="{{ notfound.onClick }}" style="background:{{ notfound.bg }}; color:#fff; border:none; padding:11px 22px; border-radius:8px; font-size:13px; font-weight:700; cursor:pointer;">Back to Dashboard</button>
+        <button onClick="{{ goback.onClick }}" style="background:#fff; color:{{ goback.color }}; border:1.5px solid {{ goback.color }}; padding:11px 22px; border-radius:8px; font-size:13px; font-weight:700; cursor:pointer;">Go Back</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    role: new URLSearchParams(location.search).get('role') || 'public',
+    notifFilter: 'all',
+    ctaFlashes: {},
+    retrying: {},
+
+    publicNotifs: [
+      { id: 1, icon: '✓', iconBg: '#E4F5E9', iconColor: '#1D7A3E', text: "Your inquiry \u2018Counterfeit vaccine batch warning\u2019 has been marked as Verified as True", time: '2 hours ago', unread: true, type: 'action' },
+      { id: 2, icon: '🔔', iconBg: '#F0F1F3', iconColor: '#6B6F76', text: 'Your inquiry has been assigned to Ministry of Health (MOH) for review', time: 'Yesterday', unread: true, type: 'general' },
+      { id: 3, icon: '⚠', iconBg: '#FEF3E6', iconColor: '#C4670A', text: 'Reminder: please provide additional evidence for your recent submission', time: '3 days ago', unread: true, type: 'action' },
+      { id: 4, icon: '✉', iconBg: '#F0F1F3', iconColor: '#6B6F76', text: 'MCMC replied to your inquiry with a clarifying question', time: '4 days ago', unread: false, type: 'general' },
+      { id: 5, icon: '✕', iconBg: '#FBE7E9', iconColor: '#C41230', text: "Your inquiry 'Miracle cure supplement post' has been identified as fake", time: '1 week ago', unread: false, type: 'action' }
+    ],
+    mcmcNotifs: [
+      { id: 1, icon: '🔔', iconBg: '#F0F1F3', iconColor: '#6B6F76', text: "New inquiry submitted: \u2018Fake vaccine side-effect statistics infographic\u2019", time: '30 minutes ago', unread: true, type: 'general' },
+      { id: 2, icon: '⚠', iconBg: '#FEF3E6', iconColor: '#C4670A', text: 'Bank Negara Malaysia rejected an inquiry — reassignment needed', time: '2 hours ago', unread: true, type: 'action' },
+      { id: 3, icon: '✉', iconBg: '#F0F1F3', iconColor: '#6B6F76', text: 'Weekly report is ready for review', time: 'Yesterday', unread: true, type: 'general' },
+      { id: 4, icon: '🔔', iconBg: '#F0F1F3', iconColor: '#6B6F76', text: 'New agency registration request submitted', time: '2 days ago', unread: false, type: 'general' },
+      { id: 5, icon: '⚠', iconBg: '#FEF3E6', iconColor: '#C4670A', text: '3 inquiries have been pending triage for over 5 days', time: '3 days ago', unread: false, type: 'action' }
+    ],
+    agencyNotifs: [
+      { id: 1, icon: '🔔', iconBg: '#F0F1F3', iconColor: '#6B6F76', text: "New inquiry assigned by MCMC: \u2018Hospital overcapacity rumor at Klang Valley hospitals\u2019", time: '1 hour ago', unread: true, type: 'general' },
+      { id: 2, icon: '⚠', iconBg: '#FEF3E6', iconColor: '#C4670A', text: 'Reminder: 2 inquiries pending your review', time: '5 hours ago', unread: true, type: 'action' },
+      { id: 3, icon: '✉', iconBg: '#F0F1F3', iconColor: '#6B6F76', text: "MCMC added a note to inquiry \u2018Water contamination outbreak claim\u2019", time: 'Yesterday', unread: true, type: 'general' },
+      { id: 4, icon: '✓', iconBg: '#E4F5E9', iconColor: '#1D7A3E', text: "Your verdict on 'Misleading clinic pricing claim' was recorded successfully", time: '2 days ago', unread: false, type: 'general' },
+      { id: 5, icon: '⚠', iconBg: '#FEF3E6', iconColor: '#C4670A', text: 'MCMC requested clarification on a rejected inquiry', time: '4 days ago', unread: false, type: 'action' }
+    ]
+  };
+
+  shells = {
+    public: { avatarBg: '#C41230', avatarColor: '#fff', avatarRadius: '50%', initials: 'AI', name: 'Ahmad Ismail', roleLabel: 'Public User', nav: ['Home', 'Submit Inquiry', 'My Inquiries', 'Profile Settings'] },
+    mcmc: { avatarBg: '#FBE7E9', avatarColor: '#C41230', avatarRadius: '50%', initials: 'SR', name: 'Siti Rahman', roleLabel: 'MCMC Staff', nav: ['Dashboard', 'New Inquiries / Triage', 'Assign to Agency', 'All Inquiries', 'Agency Management', 'Reports'] },
+    agency: { avatarBg: '#1A1A1A', avatarColor: '#fff', avatarRadius: '8px', initials: 'MOH', name: 'Ministry of Health (MOH)', roleLabel: 'Agency Staff', nav: ['Dashboard', 'Assigned Inquiries', 'Update Status', 'Profile'] }
+  };
+
+  flashCta(key) {
+    this.setState(s => ({ ctaFlashes: { ...s.ctaFlashes, [key]: true } }));
+    setTimeout(() => this.setState(s => ({ ctaFlashes: { ...s.ctaFlashes, [key]: false } })), 900);
+  }
+
+  retryFlow(key) {
+    this.setState(s => ({ retrying: { ...s.retrying, [key]: true } }));
+    setTimeout(() => this.setState(s => ({ retrying: { ...s.retrying, [key]: false } })), 1200);
+  }
+
+  markAllRead() {
+    const key = this.state.role + 'Notifs';
+    this.setState(s => ({ [key]: s[key].map(n => ({ ...n, unread: false })) }));
+  }
+
+  markRead(role, id) {
+    const key = role + 'Notifs';
+    this.setState(s => ({ [key]: s[key].map(n => n.id === id ? { ...n, unread: false, justRead: true } : n) }));
+    setTimeout(() => this.setState(s => ({ [key]: s[key].map(n => n.id === id ? { ...n, justRead: false } : n) })), 900);
+  }
+
+  renderVals() {
+    const s = this.state;
+
+    const roleTabs = [
+      { key: 'public', label: 'Public User' },
+      { key: 'mcmc', label: 'MCMC Staff' },
+      { key: 'agency', label: 'Agency Staff' }
+    ].map(t => ({
+      label: t.label, bg: s.role === t.key ? '#C41230' : 'transparent', color: s.role === t.key ? '#fff' : '#4B4F58',
+      onClick: () => this.setState({ role: t.key, notifFilter: 'all' })
+    }));
+
+    const shellDef = this.shells[s.role];
+    const shell = {
+      avatarBg: shellDef.avatarBg, avatarColor: shellDef.avatarColor, avatarRadius: shellDef.avatarRadius, initials: shellDef.initials, name: shellDef.name, roleLabel: shellDef.roleLabel,
+      navItems: shellDef.nav.map(label => ({ label, rowBg: 'transparent', rowColor: '#4B4F58' }))
+    };
+
+    const notifsKey = s.role + 'Notifs';
+    const notifs = s[notifsKey];
+    const unreadCount = notifs.filter(n => n.unread).length;
+
+    const notifFilterTabs = [
+      { key: 'all', label: 'All' },
+      { key: 'unread', label: 'Unread', showBadge: true, badgeCount: unreadCount },
+      { key: 'action', label: 'Mentions/Actions Required' }
+    ].map(f => ({
+      label: f.label, showBadge: !!f.showBadge, badgeCount: f.badgeCount,
+      bg: s.notifFilter === f.key ? '#FBE7E9' : '#F0F1F3', color: s.notifFilter === f.key ? '#C41230' : '#4B4F58',
+      onClick: () => this.setState({ notifFilter: f.key })
+    }));
+
+    const visibleNotifs = notifs.filter(n => {
+      if (s.notifFilter === 'unread') return n.unread;
+      if (s.notifFilter === 'action') return n.type === 'action';
+      return true;
+    }).map(n => ({
+      ...n, weight: n.unread ? 700 : 500,
+      flashAnim: n.justRead ? 'flashRow 0.9s ease' : 'none',
+      onClick: () => this.markRead(s.role, n.id)
+    }));
+
+    const solidBtn = key => ({ bg: s.ctaFlashes[key] ? '#A10E27' : '#C41230', onClick: () => this.flashCta(key) });
+    const outlineBtn = key => ({ color: s.ctaFlashes[key] ? '#A10E27' : '#4B4F58', onClick: () => this.flashCta(key) });
+    const retryBtn = key => ({ label: s.retrying[key] ? 'Retrying…' : 'Retry', onClick: () => this.retryFlow(key) });
+
+    return {
+      roleTabs, shell,
+      notifFilterTabs, visibleNotifs, noVisibleNotifs: visibleNotifs.length === 0,
+      markAllRead: () => this.markAllRead(),
+
+      empty1: solidBtn('empty1'), empty3: outlineBtn('empty3'), empty4: solidBtn('empty4'),
+      sessionExpired: solidBtn('sessionExpired'), notfound: solidBtn('notfound'), goback: outlineBtn('goback'),
+      retryNet: retryBtn('net'), retryForm: retryBtn('form')
+    };
+  }
+}
+
+</script>
+</body>
+</html>

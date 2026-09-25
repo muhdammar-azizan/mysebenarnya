@@ -1,0 +1,1348 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body { margin: 0; background: #F7F7F8; }
+    a { color: #C41230; }
+    a:hover { color: #A10E27; }
+    ::placeholder { color: #A6A9AF; }
+    @keyframes flashRow { 0% { background: #FBE7E9; } 100% { background: transparent; } }
+  </style>
+  <script src="./clarify-store.js"></script>
+</helmet>
+
+<div style="font-family:'Inter',sans-serif; color:#1A1A1A;">
+
+<sc-if value="{{ isAuthView }}" hint-placeholder-val="{{ true }}">
+  <div style="min-height:100vh; box-sizing:border-box; background:#F7F7F8; padding:56px 24px; display:flex; flex-direction:column; align-items:center;">
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:24px;">
+      <div style="width:36px; height:36px; border-radius:10px; background:#fff; border:1px solid #EDEEF0; position:relative; flex-shrink:0;">
+        <div style="position:absolute; inset:3px; border-radius:50%; border:1.5px dashed #C41230;"></div>
+        <div style="position:absolute; inset:6px; border-radius:50%; border:1px dashed #C41230; opacity:0.55;"></div>
+        <div style="position:absolute; left:15px; top:17px; width:3px; height:6px; background:#C41230; border-radius:2px; transform:rotate(-45deg); transform-origin:bottom center;"></div>
+        <div style="position:absolute; left:15px; top:10px; width:3px; height:14px; background:#C41230; border-radius:2px; transform:rotate(40deg); transform-origin:bottom center;"></div>
+      </div>
+      <div style="font-family:'Poppins',sans-serif; font-weight:800; font-size:16px; letter-spacing:-0.01em;">
+        <span style="color:#1A1A1A;">SE</span><span style="color:#C41230;">BENAR</span><span style="color:#1A1A1A;">NYA.MY</span>
+      </div>
+    </div>
+
+    <div style="width:100%; max-width:420px; background:#fff; border:1px solid #EDEEF0; border-radius:10px; box-shadow:0 1px 3px rgba(0,0,0,0.06); padding:28px 24px;">
+
+      <sc-if value="{{ isLoginState }}" hint-placeholder-val="{{ true }}">
+        <div style="display:inline-block; background:#FBE7E9; color:#C41230; font-size:11px; font-weight:700; letter-spacing:0.04em; padding:4px 10px; border-radius:20px; margin-bottom:14px;">MCMC STAFF PORTAL</div>
+        <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:24px; margin-bottom:6px;">Staff Login</div>
+        <div style="font-size:13px; color:#8A8F98; margin-bottom:24px;">Sign in with your official MCMC credentials.</div>
+
+        <form onSubmit="{{ handleLoginSubmit }}" style="display:flex; flex-direction:column; gap:16px;">
+          <div>
+            <div style="font-size:13px; font-weight:500; margin-bottom:6px;">Staff Username</div>
+            <input type="text" value="{{ username }}" onChange="{{ onUsernameChange }}" placeholder="e.g. mcmc.srahman" style="width:100%; box-sizing:border-box; height:40px; padding:0 12px; border-radius:8px; border:{{ usernameBorder }}; box-shadow:{{ usernameShadow }}; font-family:'Inter',sans-serif; font-size:14px; outline:none;" />
+            <sc-if value="{{ usernameError }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size:12px; color:#C41230; margin-top:6px;">{{ usernameError }}</div>
+            </sc-if>
+          </div>
+
+          <div>
+            <div style="font-size:13px; font-weight:500; margin-bottom:6px;">Password</div>
+            <div style="position:relative;">
+              <input type="{{ passwordInputType }}" value="{{ password }}" onChange="{{ onPasswordChange }}" placeholder="Enter your password" style="width:100%; box-sizing:border-box; height:40px; padding:0 40px 0 12px; border-radius:8px; border:{{ passwordBorder }}; box-shadow:{{ passwordShadow }}; font-family:'Inter',sans-serif; font-size:14px; outline:none;" />
+              <div onClick="{{ togglePassword }}" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); width:18px; height:18px; cursor:pointer; color:#8A8F98; display:flex; align-items:center; justify-content:center;">
+                <sc-if value="{{ showPassword }}" hint-placeholder-val="{{ false }}">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 3l18 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M10.6 5.2A10.6 10.6 0 0112 5c6.5 0 10 6 10 6a15.6 15.6 0 01-3.3 4M6.6 6.6C4 8.3 2 12 2 12s1.6 3 4.6 4.7M9.9 14.1a3 3 0 004.2-4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </sc-if>
+                <sc-if value="{{ showPasswordOff }}" hint-placeholder-val="{{ true }}">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.6" stroke="currentColor" stroke-width="1.8"/></svg>
+                </sc-if>
+              </div>
+            </div>
+            <sc-if value="{{ passwordError }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size:12px; color:#C41230; margin-top:6px;">{{ passwordError }}</div>
+            </sc-if>
+            <div style="text-align:right; margin-top:8px;">
+              <a href="#" onClick="{{ onForgotClick }}" style="font-size:13px; color:#C41230; text-decoration:none; font-weight:500;">Forgot password?</a>
+            </div>
+          </div>
+
+          <button type="submit" style="height:40px; border-radius:8px; background:#C41230; color:#fff; border:none; font-family:'Inter',sans-serif; font-weight:600; font-size:14px; cursor:pointer;" style-hover="background:#A10E27;" style-active="background:#8A0D22;">Log In</button>
+        </form>
+
+        <div style="font-size:12px; color:#8A8F98; text-align:center; margin-top:20px; line-height:1.5;">Having trouble accessing your account? Contact your system administrator.</div>
+        <div style="margin-top:14px; font-size:12.5px; color:#8A8F98; text-align:center;">
+          <a href="#" onClick="{{ onGoPublic }}" style="font-weight:600; text-decoration:none; margin:0 6px;">Public User Login</a>
+          ·
+          <a href="#" onClick="{{ onGoAgency }}" style="font-weight:600; text-decoration:none; margin:0 6px;">Agency Partner Login</a>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isForgotState }}" hint-placeholder-val="{{ false }}">
+        <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:22px; margin-bottom:6px;">Reset Your Password</div>
+        <div style="font-size:13px; color:#8A8F98; margin-bottom:24px;">Enter your staff username or registered email and we'll send a reset link.</div>
+        <form onSubmit="{{ handleResetSubmit }}" style="display:flex; flex-direction:column; gap:16px;">
+          <div>
+            <div style="font-size:13px; font-weight:500; margin-bottom:6px;">Username or Email</div>
+            <input type="text" value="{{ resetInput }}" onChange="{{ onResetInputChange }}" placeholder="mcmc.srahman or you@mcmc.gov.my" style="width:100%; box-sizing:border-box; height:40px; padding:0 12px; border-radius:8px; border:{{ resetBorder }};font-family:'Inter',sans-serif; font-size:14px; outline:none;" />
+            <sc-if value="{{ resetError }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size:12px; color:#C41230; margin-top:6px;">{{ resetError }}</div>
+            </sc-if>
+          </div>
+          <sc-if value="{{ resetSent }}" hint-placeholder-val="{{ false }}">
+            <div style="font-size:13px; color:#1D7A3E; background:#EAF7EE; border-radius:8px; padding:10px 12px;">Reset link sent. Check your registered inbox.</div>
+          </sc-if>
+          <button type="submit" style="height:40px; border-radius:8px; background:#C41230; color:#fff; border:none; font-family:'Inter',sans-serif; font-weight:600; font-size:14px; cursor:pointer;" style-hover="background:#A10E27;">Send Reset Link</button>
+          <a href="#" onClick="{{ onBackToLogin }}" style="font-size:13px; color:#4B4F58; text-decoration:none; font-weight:500;">← Back to Login</a>
+        </form>
+      </sc-if>
+
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ isDashboardView }}" hint-placeholder-val="{{ false }}">
+  <div style="height:100vh; display:flex; flex-direction:column; background:#EDEEF0; overflow:hidden;">
+
+    <div style="height:64px; background:#C41230; display:flex; align-items:center; gap:20px; padding:0 24px; flex-shrink:0; position:relative; box-shadow:0 4px 10px rgba(0,0,0,0.18); z-index:10;">
+        <div style="display:flex; align-items:center; gap:12px; flex-shrink:0;">
+          <svg width="42" height="42" viewBox="0 0 512 512" style="flex-shrink:0;">
+            <defs><clipPath id="icHdrMcmc05"><circle cx="256" cy="248" r="150"/></clipPath></defs>
+            <rect x="16" y="16" width="480" height="480" rx="92" ry="92" fill="#ffffff" stroke="#EDEEF0" stroke-width="4"/>
+            <g clip-path="url(#icHdrMcmc05)">
+              <path d="M 256 248 L 256 98 A 150 150 0 0 1 386 323 Z" fill="#0072bc" opacity="0.3"/>
+              <path d="M 256 248 L 386 323 A 150 150 0 0 1 126 323 Z" fill="#e31c79" opacity="0.3"/>
+              <path d="M 256 248 L 126 323 A 150 150 0 0 1 256 98 Z" fill="#f5a623" opacity="0.3"/>
+            </g>
+            <circle cx="256" cy="248" r="192" fill="none" stroke="#C41230" stroke-width="24" stroke-dasharray="34 22" stroke-linecap="round"/>
+            <circle cx="256" cy="248" r="165" fill="none" stroke="#C41230" stroke-width="24" stroke-dasharray="30 19" stroke-linecap="round"/>
+            <path d="M 168 248 L 224 304 L 344 178" fill="none" stroke="#ffffff" stroke-width="70" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M 168 248 L 224 304 L 344 178" fill="none" stroke="#C41230" stroke-width="52" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <div style="font-family:'Poppins',sans-serif; font-weight:800; font-size:19px; letter-spacing:-0.01em; white-space:nowrap;">
+            <span style="color:#1A1A1A;">SE</span><span style="color:#fff;">BENAR</span><span style="color:#1A1A1A;">NYA.MY</span>
+          </div>
+        </div>
+        <div style="flex:1;"></div>
+        <div style="width:240px; flex-shrink:0; position:relative;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); pointer-events:none;"><circle cx="11" cy="11" r="7" stroke="#8A8F98" stroke-width="2"/><path d="M21 21l-4.3-4.3" stroke="#8A8F98" stroke-width="2" stroke-linecap="round"/></svg>
+          <input placeholder="Search inquiries, agencies..." style="width:100%; padding:9px 14px 9px 36px; border-radius:8px; border:1px solid rgba(255,255,255,0.3); font-family:'Inter',sans-serif; font-size:13px; background:#fff; box-sizing:border-box;" />
+        </div>
+        <div style="display:flex; align-items:center; gap:14px; flex-shrink:0;">
+          <div onMouseEnter="{{ openNotif }}" onMouseLeave="{{ closeNotifDelayed }}" style="position:relative;">
+          <div onClick="{{ toggleNotif }}" style="width:36px; height:36px; border-radius:8px; background:rgba(255,255,255,0.16); display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M6 9a6 6 0 0112 0c0 4 1.5 5 1.5 5h-15S6 13 6 9z" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/><path d="M10 18a2 2 0 004 0" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>
+            <div style="position:absolute; top:-4px; right:-4px; width:16px; height:16px; background:#C41230; border-radius:50%; border:1.5px solid #fff; color:#fff; font-size:9.5px; font-weight:700; display:flex; align-items:center; justify-content:center;">3</div>
+          </div>
+          <sc-if value="{{ notifOpen }}" hint-placeholder-val="{{ false }}">
+            <div style="position:absolute; top:44px; right:0; width:300px; background:#fff; border:1px solid #EDEEF0; border-radius:10px; box-shadow:0 8px 24px rgba(0,0,0,0.12); z-index:20; overflow:hidden;">
+              <div style="padding:12px 16px; font-size:13px; font-weight:700; border-bottom:1px solid #F0F1F3;">Notifications</div>
+              <sc-for list="{{ notifItems }}" as="n" hint-placeholder-count="3">
+                <div style="padding:12px 16px; font-size:12.5px; border-bottom:1px solid #F5F5F6; color:#1A1A1A;">
+                  <div style="font-weight:600; margin-bottom:2px;">{{ n.title }}</div>
+                  <div style="color:#8A8F98; font-size:11.5px;">{{ n.time }}</div>
+                </div>
+              </sc-for>
+              <a href="#" onClick="{{ goNotifView }}" style="display:block; padding:11px 16px; font-size:12.5px; font-weight:600; text-align:center; border-top:1px solid #F0F1F3; text-decoration:none;">View all notifications</a>
+            </div>
+          </sc-if>
+          </div>
+          <div onMouseEnter="{{ openProfileMenu }}" onMouseLeave="{{ closeProfileMenuDelayed }}" style="position:relative; flex-shrink:0;">
+            <div ref="{{ headerAvatarRef }}" style="width:34px; height:34px; border-radius:50%; background-color:#FBE7E9; background-size:cover; background-position:center; color:#C41230; font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center; cursor:pointer;">
+              <sc-if value="{{ noProfilePhoto }}" hint-placeholder-val="{{ true }}">SR</sc-if>
+            </div>
+            <sc-if value="{{ profileMenuOpen }}" hint-placeholder-val="{{ false }}">
+              <div style="position:absolute; top:44px; right:0; width:230px; background:#fff; border:1px solid #EDEEF0; border-radius:10px; box-shadow:0 8px 24px rgba(0,0,0,0.12); z-index:30; overflow:hidden;">
+                <div style="padding:14px 16px; border-bottom:1px solid #F0F1F3;">
+                  <div style="font-size:13.5px; font-weight:700;">Siti Rahman</div>
+                  <div style="font-size:12px; color:#8A8F98; margin:2px 0 4px;">MCMC Staff · Content Compliance Unit</div>
+                  <div style="font-size:11.5px; color:#8A8F98;">s.rahman@mcmc.gov.my</div>
+                </div>
+                <div style="padding:6px;">
+                  <a href="#" onClick="{{ onLogout }}" style="display:block; padding:9px 10px; font-size:13px; font-weight:600; color:#C41230; text-decoration:none; border-radius:6px;" style-hover="background:#FBE7E9;">Log Out</a>
+                </div>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+      </div>
+
+      <div style="flex:1; display:flex; gap:16px; min-height:0; overflow:hidden;">
+
+        <div style="width:216px; background:#fff; box-shadow:1px 0 0 rgba(0,0,0,0.05); display:flex; flex-direction:column; flex-shrink:0; overflow:auto;">
+          <div style="padding:16px 14px 8px; font-size:11px; font-weight:700; color:#8A8F98; text-transform:uppercase; letter-spacing:0.05em;">Menu</div>
+          <div style="flex:1; padding:0 10px; display:flex; flex-direction:column; gap:2px;">
+            <sc-for list="{{ menuNavItems }}" as="qf" hint-placeholder-count="6">
+              <sc-if value="{{ qf.isActive }}" hint-placeholder-val="{{ false }}">
+              <div onClick="{{ qf.onClick }}" style="display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:8px; background:#C41230; cursor:pointer; font-size:13px; font-weight:600; color:#fff; transition:background 0.15s ease;" style-hover="background:#A10E27;">
+                <sc-if value="{{ qf.isGrid }}" hint-placeholder-val="{{ false }}">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M3 9h18M9 21V9" stroke="currentColor" stroke-width="1.8"/></svg>
+                </sc-if>
+                <sc-if value="{{ qf.isInbox }}" hint-placeholder-val="{{ false }}">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M3.5 12.5L5.4 5.9A2 2 0 017.3 4.5h9.4a2 2 0 011.9 1.4l1.9 6.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.5 12.5v5a2 2 0 002 2h13a2 2 0 002-2v-5h-5.3l-1.2 2.2h-4L8.8 12.5H3.5z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </sc-if>
+                <sc-if value="{{ qf.isShare }}" hint-placeholder-val="{{ false }}">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><circle cx="6" cy="12" r="2.6" stroke="currentColor" stroke-width="1.8"/><circle cx="18" cy="5.5" r="2.6" stroke="currentColor" stroke-width="1.8"/><circle cx="18" cy="18.5" r="2.6" stroke="currentColor" stroke-width="1.8"/><path d="M8.3 10.7L15.7 7M8.3 13.3l7.4 3.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                </sc-if>
+                <sc-if value="{{ qf.isFolder }}" hint-placeholder-val="{{ false }}">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M3.5 6.5A1.5 1.5 0 015 5h4.3a1.5 1.5 0 011.1.5l1.4 1.5H19a1.5 1.5 0 011.5 1.5v9a1.5 1.5 0 01-1.5 1.5H5a1.5 1.5 0 01-1.5-1.5v-11z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+                </sc-if>
+                <sc-if value="{{ qf.isBuilding }}" hint-placeholder-val="{{ false }}">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><rect x="5" y="3.5" width="10" height="17" rx="1.3" stroke="currentColor" stroke-width="1.8"/><path d="M15 20.5h4.3a1 1 0 001-1V10.7a1 1 0 00-.6-.9L15 8" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8 7.5h1.2M8 11h1.2M8 14.5h1.2M11.5 7.5h1.2M11.5 11h1.2M11.5 14.5h1.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                </sc-if>
+                <sc-if value="{{ qf.isUsers }}" hint-placeholder-val="{{ false }}">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><circle cx="9" cy="8" r="3" stroke="currentColor" stroke-width="1.8"/><path d="M2.5 20c0-3.5 3-6 6.5-6s6.5 2.5 6.5 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="17" cy="8.5" r="2.3" stroke="currentColor" stroke-width="1.8"/><path d="M15 14.3c2.5.4 4.5 2.3 4.5 4.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                </sc-if>
+                <sc-if value="{{ qf.isChart }}" hint-placeholder-val="{{ false }}">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M4 19V10M10 19V4M16 19v-7M22 19H2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </sc-if>
+                {{ qf.label }}
+              </div>
+              </sc-if>
+              <sc-if value="{{ qf.isInactive }}" hint-placeholder-val="{{ true }}">
+              <div onClick="{{ qf.onClick }}" style="display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:8px; background:transparent; cursor:pointer; font-size:13px; font-weight:600; color:#4B4F58; transition:background 0.15s ease;" style-hover="background:#EDEEF0;">
+                <sc-if value="{{ qf.isGrid }}" hint-placeholder-val="{{ false }}">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M3 9h18M9 21V9" stroke="currentColor" stroke-width="1.8"/></svg>
+                </sc-if>
+                <sc-if value="{{ qf.isInbox }}" hint-placeholder-val="{{ false }}">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M3.5 12.5L5.4 5.9A2 2 0 017.3 4.5h9.4a2 2 0 011.9 1.4l1.9 6.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.5 12.5v5a2 2 0 002 2h13a2 2 0 002-2v-5h-5.3l-1.2 2.2h-4L8.8 12.5H3.5z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </sc-if>
+                <sc-if value="{{ qf.isShare }}" hint-placeholder-val="{{ false }}">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><circle cx="6" cy="12" r="2.6" stroke="currentColor" stroke-width="1.8"/><circle cx="18" cy="5.5" r="2.6" stroke="currentColor" stroke-width="1.8"/><circle cx="18" cy="18.5" r="2.6" stroke="currentColor" stroke-width="1.8"/><path d="M8.3 10.7L15.7 7M8.3 13.3l7.4 3.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                </sc-if>
+                <sc-if value="{{ qf.isFolder }}" hint-placeholder-val="{{ false }}">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M3.5 6.5A1.5 1.5 0 015 5h4.3a1.5 1.5 0 011.1.5l1.4 1.5H19a1.5 1.5 0 011.5 1.5v9a1.5 1.5 0 01-1.5 1.5H5a1.5 1.5 0 01-1.5-1.5v-11z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+                </sc-if>
+                <sc-if value="{{ qf.isBuilding }}" hint-placeholder-val="{{ false }}">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><rect x="5" y="3.5" width="10" height="17" rx="1.3" stroke="currentColor" stroke-width="1.8"/><path d="M15 20.5h4.3a1 1 0 001-1V10.7a1 1 0 00-.6-.9L15 8" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8 7.5h1.2M8 11h1.2M8 14.5h1.2M11.5 7.5h1.2M11.5 11h1.2M11.5 14.5h1.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                </sc-if>
+                <sc-if value="{{ qf.isUsers }}" hint-placeholder-val="{{ false }}">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><circle cx="9" cy="8" r="3" stroke="currentColor" stroke-width="1.8"/><path d="M2.5 20c0-3.5 3-6 6.5-6s6.5 2.5 6.5 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="17" cy="8.5" r="2.3" stroke="currentColor" stroke-width="1.8"/><path d="M15 14.3c2.5.4 4.5 2.3 4.5 4.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                </sc-if>
+                <sc-if value="{{ qf.isChart }}" hint-placeholder-val="{{ false }}">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M4 19V10M10 19V4M16 19v-7M22 19H2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </sc-if>
+                {{ qf.label }}
+              </div>
+              </sc-if>
+            </sc-for>
+          </div>
+          <div style="padding:6px 10px; border-top:1px solid #F0F1F3; display:flex; flex-direction:column; gap:2px;">
+            <sc-if value="{{ isSettingsActive }}" hint-placeholder-val="{{ false }}">
+              <div onClick="{{ onOpenSettings }}" style="display:flex; align-items:center; gap:10px; padding:9px 8px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:600; color:#fff; background:#C41230; transition:background 0.15s ease;" style-hover="background:#A10E27;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/><path d="M12 3v2.2M12 18.8V21M21 12h-2.2M5.2 12H3M18.4 5.6l-1.6 1.6M7.2 16.8l-1.6 1.6M18.4 18.4l-1.6-1.6M7.2 7.2L5.6 5.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                Settings
+              </div>
+            </sc-if>
+            <sc-if value="{{ !isSettingsActive }}" hint-placeholder-val="{{ true }}">
+              <div onClick="{{ onOpenSettings }}" style="display:flex; align-items:center; gap:10px; padding:9px 8px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:600; color:#4B4F58; background:transparent; transition:background 0.15s ease;" style-hover="background:#EDEEF0;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/><path d="M12 3v2.2M12 18.8V21M21 12h-2.2M5.2 12H3M18.4 5.6l-1.6 1.6M7.2 16.8l-1.6 1.6M18.4 18.4l-1.6-1.6M7.2 7.2L5.6 5.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                Settings
+              </div>
+            </sc-if>
+            <sc-if value="{{ isRecentActionsActive }}" hint-placeholder-val="{{ false }}">
+              <div onClick="{{ onOpenRecentActions }}" style="display:flex; align-items:center; gap:10px; padding:9px 8px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:600; color:#fff; background:#C41230; transition:background 0.15s ease;" style-hover="background:#A10E27;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 7v5l3.5 2M21 12a9 9 0 11-9-9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                My Recent Actions
+              </div>
+            </sc-if>
+            <sc-if value="{{ !isRecentActionsActive }}" hint-placeholder-val="{{ true }}">
+              <div onClick="{{ onOpenRecentActions }}" style="display:flex; align-items:center; gap:10px; padding:9px 8px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:600; color:#4B4F58; background:transparent; transition:background 0.15s ease;" style-hover="background:#EDEEF0;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 7v5l3.5 2M21 12a9 9 0 11-9-9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                My Recent Actions
+              </div>
+            </sc-if>
+          </div>
+
+          <div onClick="{{ onOpenMonthlyTarget }}" style="margin:8px 10px 14px; padding:12px 14px; border:1px solid #EDEEF0; border-radius:10px; cursor:pointer;" style-hover="background:#FDFAFA;">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+              <div style="display:flex; align-items:center; gap:9px;">
+                <div style="width:20px; height:20px; border-radius:6px; background:#FBE7E9; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M4 19V10M10 19V4M16 19v-7M22 19H2" stroke="#C41230" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div style="font-size:12.5px; font-weight:700; color:#1A1A1A;">Inquiries Processed This Month</div>
+              </div>
+              <div style="color:#8A8F98; font-size:13px;">›</div>
+            </div>
+            <div style="height:6px; background:#F0F1F3; border-radius:4px; overflow:hidden; margin-bottom:6px;"><div style="height:100%; width:72.8%; background:#C41230; border-radius:4px;"></div></div>
+            <div style="font-size:11.5px; color:#8A8F98;">182 of 250 target</div>
+          </div>
+        </div>
+
+      <div data-scroll-container="1" style="flex:1; background:#fff; border-radius:16px; box-shadow:0 1px 3px rgba(0,0,0,0.06); padding:28px 32px; overflow:auto; position:relative; min-width:0; margin:16px 16px 16px 0;">
+        <sc-if value="{{ isDashView }}" hint-placeholder-val="{{ true }}">
+        <div>
+        <h2 style="font-family:'Poppins',sans-serif; font-weight:700; font-size:22px; margin:0 0 6px;">MCMC Dashboard</h2>
+        <p style="color:#8A8F98; font-size:14px; margin:0 0 18px;">Overview of inquiry activity and system status.</p>
+
+        <sc-if value="{{ hasClarifyAlert }}" hint-placeholder-val="{{ false }}">
+          <div onClick="{{ onOpenClarifyQueue }}" style="display:flex; align-items:center; gap:14px; background:#F8F4FD; border:1px solid #DCCDF0; border-radius:10px; padding:12px 16px; margin-bottom:18px; cursor:pointer; transition:box-shadow 0.15s ease;" style-hover="box-shadow:0 6px 16px rgba(107,63,160,0.12);">
+            <div style="width:34px; height:34px; border-radius:50%; background:#6B3FA0; color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 5h16v11H9l-5 4V5z" stroke="#fff" stroke-width="2" stroke-linejoin="round"/></svg>
+            </div>
+            <div style="flex:1; min-width:0;">
+              <div style="font-size:13.5px; font-weight:700; color:#4E2D7A;">{{ clarifyAlertTitle }}</div>
+              <div style="font-size:12.5px; color:#6B6F76; margin-top:2px;">{{ clarifyAlertSub }}</div>
+            </div>
+            <div style="font-size:13px; font-weight:700; color:#6B3FA0; white-space:nowrap;">Respond →</div>
+          </div>
+        </sc-if>
+
+        <div style="display:flex; gap:10px; margin-bottom:22px; flex-wrap:wrap;">
+          <sc-for list="{{ plainStatCards }}" as="c" hint-placeholder-count="2">
+            <div style="background:#fff; border:1px solid #EDEEF0; border-radius:10px; padding:10px 16px; display:flex; align-items:baseline; gap:8px;">
+              <div style="font-family:'Poppins',sans-serif; font-weight:800; font-size:18px; color:{{ c.color }};">{{ c.value }}</div>
+              <div style="font-size:12px; color:#8A8F98; font-weight:600;">{{ c.label }}</div>
+            </div>
+          </sc-for>
+          <div onClick="{{ onReportsClick }}" style="background:#fff; border:1px solid #EDEEF0; border-radius:10px; padding:10px 16px; display:flex; align-items:baseline; gap:8px; cursor:pointer; transition:transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;" style-hover="transform:translateY(-2px); box-shadow:0 6px 16px rgba(0,0,0,0.08); border-color:#D4D6DA;">
+            <div style="font-family:'Poppins',sans-serif; font-weight:800; font-size:18px; color:#6B3FA0;">3</div>
+            <div style="font-size:12px; color:#8A8F98; font-weight:600;">Reports Generated This Month</div>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:65fr 35fr; gap:16px; margin-bottom:24px; align-items:stretch;">
+          <div style="background:#fff; border:1px solid #EDEEF0; border-radius:10px; box-shadow:0 1px 3px rgba(0,0,0,0.04); padding:18px 20px; display:flex; flex-direction:column;">
+            <div style="font-weight:700; font-size:15px; margin-bottom:16px;">Inquiry Trend</div>
+            <div style="display:flex; gap:8px; height:190px;">
+              <div style="display:flex; flex-direction:column; justify-content:space-between; height:190px; padding:2px 0;">
+                <sc-for list="{{ trendYAxisTicks }}" as="yt" hint-placeholder-count="5">
+                  <div style="font-size:10.5px; color:#8A8F98; text-align:right;">{{ yt }}</div>
+                </sc-for>
+              </div>
+              <div style="position:relative; flex:1; min-width:0;">
+                <svg viewBox="0 0 300 110" preserveAspectRatio="none" width="100%" height="100%" style="display:block;">
+                  <sc-for list="{{ trendGridLines }}" as="gl" hint-placeholder-count="5">
+                    <line x1="0" y1="{{ gl }}" x2="300" y2="{{ gl }}" stroke="#F0F1F3" stroke-width="1"></line>
+                  </sc-for>
+                  <path d="{{ trendAreaPath }}" fill="#C41230" fill-opacity="0.08" stroke="none"></path>
+                  <polyline points="{{ trendPolylinePoints }}" fill="none" stroke="#C41230" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"></polyline>
+                  <sc-for list="{{ trendPoints }}" as="p" hint-placeholder-count="6">
+                    <circle cx="{{ p.x }}" cy="{{ p.y }}" r="4" fill="#C41230" stroke="#fff" stroke-width="1.5" vector-effect="non-scaling-stroke" style="pointer-events:none;"></circle>
+                  </sc-for>
+                  <rect x="0" y="0" width="300" height="110" fill="transparent" onMouseMove="{{ onTrendMove }}" onMouseLeave="{{ onTrendUnhover }}" style="cursor:crosshair;"></rect>
+                </svg>
+                <sc-if value="{{ trendHoverPoint }}" hint-placeholder-val="{{ false }}">
+                  <div style="position:absolute; left:{{ trendHoverPoint.leftPct }}%; top:{{ trendHoverPoint.topPct }}%; transform:translate(-50%,-125%); background:#1A1A1A; color:#fff; padding:8px 10px; border-radius:8px; font-size:11.5px; white-space:nowrap; pointer-events:none; z-index:5;">
+                    <div style="font-weight:700; margin-bottom:3px;">{{ trendHoverPoint.label }}</div>
+                    <div style="display:flex; align-items:center; gap:6px;"><span style="width:8px; height:8px; background:#C41230; border-radius:2px; flex-shrink:0;"></span>Total Inquiries: {{ trendHoverPoint.v }}</div>
+                  </div>
+                </sc-if>
+              </div>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-top:8px; padding-left:26px;">
+              <sc-for list="{{ trendBars }}" as="b" hint-placeholder-count="6">
+                <div style="flex:1; text-align:center; font-size:11px; color:#8A8F98;">{{ b.label }}</div>
+              </sc-for>
+            </div>
+            <div style="font-size:11.5px; color:#8A8F98; margin-top:12px; text-align:center;">{{ reportsThisMonthText }}</div>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:14px;">
+            <sc-for list="{{ quickAccessCards }}" as="q" hint-placeholder-count="3">
+              <div onClick="{{ q.onClick }}" style="background:{{ q.cardBg }}; border:1px solid {{ q.cardBorder }}; border-radius:10px; padding:16px; cursor:pointer; display:flex; align-items:center; gap:14px; flex:1; transition:transform 0.15s ease, box-shadow 0.15s ease;" style-hover="transform:translateY(-3px); box-shadow:0 8px 20px rgba(0,0,0,0.08);">
+                <div style="width:44px; height:44px; border-radius:50%; background:{{ q.bg }}; color:{{ q.color }}; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                  <sc-if value="{{ q.isPending }}" hint-placeholder-val="{{ false }}">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 7v5l3.2 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </sc-if>
+                  <sc-if value="{{ q.isReassign }}" hint-placeholder-val="{{ false }}">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 8h13l-3-3M20 16H7l3 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </sc-if>
+                  <sc-if value="{{ q.isAgency }}" hint-placeholder-val="{{ false }}">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="4" y="10" width="16" height="10.5" rx="1.3" stroke="currentColor" stroke-width="1.8"/><path d="M7 10V6.5a1.5 1.5 0 011.5-1.5h7A1.5 1.5 0 0117 6.5V10" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 14.5h1.5M13.5 14.5H15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                  </sc-if>
+                </div>
+                <div style="min-width:0; flex:1;">
+                  <div style="font-weight:700; font-size:14px;">{{ q.title }}</div>
+                  <div style="color:#8A8F98; font-size:12px;">{{ q.meta }}</div>
+                </div>
+                <div style="width:30px; height:30px; border-radius:8px; background:#fff; color:{{ q.color }}; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:13px; flex-shrink:0;">{{ q.badge }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div id="inquiry-list-anchor" style="font-size:12.5px; color:#8A8F98; margin-bottom:8px;">MCMC Dashboard <span style="margin:0 4px;">›</span> {{ quickFilterLabel }}</div>
+
+        <div style="background:#fff; border:1px solid #EDEEF0; border-radius:10px; box-shadow:0 1px 3px rgba(0,0,0,0.04); overflow:hidden; margin-bottom:24px;">
+          <div style="padding:16px 20px; border-bottom:1px solid #F0F1F3; display:flex; align-items:center; justify-content:space-between;">
+            <div style="font-weight:700; font-size:15px;">Inquiries Awaiting Triage</div>
+            <button onClick="{{ onViewAll }}" onMouseEnter="{{ onViewAllHoverIn }}" onMouseLeave="{{ onViewAllHoverOut }}" style="background:{{ viewAllBg }}; color:{{ viewAllColor }}; border:1.5px solid {{ viewAllBorder }}; padding:7px 14px; border-radius:8px; font-size:12.5px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:6px; transition:background 0.15s ease, border-color 0.15s ease, color 0.15s ease;">
+              View All Inquiries
+              <span style="display:inline-block; max-width:{{ viewAllArrowWidth }}; opacity:{{ viewAllArrowOpacity }}; overflow:hidden; transition:max-width 0.15s ease, opacity 0.15s ease;">→</span>
+            </button>
+          </div>
+          <div>
+            <div style="display:grid; grid-template-columns:2.4fr 1.4fr 1fr; gap:16px; padding:12px 20px; font-size:11.5px; font-weight:700; color:#8A8F98; text-transform:uppercase; letter-spacing:0.03em; border-bottom:1px solid #F0F1F3;">
+              <div>Title</div><div>Evidence</div><div>Date Submitted ⌄</div>
+            </div>
+            <sc-for list="{{ triageRows }}" as="r" hint-placeholder-count="5">
+              <div onClick="{{ r.onOpen }}" style="display:grid; grid-template-columns:2.4fr 1.4fr 1fr; gap:16px; padding:14px 20px; font-size:13px; border-bottom:1px solid #F5F5F6; align-items:center; cursor:pointer; background:{{ r.rowBg }};" style-hover="background:#F7F7F8;">
+                <div style="display:flex; align-items:center; gap:10px; min-width:0;">
+                  <div style="width:28px; height:28px; border-radius:7px; background:{{ r.catBg }}; color:{{ r.catColor }}; display:flex; align-items:center; justify-content:center; font-size:10.5px; font-weight:800; flex-shrink:0;">{{ r.catCode }}</div>
+                  <div style="min-width:0;">
+                    <div style="font-weight:600; margin-bottom:3px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ r.title }}</div>
+                    <div style="color:#8A8F98; font-size:12px;">{{ r.category }}</div>
+                  </div>
+                </div>
+                <div style="color:#8A8F98;">{{ r.evidenceLabel }}</div>
+                <div style="color:#8A8F98;">{{ r.date }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="background:#fff; border:1px solid #EDEEF0; border-radius:10px; box-shadow:0 1px 3px rgba(0,0,0,0.04); overflow:hidden;">
+          <div style="padding:16px 20px; border-bottom:1px solid #F0F1F3; display:flex; align-items:center; justify-content:space-between;">
+            <div style="font-weight:700; font-size:15px;">Agency Performance Snapshot</div>
+            <button onClick="{{ onViewReports }}" onMouseEnter="{{ onViewReportsHoverIn }}" onMouseLeave="{{ onViewReportsHoverOut }}" style="background:{{ viewReportsBg }}; color:{{ viewReportsColor }}; border:1.5px solid {{ viewReportsBorder }}; padding:7px 14px; border-radius:8px; font-size:12.5px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:6px; transition:background 0.15s ease, border-color 0.15s ease, color 0.15s ease;">
+              View Full Reports
+              <span style="display:inline-block; max-width:{{ viewReportsArrowWidth }}; opacity:{{ viewReportsArrowOpacity }}; overflow:hidden; transition:max-width 0.15s ease, opacity 0.15s ease;">→</span>
+            </button>
+          </div>
+          <div style="display:grid; grid-template-columns:2fr 1fr 1fr 1.2fr 1fr; gap:8px; padding:10px 20px; font-size:11.5px; font-weight:700; color:#8A8F98; text-transform:uppercase; letter-spacing:0.03em; border-bottom:1px solid #F0F1F3;">
+            <div>Agency Name</div><div>Assigned</div><div>Resolved</div><div>Avg. Resolution Time</div><div>Resolution Rate</div>
+          </div>
+          <sc-for list="{{ agencyRows }}" as="a" hint-placeholder-count="5">
+            <div style="display:grid; grid-template-columns:2fr 1fr 1fr 1.2fr 1fr; gap:8px; padding:12px 20px; font-size:13px; border-bottom:1px solid #F5F5F6; align-items:center;" style-hover="background:#F7F7F8;">
+              <div style="display:flex; align-items:center; gap:8px; font-weight:600;">
+                <div style="width:22px; height:22px; border-radius:50%; background:#F0F1F3; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><rect x="5" y="3.5" width="10" height="17" rx="1.3" stroke="#8A8F98" stroke-width="1.8"/><path d="M15 20.5h4.3a1 1 0 001-1V10.7a1 1 0 00-.6-.9L15 8" stroke="#8A8F98" stroke-width="1.8" stroke-linejoin="round"/></svg>
+                </div>
+                {{ a.name }}
+              </div>
+              <div style="color:#4B4F58;">{{ a.assigned }}</div>
+              <div style="color:#4B4F58;">{{ a.resolved }}</div>
+              <div style="color:#8A8F98;">{{ a.avgTime }}</div>
+              <div style="display:inline-flex; align-items:center; justify-content:center; padding:3px 9px; border-radius:20px; font-size:12px; font-weight:700; background:{{ a.rateColor }}1A; color:{{ a.rateColor }};">{{ a.ratePct }}%</div>
+            </div>
+          </sc-for>
+        </div>
+
+        <sc-if value="{{ viewAllFlash }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:16px; font-size:13px; color:#8A8F98; text-align:center;">Full "All Inquiries" page is coming in a later phase.</div>
+        </sc-if>
+        <sc-if value="{{ reportsFlash }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:16px; font-size:13px; color:#8A8F98; text-align:center;">Full Reports page is coming in a later phase.</div>
+        </sc-if>
+        </div>
+        </sc-if>
+
+        <sc-if value="{{ isNotifView }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
+            <h2 style="font-family:'Poppins',sans-serif; font-weight:700; font-size:22px; margin:0;">Notifications</h2>
+            <a href="#" onClick="{{ markAllRead }}" style="font-size:12.5px; font-weight:600; text-decoration:none;">Mark all as read</a>
+          </div>
+          <p style="color:#8A8F98; font-size:14px; margin:6px 0 20px;">Stay updated on inquiry status and system activity.</p>
+          <div style="display:flex; gap:8px; margin-bottom:16px;">
+            <sc-for list="{{ notifFilterTabs }}" as="f" hint-placeholder-count="3">
+              <div onClick="{{ f.onClick }}" style="padding:7px 14px; border-radius:20px; font-size:12.5px; font-weight:600; cursor:pointer; background:{{ f.bg }}; color:{{ f.color }}; display:flex; align-items:center; gap:6px;">{{ f.label }}<sc-if value="{{ f.showBadge }}" hint-placeholder-val="{{ false }}"><span style="background:#C41230; color:#fff; font-size:10px; font-weight:700; border-radius:10px; padding:1px 6px;">{{ f.badgeCount }}</span></sc-if></div>
+            </sc-for>
+          </div>
+          <div style="background:#fff; border:1px solid #EDEEF0; border-radius:10px; overflow:hidden;">
+            <sc-for list="{{ visibleNotifs }}" as="n" hint-placeholder-count="5">
+              <div onClick="{{ n.onClick }}" style="display:flex; align-items:flex-start; gap:12px; padding:14px 16px; border-bottom:1px solid #F5F5F6; cursor:pointer; animation:{{ n.flashAnim }};">
+                <div style="width:30px; height:30px; border-radius:50%; background:{{ n.iconBg }}; color:{{ n.iconColor }}; display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0;">{{ n.icon }}</div>
+                <div style="flex:1; min-width:0;">
+                  <div style="font-size:13px; font-weight:{{ n.weight }}; line-height:1.4;">{{ n.text }}</div>
+                  <div style="font-size:11.5px; color:#8A8F98; margin-top:3px;">{{ n.time }}</div>
+                </div>
+                <sc-if value="{{ n.unread }}" hint-placeholder-val="{{ false }}"><div style="width:8px; height:8px; border-radius:50%; background:#C41230; flex-shrink:0; margin-top:5px;"></div></sc-if>
+              </div>
+            </sc-for>
+            <sc-if value="{{ noVisibleNotifs }}" hint-placeholder-val="{{ false }}">
+              <div style="padding:32px; text-align:center; color:#8A8F98; font-size:13px;">No notifications in this filter.</div>
+            </sc-if>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isRecentActionsView }}" hint-placeholder-val="{{ false }}">
+          <h2 style="font-family:'Poppins',sans-serif; font-weight:700; font-size:22px; margin:0 0 6px;">My Recent Actions</h2>
+          <p style="color:#8A8F98; font-size:14px; margin:0 0 20px;">A personal log of triage and assignment decisions you've made recently.</p>
+          <div style="border:1px solid #EDEEF0; border-radius:10px; overflow:hidden;">
+            <div style="display:grid; grid-template-columns:minmax(0,1.6fr) minmax(220px,1fr) 150px; gap:16px; padding:10px 16px; font-size:11px; font-weight:700; color:#8A8F98; text-transform:uppercase; letter-spacing:0.03em; background:#F7F7F8; border-bottom:1px solid #EDEEF0;">
+              <div>Inquiry Title</div><div>Action Taken</div><div>Date/Time</div>
+            </div>
+            <sc-for list="{{ recentActionRows }}" as="r" hint-placeholder-count="6">
+              <div style="display:grid; grid-template-columns:minmax(0,1.6fr) minmax(220px,1fr) 150px; gap:16px; padding:12px 16px; font-size:12.5px; border-bottom:1px solid #F5F5F6; align-items:center;">
+                <div title="{{ r.title }}" style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:600;">{{ r.title }}</div>
+                <div><span style="background:{{ r.badgeBg }}; color:{{ r.badgeColor }}; font-size:11px; font-weight:700; padding:4px 10px; border-radius:20px; display:inline-block; line-height:1.3;">{{ r.action }}</span></div>
+                <div style="color:#8A8F98; white-space:nowrap;">{{ r.time }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isSettingsView }}" hint-placeholder-val="{{ false }}">
+          <h2 style="font-family:'Poppins',sans-serif; font-weight:700; font-size:22px; margin:0 0 6px;">Account Settings</h2>
+          <p style="color:#8A8F98; font-size:14px; margin:0 0 22px;">Manage your account information, security, and notification preferences.</p>
+
+          <div style="display:flex; gap:28px; align-items:flex-start;">
+            <div style="width:210px; flex-shrink:0; display:flex; flex-direction:column; gap:2px;">
+              <sc-for list="{{ settingsTabs }}" as="t" hint-placeholder-count="3">
+                <div onClick="{{ t.onClick }}" style="padding:11px 14px; border-radius:8px; font-size:13.5px; font-weight:600; cursor:pointer; background:{{ t.bg }}; color:{{ t.color }};">{{ t.label }}</div>
+              </sc-for>
+            </div>
+
+            <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:16px;">
+
+              <sc-if value="{{ isSettingsTabA }}" hint-placeholder-val="{{ true }}">
+                <sc-if value="{{ accountSaveShown }}" hint-placeholder-val="{{ false }}">
+                  <div style="background:#E4F5E9; border:1px solid #B7E3C4; color:#1D7A3E; padding:12px 16px; border-radius:8px; font-size:13px; font-weight:600;">✓ Account information updated successfully!</div>
+                </sc-if>
+                <div style="background:#fff; border:1px solid #EDEEF0; border-radius:10px; box-shadow:0 1px 3px rgba(0,0,0,0.04); padding:22px 24px;">
+                  <div style="font-weight:700; font-size:15px; margin-bottom:16px;">Profile Picture</div>
+                  <div style="display:flex; align-items:center; gap:16px;">
+                    <div ref="{{ settingsAvatarRef }}" style="width:64px; height:64px; border-radius:50%; background-color:#F0F1F3; background-size:cover; background-position:center; color:#4B4F58; font-weight:700; font-size:20px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                      <sc-if value="{{ noProfilePhoto }}" hint-placeholder-val="{{ true }}">SR</sc-if>
+                    </div>
+                    <div>
+                      <div style="display:flex; gap:14px; align-items:center;">
+                        <input type="file" accept="image/*" ref="{{ photoInputRef }}" onChange="{{ onPhotoChange }}" style="display:none;" />
+                        <button onClick="{{ onChangePhoto }}" style="background:#fff; color:#4B4F58; border:1.5px solid #D4D6DA; padding:8px 14px; border-radius:8px; font-size:12.5px; font-weight:600; cursor:pointer;">Change Photo</button>
+                        <sc-if value="{{ hasProfilePhoto }}" hint-placeholder-val="{{ false }}"><span onClick="{{ onRemovePhoto }}" style="color:#C41230; font-size:12.5px; font-weight:600; cursor:pointer;">Remove</span></sc-if>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <sc-if value="{{ cropModalOpen }}" hint-placeholder-val="{{ false }}">
+                  <div style="position:fixed; inset:0; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:60;">
+                    <div style="width:360px; background:#fff; border-radius:12px; padding:22px; box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+                      <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:16px; margin-bottom:4px;">Adjust Photo</div>
+                      <div style="font-size:12px; color:#8A8F98; margin-bottom:14px;">Drag to reposition, use the slider to zoom.</div>
+                      <div ref="{{ cropPreviewRef }}" onMouseDown="{{ onCropDragStart }}" onMouseMove="{{ onCropDragMove }}" onMouseUp="{{ onCropDragEnd }}" onMouseLeave="{{ onCropDragEnd }}" style="width:260px; height:260px; margin:0 auto; border-radius:50%; overflow:hidden; background-color:#F0F1F3; background-repeat:no-repeat; position:relative; cursor:grab; border:1px solid #EDEEF0;"></div>
+                      <div style="display:flex; align-items:center; gap:10px; margin-top:16px;">
+                        <span style="font-size:11px; color:#8A8F98;">Zoom</span>
+                        <input type="range" min="1" max="3" step="0.05" value="{{ cropZoom }}" onChange="{{ onCropZoomChange }}" style="flex:1;" />
+                      </div>
+                      <div style="display:flex; gap:10px; margin-top:20px;">
+                        <button onClick="{{ onCropCancel }}" style="flex:1; background:#fff; border:1.5px solid #D4D6DA; padding:11px; border-radius:8px; font-size:13.5px; font-weight:600; cursor:pointer;">Cancel</button>
+                        <button onClick="{{ onCropSave }}" style="flex:1; background:#C41230; color:#fff; border:none; padding:11px; border-radius:8px; font-size:13.5px; font-weight:700; cursor:pointer;" style-hover="background:#A10E27;">Save Photo</button>
+                      </div>
+                    </div>
+                  </div>
+                </sc-if>
+
+                <div style="background:#fff; border:1px solid #EDEEF0; border-radius:10px; box-shadow:0 1px 3px rgba(0,0,0,0.04); padding:22px 24px; display:flex; flex-direction:column; gap:16px;">
+                  <div style="font-weight:700; font-size:15px;">Account Information</div>
+                  <div>
+                    <div style="font-size:13px; font-weight:600; margin-bottom:6px;">Full Name</div>
+                    <input value="{{ accountForm.fullName }}" onChange="{{ onFullNameChange }}" style="width:100%; box-sizing:border-box; padding:10px 12px; border-radius:8px; border:1px solid #D4D6DA; font-family:'Inter',sans-serif; font-size:13px;" />
+                  </div>
+                  <div>
+                    <div style="font-size:13px; font-weight:600; margin-bottom:6px;">Staff Username</div>
+                    <input value="{{ accountForm.username }}" disabled="{{ true }}" style="width:100%; box-sizing:border-box; padding:10px 12px; border-radius:8px; border:1px solid #EDEEF0; background:#F7F7F8; color:#8A8F98; font-family:'Inter',sans-serif; font-size:13px;" />
+                    <div style="font-size:12px; color:#8A8F98; margin-top:6px;">Contact your administrator to change your username.</div>
+                  </div>
+                  <div>
+                    <div style="font-size:13px; font-weight:600; margin-bottom:6px;">Email</div>
+                    <input value="{{ accountForm.email }}" onChange="{{ onEmailChange }}" style="width:100%; box-sizing:border-box; padding:10px 12px; border-radius:8px; border:1px solid #D4D6DA; font-family:'Inter',sans-serif; font-size:13px;" />
+                  </div>
+                  <div>
+                    <div style="font-size:13px; font-weight:600; margin-bottom:6px;">Department</div>
+                    <input value="{{ accountForm.department }}" onChange="{{ onDepartmentChange }}" style="width:100%; box-sizing:border-box; padding:10px 12px; border-radius:8px; border:1px solid #D4D6DA; font-family:'Inter',sans-serif; font-size:13px;" />
+                  </div>
+                  <div style="display:flex; gap:12px; margin-top:6px;">
+                    <button onClick="{{ onSaveAccount }}" style="background:#C41230; color:#fff; border:none; padding:11px 20px; border-radius:8px; font-size:13.5px; font-weight:700; cursor:pointer;" style-hover="background:#A10E27;">Save Changes</button>
+                    <button onClick="{{ onCancelAccount }}" style="background:#fff; color:#4B4F58; border:1.5px solid #D4D6DA; padding:11px 20px; border-radius:8px; font-size:13.5px; font-weight:700; cursor:pointer;">Cancel</button>
+                  </div>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ isSettingsTabB }}" hint-placeholder-val="{{ false }}">
+                <sc-if value="{{ pwSuccessShown }}" hint-placeholder-val="{{ false }}">
+                  <div style="background:#E4F5E9; border:1px solid #B7E3C4; color:#1D7A3E; padding:12px 16px; border-radius:8px; font-size:13px; font-weight:600;">✓ Password updated successfully!</div>
+                </sc-if>
+                <div style="background:#fff; border:1px solid #EDEEF0; border-radius:10px; box-shadow:0 1px 3px rgba(0,0,0,0.04); padding:22px 24px; display:flex; flex-direction:column; gap:16px;">
+                  <div style="font-weight:700; font-size:15px;">Password & Security</div>
+                  <div>
+                    <div style="font-size:13px; font-weight:600; margin-bottom:6px;">Current Password</div>
+                    <div style="position:relative;">
+                      <input type="{{ curPwType }}" value="{{ pw.current }}" onChange="{{ onCurPwChange }}" style="width:100%; box-sizing:border-box; padding:10px 50px 10px 12px; border-radius:8px; border:1px solid #D4D6DA; font-family:'Inter',sans-serif; font-size:13px;" />
+                      <span onClick="{{ toggleCurPw }}" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); font-size:12px; color:#8A8F98; cursor:pointer; font-weight:600;">{{ curPwToggleLabel }}</span>
+                    </div>
+                  </div>
+                  <div>
+                    <div style="font-size:13px; font-weight:600; margin-bottom:6px;">New Password</div>
+                    <div style="position:relative;">
+                      <input type="{{ newPwType }}" value="{{ pw.new_ }}" onChange="{{ onNewPwChange }}" style="width:100%; box-sizing:border-box; padding:10px 50px 10px 12px; border-radius:8px; border:1px solid #D4D6DA; font-family:'Inter',sans-serif; font-size:13px;" />
+                      <span onClick="{{ toggleNewPw }}" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); font-size:12px; color:#8A8F98; cursor:pointer; font-weight:600;">{{ newPwToggleLabel }}</span>
+                    </div>
+                    <div style="display:flex; gap:4px; margin-top:8px;">
+                      <div style="flex:1; height:4px; border-radius:2px; background:{{ strengthBar1 }};"></div>
+                      <div style="flex:1; height:4px; border-radius:2px; background:{{ strengthBar2 }};"></div>
+                      <div style="flex:1; height:4px; border-radius:2px; background:{{ strengthBar3 }};"></div>
+                    </div>
+                    <div style="font-size:11.5px; color:{{ strengthLabelColor }}; margin-top:5px; font-weight:600;">{{ strengthLabel }}</div>
+                  </div>
+                  <div>
+                    <div style="font-size:13px; font-weight:600; margin-bottom:6px;">Confirm New Password</div>
+                    <div style="position:relative;">
+                      <input type="{{ confirmPwType }}" value="{{ pw.confirm }}" onChange="{{ onConfirmPwChange }}" style="width:100%; box-sizing:border-box; padding:10px 50px 10px 12px; border-radius:8px; border:{{ confirmPwBorder }}; font-family:'Inter',sans-serif; font-size:13px;" />
+                      <span onClick="{{ toggleConfirmPw }}" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); font-size:12px; color:#8A8F98; cursor:pointer; font-weight:600;">{{ confirmPwToggleLabel }}</span>
+                    </div>
+                    <sc-if value="{{ confirmMismatch }}" hint-placeholder-val="{{ false }}">
+                      <div style="font-size:12px; color:#C41230; margin-top:6px;">Passwords do not match</div>
+                    </sc-if>
+                  </div>
+                  <div style="background:#F7F7F8; border-radius:8px; padding:14px 16px; display:flex; flex-direction:column; gap:8px;">
+                    <sc-for list="{{ requirements }}" as="req" hint-placeholder-count="4">
+                      <div style="display:flex; align-items:center; gap:8px; font-size:12.5px; color:{{ req.color }}; font-weight:600;">
+                        <div style="width:16px; height:16px; border-radius:50%; background:{{ req.dotBg }}; color:#fff; font-size:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">{{ req.dotIcon }}</div>
+                        {{ req.label }}
+                      </div>
+                    </sc-for>
+                  </div>
+                  <button onClick="{{ onUpdatePassword }}" disabled="{{ updatePwDisabled }}" style="align-self:flex-start; background:{{ updatePwBg }}; color:#fff; border:none; padding:11px 20px; border-radius:8px; font-size:13.5px; font-weight:700; cursor:{{ updatePwCursor }};">Update Password</button>
+                </div>
+
+                <div style="background:#fff; border:1px solid #EDEEF0; border-radius:10px; box-shadow:0 1px 3px rgba(0,0,0,0.04); padding:22px 24px; display:flex; align-items:center; justify-content:space-between; gap:16px;">
+                  <div>
+                    <div style="font-weight:700; font-size:15px; margin-bottom:4px;">Two-Factor Authentication</div>
+                    <div style="font-size:13px; color:#8A8F98;">Add an extra layer of security to your account</div>
+                  </div>
+                  <div onClick="{{ toggle2fa }}" style="width:44px; height:24px; border-radius:20px; background:{{ toggle2faBg }}; position:relative; cursor:pointer; flex-shrink:0;">
+                    <div style="width:18px; height:18px; border-radius:50%; background:#fff; position:absolute; top:3px; left:{{ toggle2faKnobLeft }}; transition:left 0.15s;"></div>
+                  </div>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ isSettingsTabC }}" hint-placeholder-val="{{ false }}">
+                <sc-if value="{{ prefsSavedShown }}" hint-placeholder-val="{{ false }}">
+                  <div style="background:#E4F5E9; border:1px solid #B7E3C4; color:#1D7A3E; padding:12px 16px; border-radius:8px; font-size:13px; font-weight:600;">✓ Notification preferences saved!</div>
+                </sc-if>
+                <div style="background:#fff; border:1px solid #EDEEF0; border-radius:10px; box-shadow:0 1px 3px rgba(0,0,0,0.04); padding:22px 24px; display:flex; flex-direction:column; gap:18px;">
+                  <div style="font-weight:700; font-size:15px;">Notification Preferences</div>
+                  <sc-for list="{{ notifPrefRows }}" as="p" hint-placeholder-count="5">
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:16px; padding-bottom:14px; border-bottom:1px solid #F5F5F6;">
+                      <div>
+                        <div style="font-size:13.5px; font-weight:600; margin-bottom:3px;">{{ p.label }}</div>
+                        <div style="font-size:12.5px; color:#8A8F98;">{{ p.desc }}</div>
+                      </div>
+                      <div onClick="{{ p.onClick }}" style="width:44px; height:24px; border-radius:20px; background:{{ p.bg }}; position:relative; cursor:pointer; flex-shrink:0;">
+                        <div style="width:18px; height:18px; border-radius:50%; background:#fff; position:absolute; top:3px; left:{{ p.knobLeft }}; transition:left 0.15s;"></div>
+                      </div>
+                    </div>
+                  </sc-for>
+                  <button onClick="{{ onSavePrefs }}" style="align-self:flex-start; background:#C41230; color:#fff; border:none; padding:11px 20px; border-radius:8px; font-size:13.5px; font-weight:700; cursor:pointer;" style-hover="background:#A10E27;">Save Preferences</button>
+                </div>
+              </sc-if>
+
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ panelOpen }}" hint-placeholder-val="{{ false }}">
+          <div onClick="{{ closePanel }}" style="position:fixed; inset:0; background:rgba(0,0,0,0.35); z-index:40;"></div>
+          <div style="position:fixed; top:0; right:0; bottom:0; width:380px; background:#fff; box-shadow:-8px 0 30px rgba(0,0,0,0.15); z-index:41; display:flex; flex-direction:column;">
+            <div style="padding:20px; border-bottom:1px solid #F0F1F3; display:flex; align-items:flex-start; justify-content:space-between; gap:12px;">
+              <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:17px; line-height:1.3;">{{ panelTitle }}</div>
+              <div onClick="{{ closePanel }}" style="cursor:pointer; color:#8A8F98; font-size:18px; line-height:1; flex-shrink:0;">✕</div>
+            </div>
+            <div style="padding:14px 20px; border-bottom:1px solid #F0F1F3; font-size:12.5px; color:#8A8F98;">{{ panelCategory }} · Submitted {{ panelDate }} · {{ panelEvidenceCount }} evidence files</div>
+            <div style="padding:16px 20px; border-bottom:1px solid #F0F1F3;">
+              <div style="font-size:11.5px; font-weight:700; color:#8A8F98; text-transform:uppercase; letter-spacing:0.03em; margin-bottom:8px;">Tags</div>
+              <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                <span style="background:#FBE7E9; color:#C41230; font-size:11.5px; font-weight:600; padding:4px 10px; border-radius:20px;">{{ panelCategory }}</span>
+                <span style="background:#F0F1F3; color:#4B4F58; font-size:11.5px; font-weight:600; padding:4px 10px; border-radius:20px;">{{ panelStatus }}</span>
+              </div>
+            </div>
+            <div style="padding:16px 20px; border-bottom:1px solid #F0F1F3;">
+              <sc-if value="{{ panelHasAgencyHistory }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+                  <div style="font-size:11.5px; font-weight:700; color:#8A8F98; text-transform:uppercase; letter-spacing:0.03em;">Agencies</div>
+                  <a href="#" onClick="{{ onViewHistory }}" style="font-size:12px; font-weight:600; text-decoration:none;">View History</a>
+                </div>
+                <div style="display:flex;">
+                  <sc-for list="{{ panelAgencyChips }}" as="ag" hint-placeholder-count="2">
+                    <div style="width:28px; height:28px; border-radius:50%; background:{{ ag.bg }}; color:#fff; font-size:9px; font-weight:800; letter-spacing:-0.02em; display:flex; align-items:center; justify-content:center; border:2px solid #fff; margin-left:-8px; flex-shrink:0;">{{ ag.label }}</div>
+                  </sc-for>
+                </div>
+              </sc-if>
+              <sc-if value="{{ panelHasNoAgencyYet }}" hint-placeholder-val="{{ true }}">
+                <div style="font-size:11.5px; font-weight:700; color:#8A8F98; text-transform:uppercase; letter-spacing:0.03em; margin-bottom:6px;">Agencies</div>
+                <div style="font-size:12.5px; color:#8A8F98; font-style:italic;">Not yet assigned — pending MCMC triage review.</div>
+              </sc-if>
+            </div>
+            <div style="display:flex; border-bottom:1px solid #F0F1F3; flex-shrink:0;">
+              <sc-for list="{{ panelTabs }}" as="pt" hint-placeholder-count="3">
+                <div onClick="{{ pt.onClick }}" style="flex:1; text-align:center; padding:11px; font-size:12.5px; font-weight:700; cursor:pointer; color:{{ pt.color }}; border-bottom:2px solid {{ pt.borderColor }};">{{ pt.label }}</div>
+              </sc-for>
+            </div>
+            <div style="flex:1; overflow:auto; padding:18px 20px;">
+              <sc-if value="{{ isPanelDetails }}" hint-placeholder-val="{{ true }}">
+                <div style="font-size:13.5px; color:#4B4F58; line-height:1.6;">{{ panelDescription }}</div>
+              </sc-if>
+              <sc-if value="{{ isPanelEvidence }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                  <sc-for list="{{ panelEvidenceFiles }}" as="ef" hint-placeholder-count="2">
+                    <div style="display:flex; align-items:center; gap:10px; padding:10px 12px; background:#F7F7F8; border-radius:8px; font-size:12.5px; font-weight:600;">📎 {{ ef }}</div>
+                  </sc-for>
+                </div>
+              </sc-if>
+              <sc-if value="{{ isPanelActivity }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex; flex-direction:column; gap:14px;">
+                  <sc-for list="{{ panelActivity }}" as="ac" hint-placeholder-count="2">
+                    <div style="display:flex; gap:10px;">
+                      <div style="width:8px; height:8px; border-radius:50%; background:#C41230; margin-top:5px; flex-shrink:0;"></div>
+                      <div>
+                        <div style="font-size:11.5px; color:#8A8F98; font-weight:600; margin-bottom:2px;">{{ ac.date }}</div>
+                        <div style="font-size:13px;">{{ ac.text }}</div>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+            </div>
+            <div style="padding:16px 20px; border-top:1px solid #F0F1F3; flex-shrink:0;">
+              <button onClick="{{ onReviewFromPanel }}" style="width:100%; background:#C41230; color:#fff; border:none; padding:11px; border-radius:8px; font-size:13.5px; font-weight:700; cursor:pointer;" style-hover="background:#A10E27;">Review This Inquiry</button>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </div>
+
+  <sc-if value="{{ monthlyModalOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ onCloseMonthlyModal }}" style="position:fixed; inset:0; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:50;">
+      <div onClick="{{ stopClickPropagation }}" style="width:480px; background:#fff; border-radius:16px; padding:0; box-shadow:0 24px 70px rgba(0,0,0,0.3); overflow:hidden;">
+
+        <div style="padding:24px 26px 20px; border-bottom:1px solid #F0F1F3; display:flex; align-items:flex-start; justify-content:space-between; gap:12px;">
+          <div style="display:flex; align-items:center; gap:12px; min-width:0; flex:1;">
+            <div style="width:38px; height:38px; border-radius:10px; background:#FBE7E9; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 19V10M10 19V4M16 19v-7M22 19H2" stroke="#C41230" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div style="min-width:0;">
+              <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:15.5px; color:#1A1A1A; line-height:1.3; white-space:nowrap;">Inquiries Processed This Month</div>
+              <div style="font-size:12.5px; color:#8A8F98; margin-top:3px;">September 2026</div>
+            </div>
+          </div>
+          <button onClick="{{ onCloseMonthlyModal }}" style="width:28px; height:28px; border-radius:8px; border:none; background:transparent; color:#8A8F98; font-size:16px; cursor:pointer; flex-shrink:0; transition:background 0.15s ease;" style-hover="background:#F0F1F3;">✕</button>
+        </div>
+
+        <div style="padding:22px 26px;">
+          <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:10px;">
+            <div style="display:flex; align-items:baseline; gap:6px;">
+              <span style="font-family:'Poppins',sans-serif; font-weight:800; font-size:26px; color:#1A1A1A;">182</span>
+              <span style="font-size:13.5px; color:#8A8F98; font-weight:600;">/ 250 target</span>
+            </div>
+            <div style="background:#FBE7E9; color:#C41230; font-size:12px; font-weight:700; padding:4px 10px; border-radius:20px;">73%</div>
+          </div>
+          <div style="height:8px; background:#F0F1F3; border-radius:5px; overflow:hidden;">
+            <div style="height:100%; width:72.8%; background:linear-gradient(90deg, #A10E27, #C41230); border-radius:5px;"></div>
+          </div>
+
+          <div style="height:1px; background:#F0F1F3; margin:22px 0 18px;"></div>
+
+          <div style="font-size:12px; font-weight:700; color:#8A8F98; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:14px;">Weekly Processing Volume</div>
+          <div style="display:flex; align-items:flex-end; gap:12px; height:92px; margin-bottom:22px; padding:0 4px;">
+            <sc-for list="{{ monthlyWeeks }}" as="w" hint-placeholder-count="4">
+              <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:7px; height:100%; justify-content:flex-end;">
+                <div style="font-size:11.5px; color:#4B4F58; font-weight:700;">{{ w.value }}</div>
+                <div style="width:100%; max-width:34px; background:linear-gradient(180deg, #D4213F, #A10E27); border-radius:6px 6px 2px 2px; height:{{ w.barHeight }};"></div>
+                <div style="font-size:11px; color:#8A8F98; font-weight:600;">{{ w.label }}</div>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="display:flex; gap:10px; margin-bottom:20px;">
+            <div style="flex:1; background:#F7F7F8; border:1px solid #EDEEF0; border-radius:10px; padding:12px; text-align:center;">
+              <div style="width:26px; height:26px; border-radius:50%; background:#E4F5E9; display:flex; align-items:center; justify-content:center; margin:0 auto 6px;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#1D7A3E" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <div style="font-family:'Poppins',sans-serif; font-weight:800; font-size:17px; color:#1D7A3E;">128</div>
+              <div style="font-size:11px; color:#8A8F98; margin-top:2px; font-weight:600;">Validated</div>
+            </div>
+            <div style="flex:1; background:#F7F7F8; border:1px solid #EDEEF0; border-radius:10px; padding:12px; text-align:center;">
+              <div style="width:26px; height:26px; border-radius:50%; background:#EDEEF0; display:flex; align-items:center; justify-content:center; margin:0 auto 6px;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M6 12h12" stroke="#6B6F76" stroke-width="2.4" stroke-linecap="round"/></svg>
+              </div>
+              <div style="font-family:'Poppins',sans-serif; font-weight:800; font-size:17px; color:#6B6F76;">39</div>
+              <div style="font-size:11px; color:#8A8F98; margin-top:2px; font-weight:600;">Discarded</div>
+            </div>
+            <div style="flex:1; background:#F7F7F8; border:1px solid #EDEEF0; border-radius:10px; padding:12px; text-align:center;">
+              <div style="width:26px; height:26px; border-radius:50%; background:#EAF1FB; display:flex; align-items:center; justify-content:center; margin:0 auto 6px;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M4 8h13l-3-3M20 16H7l3 3" stroke="#1D5FBF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <div style="font-family:'Poppins',sans-serif; font-weight:800; font-size:17px; color:#1D5FBF;">15</div>
+              <div style="font-size:11px; color:#8A8F98; margin-top:2px; font-weight:600;">Reassigned</div>
+            </div>
+          </div>
+
+          <div style="display:inline-flex; align-items:center; gap:6px; background:#E4F5E9; color:#1D7A3E; font-size:12.5px; font-weight:700; padding:6px 12px; border-radius:20px; margin-bottom:22px;">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12l7-7 7 7" stroke="#1D7A3E" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Up 12% compared to last month
+          </div>
+
+          <button onClick="{{ onCloseMonthlyModal }}" style="width:100%; background:#fff; color:#4B4F58; border:1.5px solid #D4D6DA; padding:11px; border-radius:8px; font-size:13.5px; font-weight:700; cursor:pointer; transition:background 0.15s ease;" style-hover="background:#F7F7F8;">Close</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ toastMsg }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed; bottom:28px; left:50%; transform:translateX(-50%); background:#1A1A1A; color:#fff; padding:12px 22px; border-radius:8px; font-size:13.5px; font-weight:500; box-shadow:0 8px 24px rgba(0,0,0,0.2); z-index:60;">{{ toastMsg }}</div>
+  </sc-if>
+</sc-if>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    view: 'dashboard',
+    profilePhoto: '',
+    cropModalOpen: false, cropSrc: '', cropZoom: 1, cropOffset: { x: 0, y: 0 }, cropDragging: false, cropDragStart: null,
+    username: '', password: '', showPassword: false, loginSubmitted: false,
+    resetInput: '', resetSubmitted: false, resetSent: false,
+    activeNav: 0, notifOpen: false, view: new URLSearchParams(location.search).get('view') || 'dashboard', notifFilter: 'all', viewAllHover: false, viewReportsHover: false,
+    quickFilter: 'pending', panelRowId: null, panelTab: 'details', searchOpen: false, profileMenuOpen: false, trendHoverIdx: null,
+    toastMsg: '', viewAllFlash: false, reportsFlash: false,
+    settingsTab: 'A',
+    accountForm: { fullName: 'Siti Rahman', username: 's.rahman', email: 'siti.rahman@mcmc.gov.my', department: 'Digital Verification Unit' },
+    accountSaveShown: false,
+    pw: { current: '', new_: '', confirm: '' }, showCurPw: false, showNewPw: false, showConfirmPw: false, pwSuccessShown: false, twoFa: false,
+    notifPrefs: { newInquiry: true, agencyRejects: true, agencyResolves: true, newAgency: true, dailySummary: false }, prefsSavedShown: false,
+    monthlyModalOpen: false,
+    mcmcNotifsFull: [
+      { id: 1, icon: '🔔', iconBg: '#F0F1F3', iconColor: '#6B6F76', text: 'New inquiry submitted: ‘Fake vaccine side-effect statistics infographic’', time: '30 minutes ago', unread: true, type: 'general', goTo: './06-mcmc-triage-assignment.dc.html?tab=pending' },
+      { id: 2, icon: '⚠', iconBg: '#FEF3E6', iconColor: '#C4670A', text: 'Bank Negara Malaysia rejected an inquiry — reassignment needed', time: '2 hours ago', unread: true, type: 'action', goTo: './06-mcmc-triage-assignment.dc.html?tab=reassign' },
+      { id: 3, icon: '✉', iconBg: '#F0F1F3', iconColor: '#6B6F76', text: 'Weekly report is ready for review', time: 'Yesterday', unread: true, type: 'general', goTo: './07-mcmc-agency-reports.dc.html' },
+      { id: 4, icon: '🔔', iconBg: '#F0F1F3', iconColor: '#6B6F76', text: 'New agency registration request submitted', time: '2 days ago', unread: false, type: 'general', goTo: './15-mcmc-user-management.dc.html' },
+      { id: 5, icon: '⚠', iconBg: '#FEF3E6', iconColor: '#C4670A', text: '3 inquiries have been pending triage for over 5 days', time: '3 days ago', unread: false, type: 'action', goTo: './06-mcmc-triage-assignment.dc.html?tab=pending' }
+    ]
+  };
+
+  recentActionsData = [
+    { title: 'Fake vaccine side-effect statistics infographic', action: 'Assigned to Ministry of Health (MOH)', badgeBg: '#E6EEFB', badgeColor: '#2255A4', time: 'Today, 10:42 AM' },
+    { title: 'Doctored screenshot of bank transfer fee hike', action: 'Validated', badgeBg: '#E4F5E9', badgeColor: '#1D7A3E', time: 'Today, 9:15 AM' },
+    { title: '"Free government cash aid" WhatsApp forward', action: 'Discarded', badgeBg: '#F0F1F3', badgeColor: '#6B6F76', time: 'Yesterday, 4:50 PM' },
+    { title: 'Claim: 5G towers linked to signal interference deaths', action: 'Assigned to MCMC Technical Standards Div.', badgeBg: '#E6EEFB', badgeColor: '#2255A4', time: 'Yesterday, 2:03 PM' },
+    { title: 'Viral video claiming new toll rate hike nationwide', action: 'Validated', badgeBg: '#E4F5E9', badgeColor: '#1D7A3E', time: 'Yesterday, 11:27 AM' },
+    { title: 'Fabricated exam leak notice for SPM 2026', action: 'Assigned to Ministry of Education (MOE)', badgeBg: '#E6EEFB', badgeColor: '#2255A4', time: '2 days ago, 3:38 PM' },
+    { title: 'Recycled flood-relief donation scam post', action: 'Discarded', badgeBg: '#F0F1F3', badgeColor: '#6B6F76', time: '3 days ago, 9:52 AM' },
+    { title: 'Misattributed quote on fuel subsidy removal', action: 'Validated', badgeBg: '#E4F5E9', badgeColor: '#1D7A3E', time: '4 days ago, 1:14 PM' }
+  ];
+
+  checkPwRequirements(pw) {
+    return { length: pw.length >= 8, upper: /[A-Z]/.test(pw), number: /[0-9]/.test(pw), special: /[^A-Za-z0-9]/.test(pw) };
+  }
+
+  topNavDefs = [
+    { key: 'dashboard', label: 'Dashboard' },
+    { key: 'triage', label: 'Triage' },
+    { key: 'assign', label: 'Assign' },
+    { key: 'reports', label: 'Reports' }
+  ];
+
+  quickFilterDefs = [
+    { key: 'all', label: 'All Inquiries', dot: '#8A8F98', count: 5 },
+    { key: 'pending', label: 'Pending Triage', dot: '#C4670A', count: 5 },
+    { key: 'reassign', label: 'Needs Reassignment', dot: '#1D5FBF', count: 2 },
+    { key: 'recent', label: 'My Recent Actions', dot: '#6B4FBF', count: 3 },
+    { key: 'flagged', label: 'Flagged/Urgent', dot: '#C41230', count: 2 }
+  ];
+
+  categoryStyles = {
+    'Public Policy': { bg: '#E7EEFB', color: '#1D5FBF', code: 'PP' },
+    'Government Aid': { bg: '#FEF3E6', color: '#C4670A', code: 'GA' },
+    'Health': { bg: '#FBE7E9', color: '#C41230', code: 'HL' },
+    'Politics': { bg: '#F0EAFB', color: '#6B4FBF', code: 'PL' },
+    'Financial Scam': { bg: '#E4F5F2', color: '#0E8074', code: 'FS' }
+  };
+
+  agencyColors = { MOH: '#1D5FBF', PDRM: '#4B4F58', KKM: '#0E8074', KWSP: '#C4670A', JPA: '#6B4FBF', SPR: '#C41230', MCMC: '#1A1A1A', KDN: '#8A8F98', BNM: '#1D7A3E' };
+
+  triageData = [
+    { id: 0, title: 'Viral WhatsApp claim on toll rate hike', category: 'Public Policy', date: '3 Sep 2026', agencies: [], evidenceCount: 2, flagged: true, reassign: false, recent: false,
+      description: 'A forwarded WhatsApp voice note and accompanying text claim that toll rates on the North-South Expressway will rise by 40% starting next month, citing an unnamed "highway authority insider." The message has been circulating in several neighbourhood and parent group chats since Monday and includes a screenshot of what looks like an official toll schedule. The submitter flagged it because the screenshot has no letterhead or source watermark, and no such announcement appears on any official government or concessionaire channel.' },
+    { id: 1, title: '"Free electricity for flood victims" post', category: 'Government Aid', date: '2 Sep 2026', agencies: ['MOH'], evidenceCount: 1, flagged: false, reassign: true, recent: false,
+      description: 'A Facebook post attributed to a "Ministry of Energy Relief Unit" claims flood victims in Kelantan can get 6 months of free electricity by registering through a linked third-party website and submitting their IC number and TNB account details. The post has been shared over 800 times. The submitter noted the linked site is not a .gov.my domain and asks for banking details upfront, which raised suspicion of a phishing attempt riding on genuine flood relief sentiment.' },
+    { id: 2, title: 'Fake vaccine side-effect statistics', category: 'Health', date: '2 Sep 2026', agencies: [], evidenceCount: 3, flagged: true, reassign: false, recent: true,
+      description: 'An infographic circulating on Telegram cites "internal Ministry of Health data" claiming 1 in 12 recipients of a routine childhood vaccine experienced severe adverse reactions last year. The figures do not match any published MOH or WHO surveillance reports, and the infographic reuses a chart template previously debunked in an unrelated country\u2019s misinformation cycle. The submitter is a parent worried the post is influencing vaccine-hesitant relatives.' },
+    { id: 3, title: 'Doctored photo of ministerial statement', category: 'Politics', date: '1 Sep 2026', agencies: [], evidenceCount: 4, flagged: false, reassign: false, recent: true,
+      description: 'A widely shared image appears to show a minister holding a printed statement about a controversial policy reversal, with the printed text visibly altered compared to the original press photo it was based on. The submitter found the original unedited photo from a news wire and included both versions side by side, along with a comparison noting mismatched fonts and spacing in the doctored text block.' },
+    { id: 4, title: 'Scam SMS impersonating bank alert', category: 'Financial Scam', date: '31 Aug 2026', agencies: ['BNM'], evidenceCount: 1, flagged: false, reassign: true, recent: true,
+      description: 'Multiple submitters report receiving an SMS appearing to come from "Maybank-Alert" stating their account will be suspended within 24 hours unless they verify their details via a bit.ly link. The link leads to a fake login page that closely mimics the bank\u2019s mobile banking portal. The submitter did not click the link but attached a screenshot of the SMS and the sender ID for reference.' }
+  ];
+
+  agencyData = [
+    { name: 'Ministry of Health (MOH)', code: 'MOH', assigned: 58, resolved: 52, avgTime: '2.1 days' },
+    { name: 'Bank Negara Malaysia', code: 'BNM', assigned: 41, resolved: 39, avgTime: '1.8 days' },
+    { name: 'Election Commission (SPR)', code: 'SPR', assigned: 33, resolved: 27, avgTime: '3.4 days' },
+    { name: 'National Disaster Management Agency (NADMA)', code: 'KDN', assigned: 26, resolved: 22, avgTime: '2.9 days' },
+    { name: 'Royal Malaysia Police (PDRM)', code: 'PDRM', assigned: 29, resolved: 24, avgTime: '3.0 days' }
+  ];
+
+  trendData = [
+    { label: 'Apr', v: 30 }, { label: 'May', v: 45 }, { label: 'Jun', v: 38 },
+    { label: 'Jul', v: 60 }, { label: 'Aug', v: 52 }, { label: 'Sep', v: 70 }
+  ];
+
+  notifData = [
+    { title: 'New inquiry submitted', time: '5 minutes ago' },
+    { title: 'Agency XYZ rejected an assignment', time: '1 hour ago' },
+    { title: 'Weekly report ready for review', time: 'Yesterday' }
+  ];
+
+  isValidField(v) { return !!v && v.trim().length > 0; }
+
+  handleLoginSubmit(e) {
+    e.preventDefault();
+    this.setState({ loginSubmitted: true });
+    if (this.isValidField(this.state.username) && this.isValidField(this.state.password)) {
+      this.setState({ view: 'dashboard' });
+    }
+  }
+
+  handleResetSubmit(e) {
+    e.preventDefault();
+    this.setState({ resetSubmitted: true });
+    if (this.isValidField(this.state.resetInput)) this.setState({ resetSent: true });
+  }
+
+  showToast(msg) {
+    this.setState({ toastMsg: msg });
+    setTimeout(() => this.setState({ toastMsg: '' }), 2600);
+  }
+
+  openPanel(id) { this.setState({ panelRowId: id, panelTab: 'details' }); }
+  closePanel() { this.setState({ panelRowId: null }); }
+  setQuickFilter(key) { this.setState({ quickFilter: key }); }
+  jumpToQuickFilter(key) {
+    this.setState({ quickFilter: key });
+    requestAnimationFrame(() => {
+      const anchor = document.getElementById('inquiry-list-anchor');
+      const container = anchor && anchor.closest('[data-scroll-container]');
+      if (!anchor || !container) return;
+      const top = anchor.getBoundingClientRect().top - container.getBoundingClientRect().top + container.scrollTop - 16;
+      container.scrollTo({ top, behavior: 'auto' });
+    });
+  }
+  setPanelTab(tab) { this.setState({ panelTab: tab }); }
+
+  handleTrendMove(e) {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const relX = ((e.clientX - rect.left) / rect.width) * 300;
+    let nearestIdx = 0, best = Infinity;
+    this.trendData.forEach((t, i) => {
+      const px = 4 + i * ((300 - 8) / (this.trendData.length - 1));
+      const d = Math.abs(px - relX);
+      if (d < best) { best = d; nearestIdx = i; }
+    });
+    this.setState({ trendHoverIdx: nearestIdx });
+  }
+
+  markRead(id) {
+    this.setState(s => ({ mcmcNotifsFull: s.mcmcNotifsFull.map(n => n.id === id ? { ...n, unread: false, justRead: true } : n) }));
+    setTimeout(() => this.setState(s => ({ mcmcNotifsFull: s.mcmcNotifsFull.map(n => n.id === id ? { ...n, justRead: false } : n) })), 900);
+  }
+
+  componentDidMount() {
+    const hook = () => {
+      if (window.SBClarify) { this._unsubClarify = window.SBClarify.subscribe(() => this.forceUpdate()); this.forceUpdate(); }
+      else this._clarifyRetry = setTimeout(hook, 150);
+    };
+    hook();
+  }
+  componentWillUnmount() { if (this._unsubClarify) this._unsubClarify(); clearTimeout(this._clarifyRetry); }
+
+  clarifyAlert() {
+    const S = window.SBClarify; if (!S) return { hasClarifyAlert: false };
+    const open = S.all().filter(t => t.status === 'open');
+    const urgent = open.filter(t => t.priority === 'Urgent').length;
+    const advice = S.all().filter(t => t.status !== 'closed' && t.unreadMcmc && (t.consults || []).some(c => c.status === 'responded')).length;
+    return {
+      hasClarifyAlert: open.length > 0 || advice > 0,
+      clarifyAlertTitle: open.length + ' clarification request' + (open.length === 1 ? '' : 's') + ' from agencies awaiting your response' + (urgent ? ' (' + urgent + ' urgent)' : ''),
+      clarifyAlertSub: (open.length ? 'Latest: ' + open[0].id + ' — "' + open[0].inquiry.title + '" from ' + open[0].agency : '') + (advice ? (open.length ? ' · ' : '') + advice + ' with new advice from a consulted agency' : ''),
+      onOpenClarifyQueue: () => { window.location.href = './06-mcmc-triage-assignment.dc.html?tab=clarify'; }
+    };
+  }
+
+  componentDidMount() { this._syncAvatars(); }
+  componentDidUpdate() { this._syncAvatars(); }
+  _syncAvatars() {
+    const s = this.state, bg = s.profilePhoto ? `url("${s.profilePhoto}")` : 'none';
+    [this._headerAvatarRef, this._settingsAvatarRef].forEach(r => { if (r && r.current) r.current.style.backgroundImage = bg; });
+    if (this._cropPreviewRef && this._cropPreviewRef.current) {
+      const el = this._cropPreviewRef.current;
+      if (s.cropSrc) {
+        el.style.backgroundImage = `url("${s.cropSrc}")`;
+        el.style.backgroundSize = `${s.cropZoom * 100}%`;
+        el.style.backgroundPosition = `calc(50% + ${s.cropOffset.x}px) calc(50% + ${s.cropOffset.y}px)`;
+      } else { el.style.backgroundImage = 'none'; }
+    }
+  }
+  renderVals() {
+    const s = this.state;
+    const photoInputRef = this._photoInputRef || (this._photoInputRef = React.createRef());
+    const headerAvatarRef = this._headerAvatarRef || (this._headerAvatarRef = React.createRef());
+    const settingsAvatarRef = this._settingsAvatarRef || (this._settingsAvatarRef = React.createRef());
+    const cropPreviewRef = this._cropPreviewRef || (this._cropPreviewRef = React.createRef());
+    const notifUnreadCount = s.mcmcNotifsFull.filter(n => n.unread).length;
+    const notifFilterTabs = [
+      { key: 'all', label: 'All' },
+      { key: 'unread', label: 'Unread', showBadge: true, badgeCount: notifUnreadCount },
+      { key: 'action', label: 'Mentions/Actions Required' }
+    ].map(f => ({
+      label: f.label, showBadge: !!f.showBadge, badgeCount: f.badgeCount,
+      bg: s.notifFilter === f.key ? '#FBE7E9' : '#F0F1F3', color: s.notifFilter === f.key ? '#C41230' : '#4B4F58',
+      onClick: () => this.setState({ notifFilter: f.key })
+    }));
+    const visibleNotifs = s.mcmcNotifsFull.filter(n => {
+      if (s.notifFilter === 'unread') return n.unread;
+      if (s.notifFilter === 'action') return n.type === 'action';
+      return true;
+    }).map(n => ({
+      ...n, weight: n.unread ? 700 : 500,
+      flashAnim: n.justRead ? 'flashRow 0.9s ease' : 'none',
+      onClick: () => { this.markRead(n.id); if (n.goTo) window.location.href = n.goTo; }
+    }));
+    const normalBorder = '1px solid #D4D6DA';
+    const errorBorder = '1.5px solid #C41230';
+    const errorShadow = '0 0 0 3px rgba(196,18,48,0.10)';
+
+    const usernameError = s.loginSubmitted && !this.isValidField(s.username) ? 'This field is required.' : '';
+    const passwordError = s.loginSubmitted && !this.isValidField(s.password) ? 'This field is required.' : '';
+    const resetError = s.resetSubmitted && !this.isValidField(s.resetInput) ? 'This field is required.' : '';
+
+    const menuDefs = [
+      { key: 'dashboard', label: 'Dashboard', icon: 'grid' },
+      { key: 'triage', label: 'New Inquiries / Triage', icon: 'inbox' },
+      { key: 'assign', label: 'Assign to Agency', icon: 'share' },
+      { key: 'all', label: 'All Inquiries', icon: 'folder' },
+      { key: 'agency', label: 'Agency Management', icon: 'building' },
+      { key: 'users', label: 'Registered Users', icon: 'users' },
+      { key: 'reports', label: 'Reports', icon: 'chart' }
+    ];
+    const menuTargets = {
+      dashboard: () => this.setState({ view: 'dashboard' }),
+      triage: () => { window.location.href = './06-mcmc-triage-assignment.dc.html'; },
+      assign: () => { window.location.href = './06-mcmc-triage-assignment.dc.html?tab=reassign'; },
+      all: () => { window.location.href = './12-mcmc-all-inquiries.dc.html'; },
+      agency: () => { window.location.href = './07-mcmc-agency-reports.dc.html'; },
+      users: () => { window.location.href = './15-mcmc-user-management.dc.html'; },
+      reports: () => { window.location.href = './07-mcmc-agency-reports.dc.html?screen=reports'; }
+    };
+    const menuNavItems = menuDefs.map(m => ({
+      label: m.label,
+      isActive: m.key === 'dashboard' && s.view === 'dashboard',
+      isInactive: !(m.key === 'dashboard' && s.view === 'dashboard'),
+      isGrid: m.icon === 'grid', isInbox: m.icon === 'inbox', isShare: m.icon === 'share', isFolder: m.icon === 'folder', isBuilding: m.icon === 'building', isUsers: m.icon === 'users', isChart: m.icon === 'chart',
+      onClick: menuTargets[m.key]
+    }));
+
+    const quickFilterCounts = {
+      all: this.triageData.length, pending: this.triageData.length,
+      reassign: this.triageData.filter(r => r.reassign).length,
+      recent: this.triageData.filter(r => r.recent).length,
+      flagged: this.triageData.filter(r => r.flagged).length
+    };
+    const quickFilters = this.quickFilterDefs.map(qf => ({
+      label: qf.label, dot: qf.dot, count: quickFilterCounts[qf.key],
+      bg: s.quickFilter === qf.key ? '#FBE7E9' : 'transparent',
+      color: s.quickFilter === qf.key ? '#C41230' : '#4B4F58',
+      onClick: () => this.setQuickFilter(qf.key)
+    }));
+    const quickFilterLabels = { all: 'All Inquiries', pending: 'Pending Triage', reassign: 'Needs Reassignment', recent: 'My Recent Actions', flagged: 'Flagged/Urgent' };
+    const quickFilterLabel = quickFilterLabels[s.quickFilter];
+
+    const quickAccessCards = [
+      { badge: '15', title: 'Pending Triage', meta: '15 inquiries', bg: '#FBDCB8', color: '#C4670A', cardBg: '#FEF6EC', cardBorder: '#F7E1C4', isPending: true, onClick: () => this.jumpToQuickFilter('pending') },
+      { badge: '2', title: 'Needs Reassignment', meta: '2 inquiries', bg: '#CFDFF7', color: '#1D5FBF', cardBg: '#EEF3FC', cardBorder: '#D6E3F7', isReassign: true, onClick: () => this.jumpToQuickFilter('reassign') },
+      { badge: '12', title: 'Registered Agencies', meta: '12 agencies', bg: '#C9EAD4', color: '#1D7A3E', cardBg: '#EFF9F2', cardBorder: '#D6EFDD', isAgency: true, onClick: () => { window.location.href = './07-mcmc-agency-reports.dc.html'; } }
+    ];
+    const latestMonth = this.trendData[this.trendData.length - 1];
+    const prevMonth = this.trendData[this.trendData.length - 2];
+    const pctChange = prevMonth ? Math.round(((latestMonth.v - prevMonth.v) / prevMonth.v) * 100) : 0;
+    const reportsThisMonthText = `${latestMonth.v} inquiries in ${latestMonth.label} · ${pctChange >= 0 ? 'up' : 'down'} ${Math.abs(pctChange)}% from ${prevMonth ? prevMonth.label : ''}`;
+
+    const rawMax = Math.max(...this.trendData.map(t => t.v));
+    const niceMax = Math.ceil(rawMax / 20) * 20 || 20;
+    const trendBars = this.trendData.map(t => ({ label: t.label }));
+    const chartW = 300, padX = 4, chartTop = 8, chartBottom = 95;
+    const step = (chartW - padX * 2) / (this.trendData.length - 1);
+    const yFor = (v) => Math.round((chartBottom - (v / niceMax) * (chartBottom - chartTop)) * 10) / 10;
+    const trendPoints = this.trendData.map((t, i) => ({
+      x: Math.round((padX + i * step) * 10) / 10,
+      y: yFor(t.v),
+      label: t.label, v: t.v,
+      leftPct: Math.round(((padX + i * step) / chartW) * 1000) / 10,
+      topPct: Math.round((yFor(t.v) / 110) * 1000) / 10
+    }));
+    const trendPolylinePoints = trendPoints.map(p => `${p.x},${p.y}`).join(' ');
+    const trendAreaPath = `M ${trendPoints[0].x} ${chartBottom} ` + trendPoints.map(p => `L ${p.x} ${p.y}`).join(' ') + ` L ${trendPoints[trendPoints.length - 1].x} ${chartBottom} Z`;
+    const tickCount = 5;
+    const trendGridLines = Array.from({ length: tickCount }, (_, i) => yFor(niceMax * (i / (tickCount - 1))));
+    const trendYAxisTicks = Array.from({ length: tickCount }, (_, i) => Math.round(niceMax * (1 - i / (tickCount - 1))));
+    const trendHoverPoint = s.trendHoverIdx != null ? trendPoints[s.trendHoverIdx] : null;
+
+    const filteredTriage = this.triageData.filter(r => {
+      if (s.quickFilter === 'reassign') return r.reassign;
+      if (s.quickFilter === 'recent') return r.recent;
+      if (s.quickFilter === 'flagged') return r.flagged;
+      return true;
+    });
+    const agencyChip = (code) => ({ label: code.slice(0, 2), bg: this.agencyColors[code] || '#8A8F98' });
+    const triageRows = filteredTriage.map(r => {
+      const cs = this.categoryStyles[r.category];
+      return {
+        ...r, catBg: cs.bg, catColor: cs.color, catCode: cs.code,
+        evidenceLabel: `${r.evidenceCount} file${r.evidenceCount === 1 ? '' : 's'} attached`,
+        rowBg: s.panelRowId === r.id ? '#FBEEEF' : 'transparent',
+        onOpen: () => this.openPanel(r.id)
+      };
+    });
+
+    const panelRow = this.triageData.find(r => r.id === s.panelRowId) || null;
+    let panelAgencyChips = [], panelActivity = [], panelEvidenceFiles = [];
+    const panelHasAgencyHistory = !!(panelRow && panelRow.agencies.length > 0);
+    if (panelRow) {
+      const shown = panelRow.agencies.slice(0, 3).map(agencyChip);
+      if (panelRow.agencies.length > 3) shown.push({ label: '+' + (panelRow.agencies.length - 3), bg: '#8A8F98' });
+      panelAgencyChips = shown;
+      panelActivity = [
+        { date: panelRow.date, text: 'Submitted by public user' },
+        { date: panelRow.date, text: 'Queued for MCMC triage review' },
+        { date: 'Today', text: panelRow.reassign ? 'Rejected by assigned agency — needs reassignment' : (panelRow.flagged ? 'Flagged for urgent review' : 'Awaiting triage decision') }
+      ];
+      panelEvidenceFiles = Array.from({ length: panelRow.evidenceCount }, (_, i) => `Evidence_${i + 1}.jpg`);
+    }
+    const panelTabDefs = [
+      { key: 'details', label: 'Details' },
+      { key: 'evidence', label: 'Evidence' },
+      { key: 'activity', label: 'Activity Log' }
+    ];
+    const panelTabs = panelTabDefs.map(pt => ({
+      label: pt.label,
+      color: s.panelTab === pt.key ? '#C41230' : '#8A8F98',
+      borderColor: s.panelTab === pt.key ? '#C41230' : 'transparent',
+      onClick: () => this.setPanelTab(pt.key)
+    }));
+
+    const pwReqs = this.checkPwRequirements(s.pw.new_);
+    const pwScore = [pwReqs.length, pwReqs.upper, pwReqs.number, pwReqs.special].filter(Boolean).length;
+    const pwRequirements = [
+      { label: 'At least 8 characters', met: pwReqs.length },
+      { label: 'At least one uppercase letter', met: pwReqs.upper },
+      { label: 'At least one number', met: pwReqs.number },
+      { label: 'At least one special character', met: pwReqs.special }
+    ].map(r => ({ label: r.label, color: r.met ? '#1D7A3E' : '#8A8F98', dotBg: r.met ? '#1D7A3E' : '#D4D6DA', dotIcon: r.met ? '✓' : '' }));
+    let pwBar1 = '#EDEEF0', pwBar2 = '#EDEEF0', pwBar3 = '#EDEEF0', pwStrengthLabel = '', pwStrengthColor = '#8A8F98';
+    if (s.pw.new_.length > 0) {
+      if (pwScore <= 1) { pwStrengthLabel = 'Weak'; pwStrengthColor = '#C41230'; pwBar1 = '#C41230'; }
+      else if (pwScore <= 3) { pwStrengthLabel = 'Medium'; pwStrengthColor = '#C4670A'; pwBar1 = '#C4670A'; pwBar2 = '#C4670A'; }
+      else { pwStrengthLabel = 'Strong'; pwStrengthColor = '#1D7A3E'; pwBar1 = '#1D7A3E'; pwBar2 = '#1D7A3E'; pwBar3 = '#1D7A3E'; }
+    }
+    const pwAllMet = pwScore === 4;
+    const pwMatch = s.pw.new_ === s.pw.confirm && s.pw.confirm.length > 0;
+    const pwUpdateDisabled = !pwAllMet || !pwMatch || s.pw.current.length === 0;
+
+    const notifPrefDefs = [
+      { key: 'newInquiry', label: 'New inquiry needs triage', desc: 'Get notified when a new public inquiry is submitted and awaiting review' },
+      { key: 'agencyRejects', label: 'Agency rejects an inquiry', desc: 'Get notified when an agency returns an inquiry for reassignment' },
+      { key: 'agencyResolves', label: 'Agency resolves an inquiry', desc: 'Get notified when an assigned agency finalizes a verdict' },
+      { key: 'newAgency', label: 'New agency registration', desc: 'Get notified when a new agency is registered in the system' },
+      { key: 'dailySummary', label: 'Daily summary email', desc: 'Receive a daily email summarizing pending triage items and system activity' }
+    ];
+    const notifPrefRows = notifPrefDefs.map(d => ({
+      label: d.label, desc: d.desc,
+      on: s.notifPrefs[d.key],
+      bg: s.notifPrefs[d.key] ? '#1D7A3E' : '#D4D6DA',
+      knobLeft: s.notifPrefs[d.key] ? '23px' : '3px',
+      onClick: () => this.setState(st => ({ notifPrefs: { ...st.notifPrefs, [d.key]: !st.notifPrefs[d.key] } }))
+    }));
+
+    return {
+      ...this.clarifyAlert(),
+      hasProfilePhoto: !!s.profilePhoto, noProfilePhoto: !s.profilePhoto,
+      headerAvatarRef, settingsAvatarRef, cropPreviewRef,
+      photoInputRef, onChangePhoto: () => photoInputRef.current && photoInputRef.current.click(),
+      onPhotoChange: (e) => {
+        const file = e.target.files && e.target.files[0]; if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => this.setState({ cropModalOpen: true, cropSrc: reader.result, cropZoom: 1, cropOffset: { x: 0, y: 0 } });
+        reader.readAsDataURL(file);
+        e.target.value = '';
+      },
+      onRemovePhoto: () => this.setState({ profilePhoto: '' }),
+      cropModalOpen: s.cropModalOpen, cropZoom: s.cropZoom,
+      onCropZoomChange: (e) => this.setState({ cropZoom: parseFloat(e.target.value) }),
+      onCropDragStart: (e) => this.setState({ cropDragging: true, cropDragStart: { x: e.clientX - s.cropOffset.x, y: e.clientY - s.cropOffset.y } }),
+      onCropDragMove: (e) => { if (!s.cropDragging) return; this.setState({ cropOffset: { x: e.clientX - s.cropDragStart.x, y: e.clientY - s.cropDragStart.y } }); },
+      onCropDragEnd: () => this.setState({ cropDragging: false }),
+      onCropCancel: () => this.setState({ cropModalOpen: false, cropSrc: '' }),
+      onCropSave: () => {
+        const el = this._cropPreviewRef.current, rect = el.getBoundingClientRect();
+        const canvas = document.createElement('canvas'); canvas.width = 300; canvas.height = 300;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = getComputedStyle(el).backgroundColor; ctx.fillRect(0, 0, 300, 300);
+        const img = new Image();
+        img.onload = () => {
+          const scaleToCanvas = 300 / rect.width;
+          const dw = s.cropZoom * rect.width * scaleToCanvas, dh = dw * (img.height / img.width);
+          const cx = 150 + s.cropOffset.x * scaleToCanvas, cy = 150 + s.cropOffset.y * scaleToCanvas;
+          ctx.drawImage(img, cx - dw / 2, cy - dh / 2, dw, dh);
+          this.setState({ profilePhoto: canvas.toDataURL('image/png'), cropModalOpen: false, cropSrc: '' });
+        };
+        img.src = s.cropSrc;
+      },
+      isAuthView: s.view === 'login' || s.view === 'forgot',
+      isDashboardView: s.view !== 'login' && s.view !== 'forgot',
+      isLoginState: s.view === 'login',
+      isForgotState: s.view === 'forgot',
+
+      username: s.username, password: s.password,
+      showPassword: s.showPassword, showPasswordOff: !s.showPassword, passwordInputType: s.showPassword ? 'text' : 'password',
+      usernameError, passwordError,
+      usernameBorder: usernameError ? errorBorder : normalBorder,
+      usernameShadow: usernameError ? errorShadow : 'none',
+      passwordBorder: passwordError ? errorBorder : normalBorder,
+      passwordShadow: passwordError ? errorShadow : 'none',
+      onUsernameChange: (e) => this.setState({ username: e.target.value }),
+      onPasswordChange: (e) => this.setState({ password: e.target.value }),
+      togglePassword: () => this.setState(st => ({ showPassword: !st.showPassword })),
+      handleLoginSubmit: (e) => this.handleLoginSubmit(e),
+      onForgotClick: (e) => { e.preventDefault(); this.setState({ view: 'forgot', resetSubmitted: false, resetSent: false, resetInput: '' }); },
+
+      resetInput: s.resetInput, resetError,
+      resetBorder: resetError ? errorBorder : normalBorder,
+      resetSent: s.resetSent,
+      onResetInputChange: (e) => this.setState({ resetInput: e.target.value }),
+      handleResetSubmit: (e) => this.handleResetSubmit(e),
+      onBackToLogin: (e) => { e.preventDefault(); this.setState({ view: 'login', loginSubmitted: false }); },
+      onGoPublic: (e) => { e.preventDefault(); window.location.href = './01-login.dc.html'; },
+      onGoAgency: (e) => { e.preventDefault(); window.location.href = './08-agency-auth-dashboard.dc.html'; },
+
+      menuNavItems, quickFilters, quickFilterLabel, quickAccessCards,
+      settingsRowBg: s.view === 'settings' ? '#C41230' : 'transparent', settingsRowColor: s.view === 'settings' ? '#fff' : '#4B4F58',
+      isSettingsActive: s.view === 'settings',
+      recentActionsRowBg: s.view === 'recentActions' ? '#C41230' : 'transparent', recentActionsRowColor: s.view === 'recentActions' ? '#fff' : '#4B4F58',
+      isRecentActionsActive: s.view === 'recentActions',
+      searchOpen: s.searchOpen, toggleSearch: () => this.setState(st => ({ searchOpen: !st.searchOpen })),
+      profileMenuOpen: s.profileMenuOpen,
+      openProfileMenu: () => { clearTimeout(this.profileCloseTimer); this.setState({ profileMenuOpen: true }); },
+      closeProfileMenuDelayed: () => { this.profileCloseTimer = setTimeout(() => this.setState({ profileMenuOpen: false }), 400); },
+      onLogout: (e) => { e.preventDefault(); window.location.href = './01-login.dc.html'; },
+      onOpenSettings: (e) => { if (e && e.preventDefault) e.preventDefault(); this.setState({ view: 'settings', profileMenuOpen: false }); },
+      onOpenProfile: (e) => { if (e && e.preventDefault) e.preventDefault(); this.setState({ view: 'settings', settingsTab: 'A', profileMenuOpen: false }); },
+      onOpenRecentActions: () => this.setState({ view: 'recentActions' }),
+      onOpenMonthlyTarget: () => this.setState({ monthlyModalOpen: true }),
+      monthlyModalOpen: s.monthlyModalOpen,
+      onCloseMonthlyModal: () => this.setState({ monthlyModalOpen: false }),
+      stopClickPropagation: (e) => e.stopPropagation(),
+      monthlyWeeks: [
+        { label: 'Week 1', value: 38 }, { label: 'Week 2', value: 45 }, { label: 'Week 3', value: 51 }, { label: 'Week 4', value: 48 }
+      ].map(w => ({ ...w, barHeight: `${(w.value / 51) * 100}%` })),
+      notifOpen: s.notifOpen,
+      notifItems: this.notifData,
+      toggleNotif: () => this.setState(st => ({ notifOpen: !st.notifOpen })),
+      openNotif: () => { clearTimeout(this.notifCloseTimer); this.setState({ notifOpen: true }); },
+      closeNotifDelayed: () => { this.notifCloseTimer = setTimeout(() => this.setState({ notifOpen: false }), 400); },
+      isDashView: s.view === 'dashboard', isNotifView: s.view === 'notifications',
+      isSettingsView: s.view === 'settings', isRecentActionsView: s.view === 'recentActions',
+      goNotifView: () => this.setState({ view: 'notifications', notifOpen: false }),
+      markAllRead: () => this.setState(st => ({ mcmcNotifsFull: st.mcmcNotifsFull.map(n => ({ ...n, unread: false })) })),
+      notifFilterTabs, visibleNotifs, noVisibleNotifs: visibleNotifs.length === 0,
+
+      panelOpen: !!panelRow,
+      panelTitle: panelRow ? panelRow.title : '',
+      panelCategory: panelRow ? panelRow.category : '',
+      panelDate: panelRow ? panelRow.date : '',
+      panelEvidenceCount: panelRow ? panelRow.evidenceCount : 0,
+      panelStatus: 'Submitted',
+      panelDescription: panelRow ? panelRow.description : '',
+      panelAgencyChips, panelActivity, panelEvidenceFiles, panelTabs,
+      panelHasAgencyHistory, panelHasNoAgencyYet: !!panelRow && !panelHasAgencyHistory,
+      isPanelDetails: s.panelTab === 'details', isPanelEvidence: s.panelTab === 'evidence', isPanelActivity: s.panelTab === 'activity',
+      closePanel: () => this.closePanel(),
+      onViewHistory: (e) => { e.preventDefault(); this.showToast('Assignment history for this inquiry is being compiled.'); },
+      onReviewFromPanel: () => { if (panelRow) { window.location.href = `./06-mcmc-triage-assignment.dc.html?screen=review&id=p${panelRow.id + 1}`; } },
+
+      plainStatCards: [
+        { label: 'Total Inquiries Received', value: '248', color: '#1A1A1A' },
+        { label: 'Assigned to Agencies', value: '190', color: '#1D5FBF' }
+      ],
+      onReportsClick: () => { window.location.href = './07-mcmc-agency-reports.dc.html?screen=reports'; },
+
+      triageRows,
+      trendBars, trendPoints, trendPolylinePoints, trendAreaPath, trendGridLines, trendYAxisTicks, trendHoverPoint,
+      onTrendUnhover: () => this.setState({ trendHoverIdx: null }),
+      onTrendMove: (e) => this.handleTrendMove(e),
+      reportsThisMonthText,
+      agencyRows: this.agencyData.map(a => {
+        const pct = Math.round((a.resolved / a.assigned) * 100);
+        return { ...a, chipColor: this.agencyColors[a.code] || '#8A8F98', ratePct: pct, rateColor: pct >= 85 ? '#1D7A3E' : pct >= 70 ? '#C4670A' : '#C41230' };
+      }),
+
+      onViewAll: (e) => { e.preventDefault(); window.location.href = './06-mcmc-triage-assignment.dc.html'; },
+      viewAllBg: s.viewAllHover ? '#EAF1FB' : '#fff', viewAllColor: s.viewAllHover ? '#1D5FBF' : '#1A1A1A', viewAllBorder: s.viewAllHover ? '#B9D3F5' : '#D4D6DA',
+      viewAllArrowWidth: s.viewAllHover ? '16px' : '0px', viewAllArrowOpacity: s.viewAllHover ? 1 : 0,
+      onViewAllHoverIn: () => this.setState({ viewAllHover: true }), onViewAllHoverOut: () => this.setState({ viewAllHover: false }),
+      viewReportsBg: s.viewReportsHover ? '#EAF1FB' : '#fff', viewReportsColor: s.viewReportsHover ? '#1D5FBF' : '#1A1A1A', viewReportsBorder: s.viewReportsHover ? '#B9D3F5' : '#D4D6DA',
+      viewReportsArrowWidth: s.viewReportsHover ? '16px' : '0px', viewReportsArrowOpacity: s.viewReportsHover ? 1 : 0,
+      onViewReportsHoverIn: () => this.setState({ viewReportsHover: true }), onViewReportsHoverOut: () => this.setState({ viewReportsHover: false }),
+      onViewReports: () => { window.location.href = './07-mcmc-agency-reports.dc.html?screen=reports&tab=agency'; },
+      viewAllFlash: s.viewAllFlash,
+      reportsFlash: s.reportsFlash,
+
+      recentActionRows: this.recentActionsData,
+
+      settingsTabs: [
+        { key: 'A', label: 'Account Information' },
+        { key: 'B', label: 'Password & Security' },
+        { key: 'C', label: 'Notification Preferences' }
+      ].map(t => ({
+        label: t.label,
+        bg: s.settingsTab === t.key ? '#FBE7E9' : 'transparent',
+        color: s.settingsTab === t.key ? '#C41230' : '#4B4F58',
+        onClick: () => this.setState({ settingsTab: t.key, accountSaveShown: false, pwSuccessShown: false, prefsSavedShown: false })
+      })),
+      isSettingsTabA: s.settingsTab === 'A', isSettingsTabB: s.settingsTab === 'B', isSettingsTabC: s.settingsTab === 'C',
+
+      accountForm: s.accountForm,
+      onFullNameChange: (e) => this.setState(st => ({ accountForm: { ...st.accountForm, fullName: e.target.value } })),
+      onEmailChange: (e) => this.setState(st => ({ accountForm: { ...st.accountForm, email: e.target.value } })),
+      onDepartmentChange: (e) => this.setState(st => ({ accountForm: { ...st.accountForm, department: e.target.value } })),
+      accountSaveShown: s.accountSaveShown,
+      onSaveAccount: () => { this.setState({ accountSaveShown: true }); clearTimeout(this._acctBannerT); this._acctBannerT = setTimeout(() => this.setState({ accountSaveShown: false }), 3500); },
+      onCancelAccount: () => this.setState({ accountForm: { fullName: 'Siti Rahman', username: 's.rahman', email: 'siti.rahman@mcmc.gov.my', department: 'Digital Verification Unit' }, accountSaveShown: false }),
+
+      pw: s.pw,
+      curPwType: s.showCurPw ? 'text' : 'password', newPwType: s.showNewPw ? 'text' : 'password', confirmPwType: s.showConfirmPw ? 'text' : 'password',
+      toggleCurPw: () => this.setState(st => ({ showCurPw: !st.showCurPw })),
+      toggleNewPw: () => this.setState(st => ({ showNewPw: !st.showNewPw })),
+      toggleConfirmPw: () => this.setState(st => ({ showConfirmPw: !st.showConfirmPw })),
+      curPwToggleLabel: s.showCurPw ? 'Hide' : 'Show', newPwToggleLabel: s.showNewPw ? 'Hide' : 'Show', confirmPwToggleLabel: s.showConfirmPw ? 'Hide' : 'Show',
+      onCurPwChange: (e) => this.setState(st => ({ pw: { ...st.pw, current: e.target.value } })),
+      onNewPwChange: (e) => this.setState(st => ({ pw: { ...st.pw, new_: e.target.value } })),
+      onConfirmPwChange: (e) => this.setState(st => ({ pw: { ...st.pw, confirm: e.target.value } })),
+      requirements: pwRequirements, strengthBar1: pwBar1, strengthBar2: pwBar2, strengthBar3: pwBar3, strengthLabel: pwStrengthLabel, strengthLabelColor: pwStrengthColor,
+      confirmMismatch: s.pw.confirm.length > 0 && s.pw.new_ !== s.pw.confirm,
+      confirmPwBorder: (s.pw.confirm.length > 0 && s.pw.new_ !== s.pw.confirm) ? '1px solid #C41230' : '1px solid #D4D6DA',
+      updatePwDisabled: pwUpdateDisabled, updatePwBg: pwUpdateDisabled ? '#D4D6DA' : '#C41230', updatePwCursor: pwUpdateDisabled ? 'not-allowed' : 'pointer',
+      onUpdatePassword: () => { if (pwUpdateDisabled) return; this.setState({ pwSuccessShown: true, pw: { current: '', new_: '', confirm: '' } }); clearTimeout(this._pwBannerT); this._pwBannerT = setTimeout(() => this.setState({ pwSuccessShown: false }), 3500); },
+      pwSuccessShown: s.pwSuccessShown,
+      twoFa: s.twoFa, toggle2faBg: s.twoFa ? '#1D7A3E' : '#D4D6DA', toggle2faKnobLeft: s.twoFa ? '23px' : '3px',
+      toggle2fa: () => this.setState(st => ({ twoFa: !st.twoFa })),
+
+      notifPrefRows, prefsSavedShown: s.prefsSavedShown,
+      onSavePrefs: () => { this.setState({ prefsSavedShown: true }); clearTimeout(this._prefsBannerT); this._prefsBannerT = setTimeout(() => this.setState({ prefsSavedShown: false }), 3500); },
+
+      toastMsg: s.toastMsg
+    };
+  }
+}
+
+</script>
+</body>
+</html>

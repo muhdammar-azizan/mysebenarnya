@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body { margin: 0; background: #F0F1F3; }
+    a { color: #C41230; }
+    a:hover { color: #A10E27; }
+  </style>
+</helmet>
+
+<div style="min-height:100vh; box-sizing:border-box; font-family:'Inter',sans-serif; color:#1A1A1A; position:relative; overflow:hidden; background:linear-gradient(160deg,#FBEEF0 0%,#F3F1EF 55%,#EAEBED 100%); padding:32px 24px; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+
+  <div style="position:absolute; left:0; right:0; bottom:0; height:50%; background-image:url('./assets/signup-newspaper-footer.jpg'); background-size:cover; background-position:center bottom; -webkit-mask-image:linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 50%, transparent 100%); mask-image:linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 50%, transparent 100%); opacity:0.45; z-index:0;"></div>
+
+  <div style="position:relative; z-index:1; display:flex; align-items:center; gap:10px; margin-bottom:24px;">
+    <svg width="34" height="34" viewBox="0 0 512 512" style="flex-shrink:0;">
+      <defs><clipPath id="icSignupLogo"><circle cx="256" cy="248" r="150"/></clipPath></defs>
+      <rect x="16" y="16" width="480" height="480" rx="92" ry="92" fill="#ffffff" stroke="#EDEEF0" stroke-width="4"/>
+      <g clip-path="url(#icSignupLogo)">
+        <path d="M 256 248 L 256 98 A 150 150 0 0 1 386 323 Z" fill="#0072bc" opacity="0.3"/>
+        <path d="M 256 248 L 386 323 A 150 150 0 0 1 126 323 Z" fill="#e31c79" opacity="0.3"/>
+        <path d="M 256 248 L 126 323 A 150 150 0 0 1 256 98 Z" fill="#f5a623" opacity="0.3"/>
+      </g>
+      <circle cx="256" cy="248" r="192" fill="none" stroke="#C41230" stroke-width="24" stroke-dasharray="34 22" stroke-linecap="round"/>
+      <circle cx="256" cy="248" r="165" fill="none" stroke="#C41230" stroke-width="24" stroke-dasharray="30 19" stroke-linecap="round"/>
+      <path d="M 168 248 L 224 304 L 344 178" fill="none" stroke="#ffffff" stroke-width="70" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M 168 248 L 224 304 L 344 178" fill="none" stroke="#C41230" stroke-width="52" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <div style="font-family:'Poppins',sans-serif; font-weight:800; font-size:16px; letter-spacing:-0.01em;">
+      <span style="color:#1A1A1A;">SE</span><span style="color:#C41230;">BENAR</span><span style="color:#1A1A1A;">NYA.MY</span>
+    </div>
+  </div>
+
+  <div style="position:relative; z-index:1; width:100%; max-width:560px; max-height:calc(100vh - 140px); overflow-y:auto; box-sizing:border-box; background:rgba(255,255,255,0.94); border:1px solid rgba(255,255,255,0.7); border-radius:20px; box-shadow:0 24px 60px rgba(0,0,0,0.12); padding:32px;">
+
+    <div style="width:52px; height:52px; margin:0 auto 20px;">
+      <svg width="52" height="52" viewBox="0 0 512 512">
+        <defs><clipPath id="icSignupCard"><circle cx="256" cy="248" r="150"/></clipPath></defs>
+        <rect x="16" y="16" width="480" height="480" rx="92" ry="92" fill="#ffffff" stroke="#EDEEF0" stroke-width="4"/>
+        <g clip-path="url(#icSignupCard)">
+          <path d="M 256 248 L 256 98 A 150 150 0 0 1 386 323 Z" fill="#0072bc" opacity="0.3"/>
+          <path d="M 256 248 L 386 323 A 150 150 0 0 1 126 323 Z" fill="#e31c79" opacity="0.3"/>
+          <path d="M 256 248 L 126 323 A 150 150 0 0 1 256 98 Z" fill="#f5a623" opacity="0.3"/>
+        </g>
+        <circle cx="256" cy="248" r="192" fill="none" stroke="#C41230" stroke-width="24" stroke-dasharray="34 22" stroke-linecap="round"/>
+        <circle cx="256" cy="248" r="165" fill="none" stroke="#C41230" stroke-width="24" stroke-dasharray="30 19" stroke-linecap="round"/>
+        <path d="M 168 248 L 224 304 L 344 178" fill="none" stroke="#ffffff" stroke-width="70" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M 168 248 L 224 304 L 344 178" fill="none" stroke="#C41230" stroke-width="52" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+
+    <!-- REGISTER -->
+    <sc-if value="{{ isRegister }}" hint-placeholder-val="{{ false }}">
+      <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:24px; margin-bottom:20px;">Create an Account</div>
+      <form onSubmit="{{ submitRegister }}" style="display:flex; flex-direction:column; gap:16px;">
+        <div>
+          <div style="font-size:13px; font-weight:500; margin-bottom:6px;">Full Name</div>
+          <input type="text" value="{{ regName }}" onChange="{{ onRegName }}" placeholder="Ahmad Ismail" style="width:100%; box-sizing:border-box; height:40px; padding:0 12px; border-radius:8px; border:{{ regNameBorder }}; font-family:'Inter',sans-serif; font-size:14px; outline:none;" />
+          <sc-if value="{{ regNameError }}" hint-placeholder-val="{{ false }}"><div style="font-size:12px; color:#C41230; margin-top:6px;">{{ regNameError }}</div></sc-if>
+        </div>
+        <div>
+          <div style="font-size:13px; font-weight:500; margin-bottom:6px;">Email</div>
+          <input type="text" value="{{ regEmail }}" onChange="{{ onRegEmail }}" placeholder="you@example.com" style="width:100%; box-sizing:border-box; height:40px; padding:0 12px; border-radius:8px; border:{{ regEmailBorder }}; font-family:'Inter',sans-serif; font-size:14px; outline:none;" />
+          <sc-if value="{{ regEmailError }}" hint-placeholder-val="{{ false }}"><div style="font-size:12px; color:#C41230; margin-top:6px;">{{ regEmailError }}</div></sc-if>
+        </div>
+        <div>
+          <div style="font-size:13px; font-weight:500; margin-bottom:6px;">Password</div>
+          <div style="position:relative;">
+            <input type="{{ regPasswordType }}" value="{{ regPassword }}" onChange="{{ onRegPassword }}" placeholder="Create a password" style="width:100%; box-sizing:border-box; height:40px; padding:0 40px 0 12px; border-radius:8px; border:{{ regPasswordBorder }}; font-family:'Inter',sans-serif; font-size:14px; outline:none;" />
+            <div onClick="{{ toggleRegPassword }}" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); width:18px; height:18px; cursor:pointer; color:#8A8F98; display:flex; align-items:center; justify-content:center;">
+              <sc-if value="{{ regShowPassword }}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 3l18 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M10.6 5.2A10.6 10.6 0 0112 5c6.5 0 10 6 10 6a15.6 15.6 0 01-3.3 4M6.6 6.6C4 8.3 2 12 2 12s1.6 3 4.6 4.7M9.9 14.1a3 3 0 004.2-4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></sc-if>
+              <sc-if value="{{ regShowPasswordOff }}" hint-placeholder-val="{{ true }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.6" stroke="currentColor" stroke-width="1.8"/></svg></sc-if>
+            </div>
+          </div>
+          <sc-if value="{{ regPassword }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex; gap:4px; margin-top:8px;">
+              <div style="flex:1; height:4px; border-radius:2px; background:{{ regBar1 }};"></div>
+              <div style="flex:1; height:4px; border-radius:2px; background:{{ regBar2 }};"></div>
+              <div style="flex:1; height:4px; border-radius:2px; background:{{ regBar3 }};"></div>
+            </div>
+            <div style="font-size:12px; color:#8A8F98; margin-top:4px;">{{ regStrengthLabel }}</div>
+          </sc-if>
+          <sc-if value="{{ regPasswordError }}" hint-placeholder-val="{{ false }}"><div style="font-size:12px; color:#C41230; margin-top:6px;">{{ regPasswordError }}</div></sc-if>
+        </div>
+        <div>
+          <div style="font-size:13px; font-weight:500; margin-bottom:6px;">Confirm Password</div>
+          <input type="{{ regPasswordType }}" value="{{ regConfirm }}" onChange="{{ onRegConfirm }}" placeholder="Re-enter password" style="width:100%; box-sizing:border-box; height:40px; padding:0 12px; border-radius:8px; border:{{ regConfirmBorder }}; font-family:'Inter',sans-serif; font-size:14px; outline:none;" />
+          <sc-if value="{{ regConfirmError }}" hint-placeholder-val="{{ false }}"><div style="font-size:12px; color:#C41230; margin-top:6px;">{{ regConfirmError }}</div></sc-if>
+        </div>
+        <div style="display:flex; align-items:flex-start; gap:8px; cursor:pointer;" onClick="{{ toggleAgree }}">
+          <div style="width:18px; height:18px; border-radius:4px; background:{{ agreeBg }}; border:{{ agreeBorder }}; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px;">
+            <sc-if value="{{ regAgree }}" hint-placeholder-val="{{ false }}"><div style="width:9px; height:6px; border-left:2px solid #fff; border-bottom:2px solid #fff; transform:rotate(-45deg) translate(1px,-1px);"></div></sc-if>
+          </div>
+          <div style="font-size:13px; color:#4B4F58; line-height:1.4;">I agree to the <span style="color:#C41230;">Terms of Service</span> and <span style="color:#C41230;">Privacy Policy</span></div>
+        </div>
+        <sc-if value="{{ regAgreeError }}" hint-placeholder-val="{{ false }}"><div style="font-size:12px; color:#C41230;">{{ regAgreeError }}</div></sc-if>
+        <button type="submit" style="height:40px; border-radius:8px; background:#C41230; color:#fff; border:none; font-family:'Inter',sans-serif; font-weight:600; font-size:14px; cursor:pointer;" style-hover="background:#A10E27;" style-active="background:#8A0D22;">Register</button>
+        <div style="text-align:center; font-size:13px; color:#4B4F58;">Already have an account? <a href="#" onClick="{{ goLogin }}" style="color:#C41230; font-weight:500;">Log In</a></div>
+      </form>
+    </sc-if>
+
+    <!-- VERIFY EMAIL -->
+    <sc-if value="{{ isVerify }}" hint-placeholder-val="{{ false }}">
+      <div style="text-align:center;">
+        <div style="width:64px; height:64px; border-radius:50%; background:#FBE7E9; display:flex; align-items:center; justify-content:center; margin:0 auto 20px;">
+          <div style="width:30px; height:22px; border:2.5px solid #C41230; border-radius:3px; position:relative;">
+            <div style="position:absolute; top:0; left:0; width:15px; height:2.5px; background:#C41230; transform:rotate(28deg); transform-origin:top left;"></div>
+            <div style="position:absolute; top:0; right:0; width:15px; height:2.5px; background:#C41230; transform:rotate(-28deg); transform-origin:top right;"></div>
+          </div>
+        </div>
+        <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:24px; margin-bottom:10px;">Verify Your Email</div>
+        <div style="font-size:14px; color:#6B7280; line-height:1.5; margin-bottom:24px;">We've sent a verification link to your email. Please check your inbox to activate your account.</div>
+        <div style="display:flex; flex-direction:column; gap:16px;">
+          <button type="button" onClick="{{ resendVerification }}" style="height:40px; border-radius:8px; background:#fff; color:#1A1A1A; border:1.5px solid #D4D6DA; font-family:'Inter',sans-serif; font-weight:600; font-size:14px; cursor:pointer;" style-hover="background:#F7F7F8;" style-active="background:#EDEEF0;">{{ resendLabel }}</button>
+          <a href="#" onClick="{{ goLogin }}" style="font-size:13px; color:#C41230; font-weight:500; text-decoration:none;">Back to Login</a>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- FORGOT PASSWORD -->
+    <sc-if value="{{ isForgot }}" hint-placeholder-val="{{ false }}">
+      <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:24px; margin-bottom:6px;">Reset Your Password</div>
+      <div style="font-size:13px; color:#8A8F98; margin-bottom:24px;">Enter your email and we'll send a reset link.</div>
+      <form onSubmit="{{ submitForgot }}" style="display:flex; flex-direction:column; gap:16px;">
+        <div>
+          <div style="font-size:13px; font-weight:500; margin-bottom:6px;">Email</div>
+          <input type="text" value="{{ fpEmail }}" onChange="{{ onFpEmail }}" placeholder="you@example.com" style="width:100%; box-sizing:border-box; height:40px; padding:0 12px; border-radius:8px; border:{{ fpEmailBorder }}; font-family:'Inter',sans-serif; font-size:14px; outline:none;" />
+          <sc-if value="{{ fpEmailError }}" hint-placeholder-val="{{ false }}"><div style="font-size:12px; color:#C41230; margin-top:6px;">{{ fpEmailError }}</div></sc-if>
+        </div>
+        <button type="submit" style="height:40px; border-radius:8px; background:#C41230; color:#fff; border:none; font-family:'Inter',sans-serif; font-weight:600; font-size:14px; cursor:pointer;" style-hover="background:#A10E27;" style-active="background:#8A0D22;">Send Reset Link</button>
+        <div style="text-align:center;"><a href="#" onClick="{{ goLogin }}" style="font-size:13px; color:#C41230; font-weight:500;">Back to Login</a></div>
+      </form>
+    </sc-if>
+
+    <!-- RESET PASSWORD -->
+    <sc-if value="{{ isReset }}" hint-placeholder-val="{{ false }}">
+      <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:24px; margin-bottom:20px;">Set New Password</div>
+      <form onSubmit="{{ submitReset }}" style="display:flex; flex-direction:column; gap:16px;">
+        <div>
+          <div style="font-size:13px; font-weight:500; margin-bottom:6px;">New Password</div>
+          <div style="position:relative;">
+            <input type="{{ rpPasswordType }}" value="{{ rpPassword }}" onChange="{{ onRpPassword }}" placeholder="Enter new password" style="width:100%; box-sizing:border-box; height:40px; padding:0 40px 0 12px; border-radius:8px; border:{{ rpPasswordBorder }}; font-family:'Inter',sans-serif; font-size:14px; outline:none;" />
+            <div onClick="{{ toggleRpPassword }}" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); width:18px; height:18px; cursor:pointer; color:#8A8F98; display:flex; align-items:center; justify-content:center;">
+              <sc-if value="{{ rpShowPassword }}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 3l18 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M10.6 5.2A10.6 10.6 0 0112 5c6.5 0 10 6 10 6a15.6 15.6 0 01-3.3 4M6.6 6.6C4 8.3 2 12 2 12s1.6 3 4.6 4.7M9.9 14.1a3 3 0 004.2-4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></sc-if>
+              <sc-if value="{{ rpShowPasswordOff }}" hint-placeholder-val="{{ true }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.6" stroke="currentColor" stroke-width="1.8"/></svg></sc-if>
+            </div>
+          </div>
+          <sc-if value="{{ rpPassword }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex; gap:4px; margin-top:8px;">
+              <div style="flex:1; height:4px; border-radius:2px; background:{{ rpBar1 }};"></div>
+              <div style="flex:1; height:4px; border-radius:2px; background:{{ rpBar2 }};"></div>
+              <div style="flex:1; height:4px; border-radius:2px; background:{{ rpBar3 }};"></div>
+            </div>
+            <div style="font-size:12px; color:#8A8F98; margin-top:4px;">{{ rpStrengthLabel }}</div>
+          </sc-if>
+          <sc-if value="{{ rpPasswordError }}" hint-placeholder-val="{{ false }}"><div style="font-size:12px; color:#C41230; margin-top:6px;">{{ rpPasswordError }}</div></sc-if>
+        </div>
+        <div>
+          <div style="font-size:13px; font-weight:500; margin-bottom:6px;">Confirm Password</div>
+          <input type="{{ rpPasswordType }}" value="{{ rpConfirm }}" onChange="{{ onRpConfirm }}" placeholder="Re-enter password" style="width:100%; box-sizing:border-box; height:40px; padding:0 12px; border-radius:8px; border:{{ rpConfirmBorder }}; font-family:'Inter',sans-serif; font-size:14px; outline:none;" />
+          <sc-if value="{{ rpConfirmError }}" hint-placeholder-val="{{ false }}"><div style="font-size:12px; color:#C41230; margin-top:6px;">{{ rpConfirmError }}</div></sc-if>
+        </div>
+        <button type="submit" style="height:40px; border-radius:8px; background:#C41230; color:#fff; border:none; font-family:'Inter',sans-serif; font-weight:600; font-size:14px; cursor:pointer;" style-hover="background:#A10E27;" style-active="background:#8A0D22;">Update Password</button>
+      </form>
+    </sc-if>
+
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    screen: new URLSearchParams(location.search).get('screen') || 'register',
+    register: { fullName: '', email: '', password: '', confirm: '', showPassword: false, agree: false, submitted: false },
+    verify: { resendSent: false },
+    forgot: { email: '', submitted: false },
+    reset: { password: '', confirm: '', showPassword: false, submitted: false }
+  };
+
+  isValidEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+
+  strength(pw) {
+    if (!pw) return { bars: ['#EDEEF0', '#EDEEF0', '#EDEEF0'], label: '' };
+    if (pw.length < 6) return { bars: ['#C41230', '#EDEEF0', '#EDEEF0'], label: 'Weak password' };
+    if (pw.length < 10) return { bars: ['#C41230', '#E8A33D', '#EDEEF0'], label: 'Medium strength' };
+    return { bars: ['#1E8E5A', '#1E8E5A', '#1E8E5A'], label: 'Strong password' };
+  }
+
+  go(screen) { this.setState({ screen }); }
+
+  submitRegister(e) {
+    e.preventDefault();
+    const s = this.state.register;
+    const ok = !!s.fullName && !!s.email && this.isValidEmail(s.email) && !!s.password && s.password === s.confirm && s.agree;
+    this.setState({ register: { ...s, submitted: true } });
+    if (ok) this.go('verify');
+  }
+  submitForgot(e) {
+    e.preventDefault();
+    const s = this.state.forgot;
+    const ok = !!s.email && this.isValidEmail(s.email);
+    this.setState({ forgot: { ...s, submitted: true } });
+    if (ok) this.go('reset');
+  }
+  submitReset(e) {
+    e.preventDefault();
+    const s = this.state.reset;
+    const ok = !!s.password && s.password.length >= 6 && s.password === s.confirm;
+    this.setState({ reset: { ...s, submitted: true } });
+    if (ok) window.location.href = './01-login.dc.html';
+  }
+
+  renderVals() {
+    const st = this.state;
+    const reg = st.register, fp = st.forgot, rp = st.reset;
+    const normal = '1px solid #D4D6DA';
+    const errB = '1.5px solid #C41230';
+
+    const regNameError = reg.submitted && !reg.fullName ? 'Full name is required.' : '';
+    const regEmailError = reg.submitted && !reg.email ? 'Email is required.' : reg.submitted && !this.isValidEmail(reg.email) ? 'Enter a valid email address.' : '';
+    const regPasswordError = reg.submitted && !reg.password ? 'Password is required.' : '';
+    const regConfirmError = reg.submitted && reg.password !== reg.confirm ? 'Passwords do not match.' : '';
+    const regAgreeError = reg.submitted && !reg.agree ? 'You must accept the terms to continue.' : '';
+    const regStr = this.strength(reg.password);
+
+    const fpEmailError = fp.submitted && !fp.email ? 'Email is required.' : fp.submitted && !this.isValidEmail(fp.email) ? 'Enter a valid email address.' : '';
+
+    const rpPasswordError = rp.submitted && (!rp.password || rp.password.length < 6) ? 'Password must be at least 6 characters.' : '';
+    const rpConfirmError = rp.submitted && rp.password !== rp.confirm ? 'Passwords do not match.' : '';
+    const rpStr = this.strength(rp.password);
+
+    return {
+      isRegister: st.screen === 'register', isVerify: st.screen === 'verify',
+      isForgot: st.screen === 'forgot', isReset: st.screen === 'reset',
+
+      regName: reg.fullName, regEmail: reg.email, regPassword: reg.password, regConfirm: reg.confirm,
+      regShowPassword: reg.showPassword, regShowPasswordOff: !reg.showPassword, regPasswordType: reg.showPassword ? 'text' : 'password', regAgree: reg.agree,
+      regNameError, regEmailError, regPasswordError, regConfirmError, regAgreeError,
+      regNameBorder: regNameError ? errB : normal, regEmailBorder: regEmailError ? errB : normal,
+      regPasswordBorder: regPasswordError ? errB : normal, regConfirmBorder: regConfirmError ? errB : normal,
+      regBar1: regStr.bars[0], regBar2: regStr.bars[1], regBar3: regStr.bars[2], regStrengthLabel: regStr.label,
+      agreeBg: reg.agree ? '#C41230' : '#fff', agreeBorder: reg.agree ? '1px solid #C41230' : '1.5px solid #D4D6DA',
+      onRegName: e => this.setState({ register: { ...reg, fullName: e.target.value } }),
+      onRegEmail: e => this.setState({ register: { ...reg, email: e.target.value } }),
+      onRegPassword: e => this.setState({ register: { ...reg, password: e.target.value } }),
+      onRegConfirm: e => this.setState({ register: { ...reg, confirm: e.target.value } }),
+      toggleRegPassword: () => this.setState({ register: { ...reg, showPassword: !reg.showPassword } }),
+      toggleAgree: () => this.setState({ register: { ...reg, agree: !reg.agree } }),
+      submitRegister: e => this.submitRegister(e),
+
+      resendLabel: st.verify.resendSent ? 'Verification email resent' : 'Resend Verification Email',
+      resendVerification: () => this.setState({ verify: { resendSent: true } }),
+
+      fpEmail: fp.email, fpEmailError, fpEmailBorder: fpEmailError ? errB : normal,
+      onFpEmail: e => this.setState({ forgot: { ...fp, email: e.target.value } }),
+      submitForgot: e => this.submitForgot(e),
+
+      rpPassword: rp.password, rpConfirm: rp.confirm, rpShowPassword: rp.showPassword, rpShowPasswordOff: !rp.showPassword,
+      rpPasswordType: rp.showPassword ? 'text' : 'password',
+      rpPasswordError, rpConfirmError,
+      rpPasswordBorder: rpPasswordError ? errB : normal, rpConfirmBorder: rpConfirmError ? errB : normal,
+      rpBar1: rpStr.bars[0], rpBar2: rpStr.bars[1], rpBar3: rpStr.bars[2], rpStrengthLabel: rpStr.label,
+      onRpPassword: e => this.setState({ reset: { ...rp, password: e.target.value } }),
+      onRpConfirm: e => this.setState({ reset: { ...rp, confirm: e.target.value } }),
+      toggleRpPassword: () => this.setState({ reset: { ...rp, showPassword: !rp.showPassword } }),
+      submitReset: e => this.submitReset(e),
+
+      goLogin: e => { if (e) e.preventDefault(); window.location.href = './01-login.dc.html'; },
+      goRegister: e => { if (e) e.preventDefault(); this.go('register'); },
+      goForgot: e => { if (e) e.preventDefault(); this.go('forgot'); }
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body { margin: 0; background: #F7F7F8; }
+    a { color: #C41230; }
+    a:hover { color: #A10E27; }
+    ::placeholder { color: #A6A9AF; }
+    @keyframes sbSpin { to { transform:rotate(360deg); } }
+  </style>
+  <script src="./export-utils.js"></script>
+  <script src="./clarify-store.js"></script>
+</helmet>
+
+<div style="font-family:'Inter',sans-serif; color:#1A1A1A; height:100vh; display:flex; flex-direction:column; background:#EDEEF0; overflow:hidden;">
+
+  <div style="height:64px; background:#C41230; display:flex; align-items:center; gap:20px; padding:0 24px; flex-shrink:0; position:relative; box-shadow:0 4px 10px rgba(0,0,0,0.18); z-index:10;">
+    <div style="display:flex; align-items:center; gap:12px; flex-shrink:0;">
+      <svg width="42" height="42" viewBox="0 0 512 512" style="flex-shrink:0;">
+        <defs><clipPath id="icHdrMcmc"><circle cx="256" cy="248" r="150"/></clipPath></defs>
+        <rect x="16" y="16" width="480" height="480" rx="92" ry="92" fill="#ffffff" stroke="#EDEEF0" stroke-width="4"/>
+        <g clip-path="url(#icHdrMcmc)">
+          <path d="M 256 248 L 256 98 A 150 150 0 0 1 386 323 Z" fill="#0072bc" opacity="0.3"/>
+          <path d="M 256 248 L 386 323 A 150 150 0 0 1 126 323 Z" fill="#e31c79" opacity="0.3"/>
+          <path d="M 256 248 L 126 323 A 150 150 0 0 1 256 98 Z" fill="#f5a623" opacity="0.3"/>
+        </g>
+        <circle cx="256" cy="248" r="192" fill="none" stroke="#C41230" stroke-width="24" stroke-dasharray="34 22" stroke-linecap="round"/>
+        <circle cx="256" cy="248" r="165" fill="none" stroke="#C41230" stroke-width="24" stroke-dasharray="30 19" stroke-linecap="round"/>
+        <path d="M 168 248 L 224 304 L 344 178" fill="none" stroke="#ffffff" stroke-width="70" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M 168 248 L 224 304 L 344 178" fill="none" stroke="#C41230" stroke-width="52" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div style="font-family:'Poppins',sans-serif; font-weight:800; font-size:19px; letter-spacing:-0.01em; white-space:nowrap;">
+        <span style="color:#1A1A1A;">SE</span><span style="color:#fff;">BENAR</span><span style="color:#1A1A1A;">NYA.MY</span>
+      </div>
+    </div>
+    <div style="flex:1;"></div>
+    <div style="width:240px; flex-shrink:0; position:relative;">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); pointer-events:none;"><circle cx="11" cy="11" r="7" stroke="#8A8F98" stroke-width="2"/><path d="M21 21l-4.3-4.3" stroke="#8A8F98" stroke-width="2" stroke-linecap="round"/></svg>
+      <input placeholder="Search inquiries, agencies..." style="width:100%; padding:9px 14px 9px 36px; border-radius:8px; border:1px solid rgba(255,255,255,0.3); font-family:'Inter',sans-serif; font-size:13px; background:#fff; box-sizing:border-box;" />
+    </div>
+    <div style="display:flex; align-items:center; gap:14px; flex-shrink:0;">
+      <div style="width:36px; height:36px; border-radius:8px; background:rgba(255,255,255,0.16); display:flex; align-items:center; justify-content:center; cursor:pointer; position:relative; flex-shrink:0;">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M6 9a6 6 0 0112 0c0 4 1.5 5 1.5 5h-15S6 13 6 9z" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/><path d="M10 18a2 2 0 004 0" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <div style="position:absolute; top:-4px; right:-4px; width:16px; height:16px; background:#C41230; border-radius:50%; border:1.5px solid #fff; color:#fff; font-size:9.5px; font-weight:700; display:flex; align-items:center; justify-content:center;">3</div>
+      </div>
+      <div onMouseEnter="{{ openProfileMenu }}" onMouseLeave="{{ closeProfileMenuDelayed }}" style="position:relative; flex-shrink:0;">
+        <div style="width:34px; height:34px; border-radius:50%; background:#FBE7E9; color:#C41230; font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center; cursor:pointer;">SR</div>
+        <sc-if value="{{ profileMenuOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute; top:44px; right:0; width:230px; background:#fff; border:1px solid #EDEEF0; border-radius:10px; box-shadow:0 8px 24px rgba(0,0,0,0.12); z-index:30; overflow:hidden;">
+            <div style="padding:14px 16px; border-bottom:1px solid #F0F1F3;">
+              <div style="font-size:13.5px; font-weight:700;">Siti Rahman</div>
+              <div style="font-size:12px; color:#8A8F98; margin:2px 0 4px;">MCMC Staff · Content Compliance Unit</div>
+              <div style="font-size:11.5px; color:#8A8F98;">s.rahman@mcmc.gov.my</div>
+            </div>
+            <div style="padding:6px;">
+              <a href="#" onClick="{{ onLogout }}" style="display:block; padding:9px 10px; font-size:13px; font-weight:600; color:#C41230; text-decoration:none; border-radius:6px;" style-hover="background:#FBE7E9;">Log Out</a>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </div>
+
+  <div style="flex:1; display:flex; gap:16px; min-height:0; overflow:hidden;">
+
+    <div style="width:216px; background:#fff; box-shadow:1px 0 0 rgba(0,0,0,0.05); display:flex; flex-direction:column; flex-shrink:0; overflow:auto;">
+      <div style="padding:16px 14px 8px; font-size:11px; font-weight:700; color:#8A8F98; text-transform:uppercase; letter-spacing:0.05em;">Menu</div>
+      <div style="flex:1; padding:0 10px; display:flex; flex-direction:column; gap:2px;">
+        <sc-for list="{{ navItems }}" as="item" hint-placeholder-count="6">
+          <sc-if value="{{ item.isActive }}" hint-placeholder-val="{{ false }}">
+          <div onClick="{{ item.onClick }}" style="display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:8px; background:#C41230; cursor:pointer; font-size:13px; font-weight:600; color:#fff; transition:background 0.15s ease;" style-hover="background:#A10E27;">
+            <sc-if value="{{ item.isGrid }}" hint-placeholder-val="{{ false }}">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M3 9h18M9 21V9" stroke="currentColor" stroke-width="1.8"/></svg>
+            </sc-if>
+            <sc-if value="{{ item.isInbox }}" hint-placeholder-val="{{ false }}">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M3.5 12.5L5.4 5.9A2 2 0 017.3 4.5h9.4a2 2 0 011.9 1.4l1.9 6.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.5 12.5v5a2 2 0 002 2h13a2 2 0 002-2v-5h-5.3l-1.2 2.2h-4L8.8 12.5H3.5z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </sc-if>
+            <sc-if value="{{ item.isShare }}" hint-placeholder-val="{{ false }}">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><circle cx="6" cy="12" r="2.6" stroke="currentColor" stroke-width="1.8"/><circle cx="18" cy="5.5" r="2.6" stroke="currentColor" stroke-width="1.8"/><circle cx="18" cy="18.5" r="2.6" stroke="currentColor" stroke-width="1.8"/><path d="M8.3 10.7L15.7 7M8.3 13.3l7.4 3.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </sc-if>
+            <sc-if value="{{ item.isFolder }}" hint-placeholder-val="{{ false }}">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M3.5 6.5A1.5 1.5 0 015 5h4.3a1.5 1.5 0 011.1.5l1.4 1.5H19a1.5 1.5 0 011.5 1.5v9a1.5 1.5 0 01-1.5 1.5H5a1.5 1.5 0 01-1.5-1.5v-11z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+            </sc-if>
+            <sc-if value="{{ item.isBuilding }}" hint-placeholder-val="{{ false }}">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><rect x="5" y="3.5" width="10" height="17" rx="1.3" stroke="currentColor" stroke-width="1.8"/><path d="M15 20.5h4.3a1 1 0 001-1V10.7a1 1 0 00-.6-.9L15 8" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8 7.5h1.2M8 11h1.2M8 14.5h1.2M11.5 7.5h1.2M11.5 11h1.2M11.5 14.5h1.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </sc-if>
+            <sc-if value="{{ item.isChart }}" hint-placeholder-val="{{ false }}">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M4 19V10M10 19V4M16 19v-7M22 19H2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </sc-if>
+            <sc-if value="{{ item.isUsers }}" hint-placeholder-val="{{ false }}">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><circle cx="9" cy="8" r="3" stroke="currentColor" stroke-width="1.8"/><path d="M2.5 20c0-3.5 3-6 6.5-6s6.5 2.5 6.5 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="17" cy="8.5" r="2.3" stroke="currentColor" stroke-width="1.8"/><path d="M15 14.3c2.5.4 4.5 2.3 4.5 4.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </sc-if>
+            {{ item.label }}
+          </div>
+          </sc-if>
+          <sc-if value="{{ item.isInactive }}" hint-placeholder-val="{{ true }}">
+          <div onClick="{{ item.onClick }}" style="display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:8px; background:transparent; cursor:pointer; font-size:13px; font-weight:600; color:#4B4F58; transition:background 0.15s ease;" style-hover="background:#EDEEF0;">
+            <sc-if value="{{ item.isGrid }}" hint-placeholder-val="{{ false }}">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M3 9h18M9 21V9" stroke="currentColor" stroke-width="1.8"/></svg>
+            </sc-if>
+            <sc-if value="{{ item.isInbox }}" hint-placeholder-val="{{ false }}">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M3.5 12.5L5.4 5.9A2 2 0 017.3 4.5h9.4a2 2 0 011.9 1.4l1.9 6.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.5 12.5v5a2 2 0 002 2h13a2 2 0 002-2v-5h-5.3l-1.2 2.2h-4L8.8 12.5H3.5z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </sc-if>
+            <sc-if value="{{ item.isShare }}" hint-placeholder-val="{{ false }}">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><circle cx="6" cy="12" r="2.6" stroke="currentColor" stroke-width="1.8"/><circle cx="18" cy="5.5" r="2.6" stroke="currentColor" stroke-width="1.8"/><circle cx="18" cy="18.5" r="2.6" stroke="currentColor" stroke-width="1.8"/><path d="M8.3 10.7L15.7 7M8.3 13.3l7.4 3.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </sc-if>
+            <sc-if value="{{ item.isFolder }}" hint-placeholder-val="{{ false }}">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M3.5 6.5A1.5 1.5 0 015 5h4.3a1.5 1.5 0 011.1.5l1.4 1.5H19a1.5 1.5 0 011.5 1.5v9a1.5 1.5 0 01-1.5 1.5H5a1.5 1.5 0 01-1.5-1.5v-11z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+            </sc-if>
+            <sc-if value="{{ item.isBuilding }}" hint-placeholder-val="{{ false }}">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><rect x="5" y="3.5" width="10" height="17" rx="1.3" stroke="currentColor" stroke-width="1.8"/><path d="M15 20.5h4.3a1 1 0 001-1V10.7a1 1 0 00-.6-.9L15 8" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8 7.5h1.2M8 11h1.2M8 14.5h1.2M11.5 7.5h1.2M11.5 11h1.2M11.5 14.5h1.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </sc-if>
+            <sc-if value="{{ item.isChart }}" hint-placeholder-val="{{ false }}">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M4 19V10M10 19V4M16 19v-7M22 19H2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </sc-if>
+            <sc-if value="{{ item.isUsers }}" hint-placeholder-val="{{ false }}">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><circle cx="9" cy="8" r="3" stroke="currentColor" stroke-width="1.8"/><path d="M2.5 20c0-3.5 3-6 6.5-6s6.5 2.5 6.5 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="17" cy="8.5" r="2.3" stroke="currentColor" stroke-width="1.8"/><path d="M15 14.3c2.5.4 4.5 2.3 4.5 4.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </sc-if>
+            {{ item.label }}
+          </div>
+          </sc-if>
+        </sc-for>
+      </div>
+      <div style="padding:6px 10px; border-top:1px solid #F0F1F3; display:flex; flex-direction:column; gap:2px;">
+        <div onClick="{{ onOpenSettings }}" style="display:flex; align-items:center; gap:10px; padding:9px 8px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:600; color:#4B4F58; transition:background 0.15s ease;" style-hover="background:#EDEEF0;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/><path d="M12 3v2.2M12 18.8V21M21 12h-2.2M5.2 12H3M18.4 5.6l-1.6 1.6M7.2 16.8l-1.6 1.6M18.4 18.4l-1.6-1.6M7.2 7.2L5.6 5.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          Settings
+        </div>
+        <div onClick="{{ onOpenRecentActions }}" style="display:flex; align-items:center; gap:10px; padding:9px 8px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:600; color:#4B4F58; transition:background 0.15s ease;" style-hover="background:#EDEEF0;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 7v5l3.5 2M21 12a9 9 0 11-9-9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          My Recent Actions
+        </div>
+      </div>
+
+      <div onClick="{{ onOpenMonthlyTarget }}" style="margin:8px 10px 14px; padding:12px 14px; border:1px solid #EDEEF0; border-radius:10px; cursor:pointer;" style-hover="background:#FDFAFA;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+          <div style="display:flex; align-items:center; gap:9px;">
+            <div style="width:20px; height:20px; border-radius:6px; background:#FBE7E9; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M4 19V10M10 19V4M16 19v-7M22 19H2" stroke="#C41230" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div style="font-size:12.5px; font-weight:700; color:#1A1A1A;">Inquiries Processed This Month</div>
+          </div>
+          <div style="color:#8A8F98; font-size:13px;">›</div>
+        </div>
+        <div style="height:6px; background:#F0F1F3; border-radius:4px; overflow:hidden; margin-bottom:6px;"><div style="height:100%; width:72.8%; background:#C41230; border-radius:4px;"></div></div>
+        <div style="font-size:11.5px; color:#8A8F98;">182 of 250 target</div>
+      </div>
+    </div>
+
+    <div style="flex:1; background:#fff; border-radius:16px; box-shadow:0 1px 3px rgba(0,0,0,0.06); padding:28px 32px; overflow:auto; position:relative; min-width:0; margin:16px 16px 16px 0;">
+
+      <sc-if value="{{ isListScreen }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:20px;">
+          <div>
+            <h2 style="font-family:'Poppins',sans-serif; font-weight:700; font-size:22px; margin:0 0 6px;">All Inquiries</h2>
+            <p style="color:#8A8F98; font-size:14px; margin:0;">Complete record of every inquiry across all stages.</p>
+          </div>
+          <button onClick="{{ onExport }}" style="background:#C41230; color:#fff; border:none; padding:10px 16px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:8px; flex-shrink:0; white-space:nowrap; font-family:'Inter',sans-serif;" style-hover="background:#A10E27;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 3v12M7 10l5 5 5-5M4 21h16" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Export Report
+          </button>
+        </div>
+
+        <div style="display:flex; gap:12px; margin-bottom:16px;">
+          <input value="{{ searchQuery }}" onChange="{{ onSearchChange }}" placeholder="Search by title..." style="flex:1; max-width:320px; height:38px; padding:0 12px; border-radius:8px; border:1px solid #D4D6DA; font-size:13.5px; font-family:'Inter',sans-serif;" />
+          <select value="{{ categoryFilter }}" onChange="{{ onCategoryChange }}" style="height:38px; padding:0 10px; border-radius:8px; border:1px solid #D4D6DA; font-size:13.5px; font-family:'Inter',sans-serif; background:#fff;">
+            <option value="all">All Categories</option>
+            <option value="Public Policy">Public Policy</option>
+            <option value="Health">Health</option>
+            <option value="Financial Scam">Financial Scam</option>
+            <option value="Politics">Politics</option>
+            <option value="Government Aid">Government Aid</option>
+            <option value="Consumer Rights">Consumer Rights</option>
+          </select>
+          <select value="{{ statusFilter }}" onChange="{{ onStatusFilterChange }}" style="height:38px; padding:0 10px; border-radius:8px; border:1px solid #D4D6DA; font-size:13.5px; font-family:'Inter',sans-serif; background:#fff;">
+            <option value="all">All Statuses</option>
+            <option value="Awaiting Review">Awaiting Review</option>
+            <option value="Needs Reassignment">Needs Reassignment</option>
+            <option value="Awaiting Agency Review">Awaiting Agency Review</option>
+            <option value="Under Investigation">Under Investigation</option>
+            <option value="Awaiting Clarification">Awaiting Clarification</option>
+            <option value="Verified True">Verified True</option>
+            <option value="Identified Fake">Identified Fake</option>
+          </select>
+        </div>
+        </sc-if>
+
+        <div style="background:#fff; border:1px solid #EDEEF0; border-radius:10px; box-shadow:0 1px 3px rgba(0,0,0,0.04); overflow:hidden;">
+          <div style="display:grid; grid-template-columns:2.4fr 1.3fr 1.5fr; gap:16px; padding:12px 20px; font-size:11.5px; font-weight:700; color:#8A8F98; text-transform:uppercase; letter-spacing:0.03em; border-bottom:1px solid #F0F1F3;">
+            <div>Title</div><div>Category</div><div>Status</div>
+          </div>
+          <sc-for list="{{ allRows }}" as="r" hint-placeholder-count="8">
+            <div onClick="{{ r.onOpen }}" style="display:grid; grid-template-columns:2.4fr 1.3fr 1.5fr; gap:16px; padding:16px 20px; font-size:13px; border-bottom:1px solid #F5F5F6; align-items:center; cursor:pointer;" style-hover="background:#FAFAFA;">
+              <div style="min-width:0;">
+                <div style="font-weight:600;">{{ r.title }}</div>
+                <sc-if value="{{ r.hasSub }}" hint-placeholder-val="{{ false }}"><div style="font-size:12px; color:#8A8F98; margin-top:3px;">{{ r.sub }}</div></sc-if>
+              </div>
+              <div style="color:#4B4F58;">{{ r.category }}</div>
+              <div style="display:flex; flex-direction:column; align-items:flex-start; gap:5px;">
+                <span style="display:inline-block; min-width:130px; box-sizing:border-box; text-align:left; background:{{ r.statusBg }}; color:{{ r.statusColor }}; font-size:11.5px; font-weight:700; padding:4px 9px 4px 12px; border-radius:20px;">{{ r.statusLabel }}</span>
+                <sc-if value="{{ r.hasChip }}" hint-placeholder-val="{{ false }}">
+                  <span style="display:inline-flex; align-items:center; gap:5px; background:{{ r.chipBg }}; color:{{ r.chipColor }}; font-size:10.5px; font-weight:700; padding:2px 8px; border-radius:20px;"><span style="width:6px; height:6px; border-radius:50%; background:currentColor;"></span>{{ r.chipLabel }}</span>
+                </sc-if>
+              </div>
+            </div>
+          </sc-for>
+          <sc-if value="{{ allEmpty }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:32px; text-align:center; color:#8A8F98; font-size:13.5px;">No inquiries match your filters.</div>
+          </sc-if>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isReviewScreen }}" hint-placeholder-val="{{ false }}">
+        <a href="#" onClick="{{ onBackToList }}" style="font-size:13px; font-weight:600; text-decoration:none; display:inline-block; margin-bottom:18px;">← Back to Triage List</a>
+
+        <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:6px;">
+          <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:22px;">{{ cur.title }}</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+          <span style="background:{{ statusBadgeBg }}; color:{{ statusBadgeColor }}; font-size:12px; font-weight:700; padding:4px 11px; border-radius:20px;">{{ statusBadgeLabel }}</span>
+        </div>
+        <div style="color:#8A8F98; font-size:13.5px; margin-bottom:24px;">{{ cur.category }} · Submitted {{ cur.dateLabel }}</div>
+
+        <div style="display:flex; flex-direction:column; gap:16px; max-width:760px;">
+          <div style="background:#fff; border:1px solid #EDEEF0; border-radius:10px; box-shadow:0 1px 3px rgba(0,0,0,0.04); padding:20px 22px;">
+            <div style="font-weight:700; font-size:15px; margin-bottom:12px;">Inquiry Details</div>
+            <div style="font-size:13.5px; color:#4B4F58; line-height:1.7; margin-bottom:10px;">{{ cur.description }}</div>
+            <sc-if value="{{ cur.sourceLink }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size:13px;">Source: <a href="#" style="text-decoration:none;">{{ cur.sourceLink }}</a></div>
+            </sc-if>
+          </div>
+
+          <div style="background:#fff; border:1px solid #EDEEF0; border-radius:10px; box-shadow:0 1px 3px rgba(0,0,0,0.04); padding:20px 22px;">
+            <div style="font-weight:700; font-size:15px; margin-bottom:14px;">Supporting Evidence</div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+              <sc-for list="{{ cur.evidenceFiles }}" as="f" hint-placeholder-count="2">
+                <div onClick="{{ f.onOpen }}" style="display:flex; align-items:center; gap:8px; background:#F7F7F8; border:1px solid #EDEEF0; border-radius:8px; padding:9px 14px; font-size:12.5px; font-weight:600; cursor:pointer;" style-hover="background:#F0F1F3;">
+                  <div style="width:8px; height:10px; border:1.5px solid #C41230; border-radius:1px; flex-shrink:0;"></div>
+                  {{ f.name }}
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="background:#fff; border:1px solid #EDEEF0; border-radius:10px; box-shadow:0 1px 3px rgba(0,0,0,0.04); padding:20px 22px;">
+            <div style="font-weight:700; font-size:15px; margin-bottom:12px;">Submitter Information</div>
+            <div style="font-size:12px; color:#8A8F98; margin-bottom:12px;">Limited to verification-relevant metadata. Identity details require a separate MCMC permission.</div>
+            <div style="display:flex; gap:32px;">
+              <div><div style="font-size:11.5px; color:#8A8F98; margin-bottom:4px;">Account Registered</div><div style="font-size:14px; font-weight:600;">{{ cur.regDate }}</div></div>
+              <div><div style="font-size:11.5px; color:#8A8F98; margin-bottom:4px;">Prior Submissions</div><div style="font-size:14px; font-weight:600;">{{ cur.priorSubmissions }} previous inquiries</div></div>
+            </div>
+          </div>
+
+          <sc-if value="{{ isReadOnly }}" hint-placeholder-val="{{ false }}">
+            <div style="background:#fff; border:1px solid #EDEEF0; border-radius:10px; box-shadow:0 1px 3px rgba(0,0,0,0.04); padding:20px 22px;">
+              <div style="font-weight:700; font-size:15px; margin-bottom:12px;">Review Decision</div>
+              <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                <span style="background:{{ cur.decisionBg }}; color:{{ cur.decisionColor }}; font-size:12px; font-weight:700; padding:4px 11px; border-radius:20px;">{{ cur.decision }}</span>
+              </div>
+              <div style="font-size:13px; color:#4B4F58;">Reviewed by {{ cur.reviewedBy }} on {{ cur.reviewedDate }}</div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isReadOnly }}" hint-placeholder-val="{{ false }}"><span></span></sc-if>
+          <sc-if value="{{ showDecisionCard }}" hint-placeholder-val="{{ true }}">
+            <div style="background:#fff; border:1px solid #EDEEF0; border-radius:10px; box-shadow:0 1px 3px rgba(0,0,0,0.04); padding:20px 22px;">
+              <div style="font-weight:700; font-size:15px; margin-bottom:14px;">Review Decision</div>
+              <div style="font-size:13px; font-weight:500; margin-bottom:6px;">Add Review Notes (optional)</div>
+              <textarea value="{{ reviewNotes }}" onChange="{{ onReviewNotesChange }}" placeholder="Add context on your triage decision..." style="width:100%; box-sizing:border-box; min-height:80px; border-radius:8px; border:1px solid #D4D6DA; padding:10px 12px; font-family:'Inter',sans-serif; font-size:13.5px; resize:vertical; margin-bottom:18px;"></textarea>
+              <div style="display:flex; gap:12px;">
+                <button onClick="{{ onValidate }}" style="flex:1; background:#C41230; color:#fff; border:none; padding:13px; border-radius:8px; font-size:14px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;" style-hover="background:#A10E27;">✓ Validate as Genuine</button>
+                <button onClick="{{ onDiscardClick }}" style="flex:1; background:#fff; color:#6B6F76; border:1.5px solid #D4D6DA; padding:13px; border-radius:8px; font-size:14px; font-weight:700; cursor:pointer;" style-hover="background:#F7F7F8;">✕ Discard as Non-Serious</button>
+              </div>
+              <div style="font-size:11.5px; color:#8A8F98; margin-top:14px;">This decision will be recorded in the audit log with your name and timestamp.</div>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isAssignScreen }}" hint-placeholder-val="{{ false }}">
+        <a href="#" onClick="{{ onBackToList }}" style="font-size:13px; font-weight:600; text-decoration:none; display:inline-block; margin-bottom:18px;">← Back to Triage List</a>
+
+        <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:22px; margin-bottom:6px;">{{ cur.title }}</div>
+        <div style="margin-bottom:16px;"><span style="background:#DCEBFB; color:#1D5FBF; font-size:12px; font-weight:700; padding:4px 11px; border-radius:20px;">Validated — Pending Assignment</span></div>
+
+        <sc-if value="{{ cur.rejection }}" hint-placeholder-val="{{ false }}">
+          <div style="background:#FEF3E6; border:1px solid #F0C48A; border-radius:10px; padding:14px 18px; font-size:13.5px; color:#8A4B0A; margin-bottom:20px; max-width:760px;">
+            ⚠ Previously assigned to <strong>{{ cur.rejectionAgency }}</strong> — Rejected: "{{ cur.rejectionReason }}" on {{ cur.rejectionDate }}
+          </div>
+        </sc-if>
+
+        <div style="display:flex; flex-direction:column; gap:16px; max-width:760px;">
+          <div style="background:#fff; border:1px solid #EDEEF0; border-radius:10px; box-shadow:0 1px 3px rgba(0,0,0,0.04); padding:18px 22px;">
+            <div style="font-weight:700; font-size:14px; margin-bottom:8px;">Inquiry Summary</div>
+            <div style="font-size:13px; color:#8A8F98; margin-bottom:6px;">{{ cur.category }}</div>
+            <div style="font-size:13.5px; color:#4B4F58; line-height:1.6; margin-bottom:8px;">{{ cur.excerpt }}</div>
+            <a href="#" onClick="{{ onViewFull }}" style="font-size:12.5px; font-weight:600; text-decoration:none;">View Full Details →</a>
+          </div>
+
+          <div style="background:#fff; border:1px solid #EDEEF0; border-radius:10px; box-shadow:0 1px 3px rgba(0,0,0,0.04); padding:20px 22px;">
+            <div style="font-weight:700; font-size:15px; margin-bottom:14px;">Select Agency</div>
+            <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:18px;">
+              <sc-for list="{{ agencyCards }}" as="ag" hint-placeholder-count="6">
+                <div onClick="{{ ag.onSelect }}" style="display:flex; align-items:center; justify-content:space-between; border:{{ ag.border }}; background:{{ ag.bg }}; border-radius:10px; padding:14px 16px; cursor:pointer;">
+                  <div>
+                    <div style="font-weight:700; font-size:14px; margin-bottom:3px;">{{ ag.name }}</div>
+                    <div style="font-size:12.5px; color:#8A8F98;">{{ ag.specialization }} · {{ ag.workload }} active cases</div>
+                  </div>
+                  <sc-if value="{{ ag.selected }}" hint-placeholder-val="{{ false }}">
+                    <div style="width:22px; height:22px; border-radius:50%; background:#C41230; color:#fff; font-size:13px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">✓</div>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+            <div style="font-size:13px; font-weight:500; margin-bottom:6px;">Add Notes for Agency (optional)</div>
+            <textarea value="{{ assignNotes }}" onChange="{{ onAssignNotesChange }}" placeholder="Add any context or instructions for the assigned agency..." style="width:100%; box-sizing:border-box; min-height:70px; border-radius:8px; border:1px solid #D4D6DA; padding:10px 12px; font-family:'Inter',sans-serif; font-size:13.5px; resize:vertical; margin-bottom:18px;"></textarea>
+            <button onClick="{{ onAssign }}" disabled="{{ assignDisabled }}" style="width:100%; background:{{ assignBtnBg }}; color:#fff; border:none; padding:13px; border-radius:8px; font-size:14px; font-weight:700; cursor:{{ assignBtnCursor }};">Assign to Agency</button>
+          </div>
+        </div>
+      </sc-if>
+
+    </div>
+  </div>
+
+  <sc-if value="{{ panelOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closePanel }}" style="position:fixed; inset:0; background:rgba(0,0,0,0.35); z-index:40;"></div>
+    <div style="position:fixed; top:0; right:0; bottom:0; width:380px; background:#fff; box-shadow:-8px 0 30px rgba(0,0,0,0.15); z-index:41; display:flex; flex-direction:column;">
+      <div style="padding:20px; border-bottom:1px solid #F0F1F3; display:flex; align-items:flex-start; justify-content:space-between; gap:12px;">
+        <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:17px; line-height:1.3;">{{ panelTitle }}</div>
+        <div onClick="{{ closePanel }}" style="cursor:pointer; color:#8A8F98; font-size:18px; line-height:1; flex-shrink:0;">✕</div>
+      </div>
+      <div style="padding:14px 20px; border-bottom:1px solid #F0F1F3; font-size:12.5px; color:#8A8F98;">{{ panelCategory }} · Submitted {{ panelDate }}</div>
+      <sc-if value="{{ panelHasAgencies }}" hint-placeholder-val="{{ false }}">
+        <div style="padding:16px 20px; border-bottom:1px solid #F0F1F3;">
+          <div style="font-size:11.5px; font-weight:700; color:#8A8F98; text-transform:uppercase; letter-spacing:0.03em; margin-bottom:8px;">Agencies</div>
+          <div style="display:flex;">
+            <sc-for list="{{ panelAgencyChips }}" as="ag" hint-placeholder-count="1">
+              <div style="width:28px; height:28px; border-radius:50%; background:{{ ag.bg }}; color:#fff; font-size:9px; font-weight:800; letter-spacing:-0.02em; display:flex; align-items:center; justify-content:center; border:2px solid #fff; margin-left:-8px; flex-shrink:0;">{{ ag.label }}</div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ panelHasClarify }}" hint-placeholder-val="{{ false }}">
+        <div style="padding:14px 20px; border-bottom:1px solid #F0F1F3; background:#FBF8FE;">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:6px;">
+            <div style="font-size:11.5px; font-weight:700; color:#6B3FA0; text-transform:uppercase; letter-spacing:0.03em;">Clarification Request</div>
+            <span style="background:{{ panelClarify.statusBg }}; color:{{ panelClarify.statusColor }}; font-size:10.5px; font-weight:700; padding:2px 8px; border-radius:20px; white-space:nowrap;">{{ panelClarify.statusLabel }}</span>
+          </div>
+          <div style="font-size:12.5px; font-weight:700;">{{ panelClarify.id }} · {{ panelClarify.topic }}</div>
+          <div style="font-size:12px; color:#6B6F76; margin-top:4px; line-height:1.5;">{{ panelClarify.excerpt }}</div>
+          <div style="font-size:11.5px; color:#8A8F98; margin-top:6px;">{{ panelClarify.meta }}</div>
+        </div>
+      </sc-if>
+      <div style="display:flex; border-bottom:1px solid #F0F1F3; flex-shrink:0;">
+        <sc-for list="{{ panelTabs }}" as="pt" hint-placeholder-count="3">
+          <div onClick="{{ pt.onClick }}" style="flex:1; text-align:center; padding:11px; font-size:12.5px; font-weight:700; cursor:pointer; color:{{ pt.color }}; border-bottom:2px solid {{ pt.borderColor }};">{{ pt.label }}</div>
+        </sc-for>
+      </div>
+      <div style="flex:1; overflow:auto; padding:18px 20px;">
+        <sc-if value="{{ isPanelDetails }}" hint-placeholder-val="{{ true }}">
+          <div style="font-size:13.5px; color:#4B4F58; line-height:1.6;">{{ panelDescription }}</div>
+        </sc-if>
+        <sc-if value="{{ isPanelEvidence }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <sc-for list="{{ panelEvidenceFiles }}" as="ef" hint-placeholder-count="2">
+              <div style="display:flex; align-items:center; gap:10px; padding:10px 12px; background:#F7F7F8; border-radius:8px; font-size:12.5px; font-weight:600;">📎 {{ ef.name }}</div>
+            </sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{ isPanelActivity }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex; flex-direction:column; gap:14px;">
+            <sc-for list="{{ panelActivity }}" as="ac" hint-placeholder-count="2">
+              <div style="display:flex; gap:10px;">
+                <div style="width:8px; height:8px; border-radius:50%; background:#C41230; margin-top:5px; flex-shrink:0;"></div>
+                <div>
+                  <div style="font-size:11.5px; color:#8A8F98; font-weight:600; margin-bottom:2px;">{{ ac.date }}</div>
+                  <div style="font-size:13px;">{{ ac.text }}</div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
+      <div style="padding:16px 20px; border-top:1px solid #F0F1F3; flex-shrink:0;">
+        <button onClick="{{ onPanelAction }}" style="width:100%; background:#C41230; color:#fff; border:none; padding:11px; border-radius:8px; font-size:13.5px; font-weight:700; cursor:pointer;" style-hover="background:#A10E27;">{{ panelActionLabel }}</button>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ discardModalOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed; inset:0; background:rgba(0,0,0,0.45); display:flex; align-items:center; justify-content:center; z-index:50;">
+      <div style="width:420px; background:#fff; border-radius:12px; padding:24px; box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+        <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:17px; margin-bottom:10px;">Are you sure you want to discard this inquiry?</div>
+        <div style="font-size:13.5px; color:#4B4F58; line-height:1.6; margin-bottom:22px;">This action will be logged.</div>
+        <div style="display:flex; gap:10px;">
+          <button onClick="{{ onCancelDiscard }}" style="flex:1; background:#fff; color:#1A1A1A; border:1.5px solid #D4D6DA; padding:11px; border-radius:8px; font-size:13.5px; font-weight:600; cursor:pointer;">Cancel</button>
+          <button onClick="{{ onConfirmDiscard }}" style="flex:1; background:#C41230; color:#fff; border:none; padding:11px; border-radius:8px; font-size:13.5px; font-weight:600; cursor:pointer;">Confirm Discard</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ filePreview }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed; inset:0; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; z-index:55;" onClick="{{ onCloseFilePreview }}">
+      <div style="width:420px; background:#fff; border-radius:12px; padding:28px; text-align:center;">
+        <div style="width:100%; height:220px; background:#F0F1F3; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#B8B9BD; font-size:13px; margin-bottom:14px;">Evidence Preview</div>
+        <div style="font-weight:600; font-size:14px;">{{ filePreview }}</div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ exportOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ onCloseExport }}" style="position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:60; display:flex; align-items:center; justify-content:center; padding:24px;">
+      <div onClick="{{ exportStopProp }}" style="width:580px; max-width:100%; max-height:calc(100vh - 48px); background:#fff; border-radius:14px; box-shadow:0 24px 60px rgba(0,0,0,0.25); display:flex; flex-direction:column; overflow:hidden;">
+        <div style="padding:20px 24px 16px; border-bottom:1px solid #F0F1F3; display:flex; align-items:flex-start; justify-content:space-between; gap:16px;">
+          <div>
+            <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:18px; margin-bottom:4px;">Export Report</div>
+            <div style="font-size:13px; color:#8A8F98;">{{ exportIntro }}</div>
+          </div>
+          <div onClick="{{ onCloseExport }}" style="cursor:pointer; color:#8A8F98; font-size:18px; line-height:1; padding:4px 6px; border-radius:6px;" style-hover="background:#F7F7F8; color:#C41230;">✕</div>
+        </div>
+
+        <sc-if value="{{ exportIsForm }}" hint-placeholder-val="{{ true }}">
+          <div style="flex:1; min-height:0; overflow:auto; padding:20px 24px; display:flex; flex-direction:column; gap:20px;">
+            <div>
+              <div style="font-size:11.5px; font-weight:700; color:#8A8F98; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:10px;">File Format</div>
+              <div style="display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:10px;">
+                <sc-for list="{{ exportFormats }}" as="f" hint-placeholder-count="3">
+                  <div onClick="{{ f.onSelect }}" style="border:1.5px solid {{ f.border }}; background:{{ f.bg }}; border-radius:10px; padding:12px; cursor:pointer; display:flex; flex-direction:column; gap:8px; transition:border-color 0.15s ease, background 0.15s ease;" style-hover="border-color:#C41230;">
+                    <div style="display:flex; align-items:center; justify-content:space-between;">
+                      <div style="width:34px; height:40px; border-radius:4px 10px 4px 4px; background:{{ f.iconBg }}; color:#fff; font-size:9.5px; font-weight:800; letter-spacing:0.03em; display:flex; align-items:flex-end; justify-content:center; padding-bottom:6px; box-sizing:border-box;">{{ f.ext }}</div>
+                      <div style="width:16px; height:16px; border-radius:50%; border:2px solid {{ f.radioBorder }}; display:flex; align-items:center; justify-content:center; box-sizing:border-box;">
+                        <div style="width:8px; height:8px; border-radius:50%; background:{{ f.radioDot }};"></div>
+                      </div>
+                    </div>
+                    <div style="font-size:13.5px; font-weight:700;">{{ f.label }}</div>
+                    <div style="font-size:11.5px; color:#6B6F76; line-height:1.45;">{{ f.desc }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div>
+              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+                <div style="font-size:11.5px; font-weight:700; color:#8A8F98; text-transform:uppercase; letter-spacing:0.05em;">Include Reports</div>
+                <div onClick="{{ onToggleAllSections }}" style="font-size:12px; font-weight:600; color:#C41230; cursor:pointer;">{{ toggleAllLabel }}</div>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:8px;">
+                <sc-for list="{{ exportSections }}" as="sec" hint-placeholder-count="3">
+                  <div onClick="{{ sec.onToggle }}" style="display:flex; align-items:center; gap:12px; padding:12px 14px; border:1px solid {{ sec.rowBorder }}; background:{{ sec.rowBg }}; border-radius:10px; cursor:pointer; transition:background 0.15s ease;">
+                    <div style="width:18px; height:18px; border-radius:5px; border:1.5px solid {{ sec.boxBorder }}; background:{{ sec.boxBg }}; display:flex; align-items:center; justify-content:center; flex-shrink:0; box-sizing:border-box;">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                    <div style="flex:1; min-width:0;">
+                      <div style="font-size:13.5px; font-weight:700;">{{ sec.label }}</div>
+                      <div style="font-size:12px; color:#8A8F98; margin-top:2px;">{{ sec.desc }}</div>
+                    </div>
+                    <div style="font-size:11.5px; font-weight:600; color:#6B6F76; background:#F0F1F3; padding:3px 9px; border-radius:20px; white-space:nowrap;">{{ sec.count }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="display:flex; flex-wrap:wrap; gap:14px;">
+              <sc-if value="{{ exportShowRange }}" hint-placeholder-val="{{ true }}">
+              <div style="flex:1; min-width:200px;">
+                <div style="font-size:11.5px; font-weight:700; color:#8A8F98; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:8px;">Reporting Period</div>
+                <select value="{{ exportRange }}" onChange="{{ onExportRangeChange }}" style="width:100%; height:38px; padding:0 10px; border-radius:8px; border:1px solid #D4D6DA; font-size:13.5px; background:#fff; font-family:'Inter',sans-serif;">
+                  <sc-for list="{{ exportRanges }}" as="rg" hint-placeholder-count="4"><option value="{{ rg.value }}">{{ rg.label }}</option></sc-for>
+                </select>
+              </div>
+              </sc-if>
+              <div style="flex:1; min-width:200px;">
+                <div style="font-size:11.5px; font-weight:700; color:#8A8F98; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:8px;">Options</div>
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                  <sc-for list="{{ exportToggles }}" as="t" hint-placeholder-count="2">
+                    <div onClick="{{ t.onToggle }}" style="display:flex; align-items:center; gap:10px; cursor:{{ t.cursor }}; opacity:{{ t.opacity }};">
+                      <div style="width:32px; height:18px; border-radius:10px; background:{{ t.trackBg }}; position:relative; flex-shrink:0; transition:background 0.15s ease;">
+                        <div style="position:absolute; top:2px; left:{{ t.knobLeft }}; width:14px; height:14px; border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,0.25); transition:left 0.15s ease;"></div>
+                      </div>
+                      <div style="font-size:12.5px; font-weight:600; color:#4B4F58;">{{ t.label }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </div>
+
+            <div style="background:#F7F7F8; border-radius:10px; padding:12px 14px; display:flex; flex-direction:column; gap:6px; font-size:12.5px;">
+              <div style="display:flex; gap:10px;"><div style="width:96px; color:#8A8F98; font-weight:600; flex-shrink:0;">Filters</div><div style="color:#1A1A1A;">{{ exportFiltersText }}</div></div>
+              <div style="display:flex; gap:10px;"><div style="width:96px; color:#8A8F98; font-weight:600; flex-shrink:0;">File name</div><div style="color:#1A1A1A; font-family:ui-monospace,monospace; font-size:12px; word-break:break-all;">{{ exportFilename }}</div></div>
+              <div style="display:flex; gap:10px;"><div style="width:96px; color:#8A8F98; font-weight:600; flex-shrink:0;">Prepared by</div><div style="color:#1A1A1A;">{{ exportPreparedBy }}</div></div>
+            </div>
+
+            <sc-if value="{{ exportHasError }}" hint-placeholder-val="{{ false }}">
+              <div style="background:#FBE7E9; color:#A10E27; border-radius:8px; padding:10px 12px; font-size:12.5px; font-weight:600;">{{ exportError }}</div>
+            </sc-if>
+
+            <sc-if value="{{ exportHasHistory }}" hint-placeholder-val="{{ false }}">
+              <div>
+                <div style="font-size:11.5px; font-weight:700; color:#8A8F98; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:8px;">Recent Exports (this session)</div>
+                <div style="display:flex; flex-direction:column; gap:6px;">
+                  <sc-for list="{{ exportHistory }}" as="h" hint-placeholder-count="1">
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; font-size:12px; padding:8px 10px; border:1px solid #EDEEF0; border-radius:8px;">
+                      <div style="font-family:ui-monospace,monospace; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ h.filename }}</div>
+                      <div style="color:#8A8F98; white-space:nowrap;">{{ h.meta }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
+          </div>
+          <div style="flex-shrink:0; padding:14px 24px; border-top:1px solid #F0F1F3; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px;">
+            <div style="font-size:12px; color:#8A8F98;">{{ exportSummaryText }}</div>
+            <div style="display:flex; gap:10px;">
+              <button onClick="{{ onCloseExport }}" style="white-space:nowrap; flex-shrink:0; background:#fff; border:1.5px solid #D4D6DA; padding:9px 16px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer;" style-hover="background:#F7F7F8;">Cancel</button>
+              <button onClick="{{ onGenerateExport }}" disabled="{{ exportBtnDisabled }}" style="white-space:nowrap; flex-shrink:0; background:{{ exportBtnBg }}; color:#fff; border:none; padding:9px 18px; border-radius:8px; font-size:13px; font-weight:700; cursor:{{ exportBtnCursor }}; display:inline-flex; align-items:center; gap:8px; min-width:150px; justify-content:center;">
+                <sc-if value="{{ exportIsWorking }}" hint-placeholder-val="{{ false }}">
+                  <span style="width:13px; height:13px; border-radius:50%; border:2px solid rgba(255,255,255,0.4); border-top-color:#fff; display:inline-block; animation:sbSpin 0.7s linear infinite;"></span>
+                </sc-if>
+                {{ exportBtnLabel }}
+              </button>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ exportIsDone }}" hint-placeholder-val="{{ false }}">
+          <div style="flex:1; min-height:0; overflow:auto; padding:32px 28px 24px; display:flex; flex-direction:column; align-items:center; text-align:center; gap:10px;">
+            <div style="width:56px; height:56px; border-radius:50%; background:#E4F5E9; display:flex; align-items:center; justify-content:center;">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="#1D7A3E" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:18px;">Report Exported</div>
+            <div style="font-size:13px; color:#6B6F76; max-width:400px; line-height:1.5;">Your file has been downloaded. Check your browser's downloads folder.</div>
+            <div style="width:100%; box-sizing:border-box; flex-shrink:0; background:#F7F7F8; border-radius:10px; padding:14px 16px; margin-top:8px; display:flex; flex-direction:column; gap:8px; text-align:left; font-size:12.5px;">
+              <div style="display:flex; gap:10px; flex-shrink:0;"><div style="width:90px; color:#8A8F98; font-weight:600; flex-shrink:0;">File</div><div style="flex:1; min-width:0; font-family:ui-monospace,monospace; font-size:12px; word-break:break-all;">{{ exportResultFile }}</div></div>
+              <div style="display:flex; gap:10px; flex-shrink:0;"><div style="width:90px; color:#8A8F98; font-weight:600; flex-shrink:0;">Report ID</div><div style="flex:1; min-width:0;">{{ exportResultId }}</div></div>
+              <div style="display:flex; gap:10px; flex-shrink:0;"><div style="width:90px; color:#8A8F98; font-weight:600; flex-shrink:0;">Contents</div><div style="flex:1; min-width:0;">{{ exportResultContents }}</div></div>
+              <div style="display:flex; gap:10px; flex-shrink:0;"><div style="width:90px; color:#8A8F98; font-weight:600; flex-shrink:0;">Generated</div><div style="flex:1; min-width:0;">{{ exportResultTime }}</div></div>
+            </div>
+            <sc-if value="{{ exportResultHasNote }}" hint-placeholder-val="{{ false }}">
+              <div style="width:100%; background:#FEF6EC; color:#8A4A06; border-radius:8px; padding:10px 12px; font-size:12.5px; font-weight:600; text-align:left; box-sizing:border-box;">{{ exportResultNote }}</div>
+            </sc-if>
+          </div>
+          <div style="flex-shrink:0; padding:14px 24px; border-top:1px solid #F0F1F3; display:flex; flex-wrap:wrap; justify-content:space-between; gap:10px;">
+            <button onClick="{{ onExportAnother }}" style="white-space:nowrap; flex-shrink:0; background:#fff; border:1.5px solid #D4D6DA; padding:9px 16px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer;" style-hover="background:#F7F7F8;">Export Another</button>
+            <div style="display:flex; gap:10px;">
+              <button onClick="{{ onDownloadAgain }}" style="white-space:nowrap; flex-shrink:0; background:#fff; border:1.5px solid #C41230; color:#C41230; padding:9px 16px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer;" style-hover="background:#FBE7E9;">Download Again</button>
+              <button onClick="{{ onCloseExport }}" style="white-space:nowrap; flex-shrink:0; background:#C41230; color:#fff; border:none; padding:9px 18px; border-radius:8px; font-size:13px; font-weight:700; cursor:pointer;" style-hover="background:#A10E27;">Done</button>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ toastMsg }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed; top:84px; left:50%; transform:translateX(-50%); background:#1A1A1A; color:#fff; padding:12px 22px; border-radius:8px; font-size:13.5px; font-weight:500; box-shadow:0 8px 24px rgba(0,0,0,0.2); z-index:80;">{{ toastMsg }}</div>
+  </sc-if>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  truncateAtWord(str, max) {
+    if (!str) return str;
+    if (str.length <= max) return str;
+    const slice = str.slice(0, max);
+    const lastSpace = slice.lastIndexOf(' ');
+    return (lastSpace > 20 ? slice.slice(0, lastSpace) : slice) + '…';
+  }
+
+  state = {
+    screen: new URLSearchParams(location.search).get('screen') || 'list',
+    tab: new URLSearchParams(location.search).get('tab') || 'pending', prevTab: new URLSearchParams(location.search).get('tab') || 'pending',
+    searchQuery: '', categoryFilter: 'all', dateFilter: 'all',
+    currentId: new URLSearchParams(location.search).get('id') || null, reviewNotes: '', assignNotes: '', selectedAgency: null,
+    discardModalOpen: false, filePreview: null, toastMsg: '',
+    panelId: null, panelTab: 'details', profileMenuOpen: false
+  };
+
+  pending = [
+    { id: 'p1', title: 'Viral WhatsApp claim on toll rate hike', category: 'Public Policy', daysAgo: 3, dateLabel: '3 Sep 2026', evidenceLabel: '3 files',
+      description: 'A widely forwarded WhatsApp message claims toll rates across all North-South Expressway plazas will double starting next month. No official gazette or ministry statement supports this figure.',
+      sourceLink: 'whatsapp-forward-screenshot.jpg', regDate: '14 Jan 2025', priorSubmissions: 3,
+      evidenceFiles: [{ name: 'screenshot_1.jpg' }, { name: 'screenshot_2.jpg' }, { name: 'forward_chain.pdf' }] },
+    { id: 'p2', title: '"Free electricity for flood victims" post', category: 'Government Aid', daysAgo: 4, dateLabel: '2 Sep 2026', evidenceLabel: '2 files',
+      description: 'A Facebook post claims the government is offering free electricity for six months to all flood-affected households nationwide, with a suspicious registration link attached.',
+      sourceLink: 'facebook.com/post/8891...', regDate: '02 Jun 2024', priorSubmissions: 1,
+      evidenceFiles: [{ name: 'fb_post.png' }, { name: 'registration_link.png' }] },
+    { id: 'p3', title: 'Fake vaccine side-effect statistics', category: 'Health', daysAgo: 4, dateLabel: '2 Sep 2026', evidenceLabel: '4 files',
+      description: 'An infographic circulating on Telegram cites fabricated statistics claiming a 40% adverse reaction rate for a routine childhood vaccine, attributed to a non-existent MOH study.',
+      sourceLink: 'telegram-channel-export.pdf', regDate: '21 Nov 2023', priorSubmissions: 6,
+      evidenceFiles: [{ name: 'infographic.png' }, { name: 'telegram_msg.png' }, { name: 'source_check.pdf' }, { name: 'moh_statement.pdf' }] },
+    { id: 'p4', title: 'Doctored photo of ministerial statement', category: 'Politics', daysAgo: 6, dateLabel: '31 Aug 2026', evidenceLabel: '1 file',
+      description: 'A photoshopped image alters an official press statement banner to attribute quotes to a minister that were never made.',
+      sourceLink: '', regDate: '09 Mar 2022', priorSubmissions: 12,
+      evidenceFiles: [{ name: 'edited_banner.jpg' }] },
+    { id: 'p5', title: 'Scam SMS impersonating bank alert', category: 'Financial Scam', daysAgo: 10, dateLabel: '27 Aug 2026', evidenceLabel: '2 files',
+      description: 'An SMS impersonating a major local bank asks recipients to "verify" their account via a shortened link, part of a known phishing campaign.',
+      sourceLink: 'sms_screenshot.jpg', regDate: '17 Jul 2025', priorSubmissions: 2,
+      evidenceFiles: [{ name: 'sms_screenshot.jpg' }, { name: 'phishing_link.png' }] },
+    { id: 'p6', title: 'Misleading refund policy claim', category: 'Consumer Rights', daysAgo: 15, dateLabel: '22 Aug 2026', evidenceLabel: '1 file',
+      description: 'A viral post misrepresents a retailer\'s refund policy, claiming a right that does not exist under current consumer protection regulations.',
+      sourceLink: '', regDate: '30 Apr 2024', priorSubmissions: 0,
+      evidenceFiles: [{ name: 'post_screenshot.png' }] }
+  ];
+
+  reassign = [
+    { id: 'r1', title: 'Unauthorized "loan waiver" scheme flyer', category: 'Financial Scam', daysAgo: 2, dateLabel: '4 Sep 2026',
+      description: 'A flyer distributed via community WhatsApp groups claims a government-backed loan waiver scheme, directing victims to pay a "processing fee".',
+      sourceLink: 'flyer_photo.jpg', regDate: '05 Feb 2023', priorSubmissions: 4,
+      evidenceFiles: [{ name: 'flyer_photo.jpg' }],
+      rejection: { agency: 'Ministry of Health (MOH)', reason: 'Outside our jurisdiction — consumer finance matter', date: '5 Sep 2026' } },
+    { id: 'r2', title: 'Fabricated election result screenshot', category: 'Politics', daysAgo: 1, dateLabel: '5 Sep 2026',
+      description: 'A screenshot purporting to show early election results from a constituency does not match any official tally source.',
+      sourceLink: 'screenshot.png', regDate: '19 Sep 2021', priorSubmissions: 8,
+      evidenceFiles: [{ name: 'screenshot.png' }, { name: 'comparison_chart.png' }],
+      rejection: { agency: 'Royal Malaysia Police (PDRM)', reason: 'Insufficient evidence for criminal referral — needs SPR review first', date: '5 Sep 2026' } }
+  ];
+
+  reviewed = [
+    { id: 'v1', title: 'Counterfeit vaccine batch warning', category: 'Health', decision: 'Validated', reviewedBy: 'Siti Rahman', reviewedDate: '30 Aug 2026',
+      description: 'Confirmed reports of counterfeit vaccine vials circulating in one district; verified against MOH batch registry.', sourceLink: '', regDate: '11 May 2024', priorSubmissions: 2, evidenceFiles: [{ name: 'batch_photo.jpg' }] },
+    { id: 'v2', title: 'Satirical meme mistaken for policy news', category: 'Public Policy', decision: 'Discarded', reviewedBy: 'Ahmad Faizal', reviewedDate: '28 Aug 2026',
+      description: 'Clearly labeled satire page; no genuine misinformation risk identified.', sourceLink: '', regDate: '03 Jan 2025', priorSubmissions: 1, evidenceFiles: [{ name: 'meme.png' }] },
+    { id: 'v3', title: 'False claim on subsidy cut date', category: 'Government Aid', decision: 'Validated', reviewedBy: 'Siti Rahman', reviewedDate: '26 Aug 2026',
+      description: 'Verified against official Ministry of Finance circular; date claimed was incorrect and misleading.', sourceLink: '', regDate: '22 Oct 2023', priorSubmissions: 5, evidenceFiles: [{ name: 'circular_compare.pdf' }] },
+    { id: 'v4', title: 'Duplicate low-quality forward, no new claim', category: 'Financial Scam', decision: 'Discarded', reviewedBy: 'Nur Aisyah', reviewedDate: '24 Aug 2026',
+      description: 'Duplicate of a previously handled scam message; no new claim or spread pattern warranting separate action.', sourceLink: '', regDate: '14 Feb 2024', priorSubmissions: 3, evidenceFiles: [{ name: 'forward.jpg' }] }
+  ];
+
+  // Cases already assigned to agencies (mirrors agency portal records; ids match 09-agency-workflow)
+  assigned = [
+    { id: 'g2', agencyRef: 2, title: 'Fake vaccine side-effect statistics infographic', category: 'Health', agency: 'Ministry of Health (MOH)', stage: 'Under Investigation', dateLabel: '24 Aug 2026', assignedDate: '28 Aug 2026',
+      description: 'An infographic circulating on social media presents fabricated statistics claiming a 40% adverse reaction rate for a nationally administered vaccine, attributing the data to a non-existent MOH study.', sourceLink: '', regDate: '21 Nov 2023', priorSubmissions: 6, evidenceFiles: [{ name: 'infographic.png' }, { name: 'shared_post_screenshot.jpg' }] },
+    { id: 'g7', agencyRef: 7, title: 'Mental health subsidy clinic rumor', category: 'Health', agency: 'Ministry of Health (MOH)', stage: 'Under Investigation', dateLabel: '29 Aug 2026', assignedDate: '1 Sep 2026',
+      description: 'A post claims a new government mental health subsidy allows free unlimited therapy sessions at any private clinic nationwide starting immediately, without any official announcement.', sourceLink: '', regDate: '08 Aug 2024', priorSubmissions: 1, evidenceFiles: [{ name: 'post_screenshot.jpg' }] },
+    { id: 'g1', agencyRef: 1, title: 'Counterfeit vaccine batch warning circulating on WhatsApp', category: 'Health', agency: 'Ministry of Health (MOH)', stage: 'Awaiting Agency Review', dateLabel: '30 Aug 2026', assignedDate: '2 Sep 2026',
+      description: 'A viral WhatsApp message claims a specific vaccine batch (Lot #VX-2291) causes severe adverse reactions and urges recipients to avoid the national immunization program.', sourceLink: '', regDate: '11 May 2024', priorSubmissions: 2, evidenceFiles: [{ name: 'whatsapp_screenshot.jpg' }, { name: 'vial_photo.jpg' }] },
+    { id: 'g5', agencyRef: 5, title: 'Hospital overcapacity rumor at Klang Valley hospitals', category: 'Health', agency: 'Ministry of Health (MOH)', stage: 'Awaiting Agency Review', dateLabel: '3 Sep 2026', assignedDate: '5 Sep 2026',
+      description: 'A message claims that all major public hospitals in the Klang Valley have reached full capacity and are turning away emergency patients, without citing any official source.', sourceLink: '', regDate: '19 Jun 2025', priorSubmissions: 0, evidenceFiles: [{ name: 'forwarded_message.jpg' }] },
+    { id: 'g8', agencyRef: 8, title: 'Water contamination outbreak claim in Selangor', category: 'Health', agency: 'Ministry of Health (MOH)', stage: 'Awaiting Agency Review', dateLabel: '4 Sep 2026', assignedDate: '6 Sep 2026',
+      description: 'A viral post claims a contamination outbreak in Selangor drinking water has caused mass hospitalizations, urging residents to stop using tap water immediately.', sourceLink: '', regDate: '02 Feb 2025', priorSubmissions: 3, evidenceFiles: [{ name: 'viral_post.jpg' }] },
+    { id: 'g31', agencyRef: 'bnm-31', title: '"Health insurance refund" SMS asking for MyKad details', category: 'Financial Scam', agency: 'Bank Negara Malaysia (BNM)', stage: 'Under Investigation', dateLabel: '17 Sep 2026', assignedDate: '19 Sep 2026',
+      description: 'An SMS claiming to be from "KKM Refund Unit" tells recipients they are owed a medical insurance refund of RM 480 and asks them to reply with their MyKad number and bank account details.', sourceLink: 'sms_screenshot.jpg', regDate: '12 Dec 2024', priorSubmissions: 2, evidenceFiles: [{ name: 'sms_screenshot.jpg' }, { name: 'sender_number.png' }] },
+    { id: 'g3', agencyRef: 3, title: 'Misleading clinic pricing claim', category: 'Health', agency: 'Ministry of Health (MOH)', stage: 'Verified True', dateLabel: '18 Aug 2026', assignedDate: '20 Aug 2026',
+      description: 'A public post alleges that a named private clinic is charging patients triple the government-set rate for a basic health screening package.', sourceLink: '', regDate: '14 Mar 2024', priorSubmissions: 1, evidenceFiles: [{ name: 'receipt_photo.jpg' }] },
+    { id: 'g4', agencyRef: 4, title: '"Miracle cure" supplement post', category: 'Health', agency: 'Ministry of Health (MOH)', stage: 'Identified Fake', dateLabel: '12 Aug 2026', assignedDate: '15 Aug 2026',
+      description: 'A sponsored social media post advertises a supplement claiming to "cure diabetes within 7 days," citing an unnamed clinical trial.', sourceLink: '', regDate: '27 Sep 2023', priorSubmissions: 4, evidenceFiles: [{ name: 'sponsored_post.png' }] }
+  ];
+
+  store() { return window.SBClarify || null; }
+  componentDidMount() {
+    const hook = () => {
+      if (window.SBClarify) { this._unsubClarify = window.SBClarify.subscribe(() => this.forceUpdate()); this.forceUpdate(); }
+      else this._clarifyRetry = setTimeout(hook, 150);
+    };
+    hook();
+  }
+  componentWillUnmount() { if (this._unsubClarify) this._unsubClarify(); clearTimeout(this._clarifyRetry); }
+  threadsFor(r) { const S = this.store(); return S && r && r.agencyRef ? S.forInquiry(r.agencyRef) : []; }
+  activeThreadFor(r) { return this.threadsFor(r).filter(th => th.status !== 'closed')[0] || null; }
+  openClarifyThread(id) { window.location.href = './06-mcmc-triage-assignment.dc.html?screen=clarify&cid=' + encodeURIComponent(id); }
+
+  agencies = [
+    { id: 'a1', name: 'Ministry of Health (MOH)', specialization: 'Health & Medical Claims', workload: 8 },
+    { id: 'a2', name: 'Bank Negara Malaysia', specialization: 'Financial Scams & Banking', workload: 14 },
+    { id: 'a3', name: 'Election Commission (SPR)', specialization: 'Electoral & Political Content', workload: 5 },
+    { id: 'a4', name: 'Ministry of Domestic Trade & Cost of Living', specialization: 'Consumer Rights & Pricing', workload: 6 },
+    { id: 'a5', name: 'Royal Malaysia Police (PDRM)', specialization: 'Criminal & Fraud Referrals', workload: 21 },
+    { id: 'a6', name: 'National Disaster Management Agency (NADMA)', specialization: 'Disaster & Emergency Aid', workload: 4 }
+  ];
+
+  categoryToAgency = { 'Public Policy': 'a3', 'Health': 'a1', 'Financial Scam': 'a2', 'Politics': 'a3', 'Government Aid': 'a4', 'Consumer Rights': 'a4' };
+
+  findInquiry(id) {
+    return this.pending.find(x => x.id === id) || this.reassign.find(x => x.id === id) || this.reviewed.find(x => x.id === id) || this.assigned.find(x => x.id === id);
+  }
+
+  showToast(msg) {
+    this.setState({ toastMsg: msg });
+    clearTimeout(this._toastT); this._toastT = setTimeout(() => this.setState({ toastMsg: '' }), 2800);
+  }
+
+  openReview(id, tab) {
+    this.setState({ screen: 'review', currentId: id, prevTab: tab, reviewNotes: '' });
+  }
+
+  openAssign(id) {
+    this.setState({ screen: 'assign', currentId: id, selectedAgency: null, assignNotes: '' });
+  }
+
+  statusOf(r) {
+    if (r.agencyRef) { const th = this.activeThreadFor(r); return th && th.status === 'open' ? 'Awaiting Clarification' : r.stage; }
+    return r.rejection ? 'Needs Reassignment' : r.decision ? (r.decision === 'Validated' ? 'Verified True' : 'Identified Fake') : 'Awaiting Review';
+  }
+  statusStyle(st) {
+    return ({ 'Awaiting Review': ['#EDEEF0', '#6B6F76'], 'Needs Reassignment': ['#EAF1FB', '#1D5FBF'], 'Awaiting Agency Review': ['#FEF6EC', '#C4670A'],
+      'Under Investigation': ['#FEF6EC', '#C4670A'], 'Awaiting Clarification': ['#F1EAFA', '#6B3FA0'], 'Verified True': ['#E4F5E9', '#1D7A3E'], 'Identified Fake': ['#FBE7E9', '#C41230'] })[st] || ['#EDEEF0', '#6B6F76'];
+  }
+
+  buildExportSpec(o) {
+    const s = this.state, q = s.searchQuery.toLowerCase(), cat = s.categoryFilter, st = s.statusFilter || 'all';
+    const all = [...this.pending, ...this.reassign, ...this.assigned, ...this.reviewed]
+      .filter(r => (cat === 'all' || r.category === cat) && (!q || r.title.toLowerCase().includes(q)) && (st === 'all' || this.statusOf(r) === st));
+    const id = r => 'INQ-' + r.id.toUpperCase();
+    const groups = [];
+    const counts = ['Awaiting Review', 'Needs Reassignment', 'Awaiting Agency Review', 'Under Investigation', 'Awaiting Clarification', 'Verified True', 'Identified Fake'].map(k => ({ label: k, value: all.filter(r => this.statusOf(r) === k).length }));
+    if (o.sel.register) {
+      const cols = ['Inquiry ID', 'Title', 'Category', 'Status', 'Assigned Agency', 'Submitted'].concat(o.detail ? ['Description'] : []);
+      const blocks = [];
+      if (o.charts) blocks.push({ type: 'chart', heading: 'Inquiries by Status', data: counts });
+      blocks.push({ type: 'table', heading: 'Inquiry Register', sheet: 'Inquiry Register', columns: cols,
+        rows: all.map(r => [id(r), r.title, r.category, this.statusOf(r), r.agency || (r.rejection ? r.rejection.agency + ' (rejected)' : '—'), r.dateLabel || r.reviewedDate || '—']
+          .concat(o.detail ? [r.description] : [])) });
+      groups.push({ key: 'register', name: 'Inquiry Register', kpis: [{ label: 'Inquiries in Export', value: all.length, tone: 'ink' },
+        { label: 'Awaiting Review', value: counts[0].value, tone: 'amber' }, { label: 'With Agency', value: counts[2].value + counts[3].value + counts[4].value, tone: 'blue' },
+        { label: 'Resolved', value: counts[5].value + counts[6].value, tone: 'green' }], blocks });
+    }
+    if (o.sel.rejections) {
+      const rj = all.filter(r => r.rejection);
+      groups.push({ key: 'rejections', name: 'Agency Rejections', kpis: [{ label: 'Rejections', value: rj.length, tone: 'ink' }],
+        blocks: [{ type: 'table', heading: 'Inquiries Rejected by Agencies', sheet: 'Agency Rejections',
+        columns: ['Inquiry ID', 'Title', 'Category', 'Rejected By', 'Reason', 'Rejected On'], rows: rj.map(r => [id(r), r.title, r.category, r.rejection.agency, r.rejection.reason, r.rejection.date]),
+        empty: 'No agency rejections in the current view.' }] });
+    }
+    if (o.sel.clarifications) {
+      const S = this.store();
+      const inView = new Set(all.filter(r => r.agencyRef).map(r => r.agencyRef));
+      const ths = (S ? S.all() : []).filter(th => inView.has(th.inquiryId));
+      const lbl = { open: 'Awaiting MCMC Response', answered: 'MCMC Responded', closed: 'Resolved' };
+      const blocks = [{ type: 'table', heading: 'Clarification Requests', sheet: 'Clarifications',
+        columns: ['Request ID', 'Inquiry', 'Agency', 'Topic', 'Priority', 'Status', 'Requested By', 'Consulted Agencies', 'Opened', 'Last Activity', 'Messages'],
+        rows: ths.map(th => [th.id, th.inquiry.title, th.agency, th.topic, th.priority, lbl[th.status], (th.messages[0] || {}).author || '', (th.consults || []).map(c => c.agency + ' (' + c.status + ')').join('; ') || '—', th.createdAt, th.updatedAt, th.messages.filter(m => m.from !== 'system').length]),
+        empty: 'No clarification requests for inquiries in the current view.' }];
+      if (o.detail) blocks.push({ type: 'table', heading: 'Clarification Message Log', sheet: 'Clarification Messages', columns: ['Request ID', 'Date & Time', 'From', 'Role', 'Message', 'Attachments'],
+        rows: ths.reduce((a, th) => a.concat(th.messages.map(m => [th.id, m.at, m.author, m.from === 'system' ? 'System note' : m.from === 'consult' ? m.role + ' · ' + m.agency + ' (consulted)' : m.role, m.text, (m.files || []).join(', ') || '—'])), []) });
+      groups.push({ key: 'clarifications', name: 'Clarification Requests', kpis: [
+        { label: 'Requests', value: ths.length, tone: 'ink' }, { label: 'Awaiting MCMC', value: ths.filter(x => x.status === 'open').length, tone: 'amber' },
+        { label: 'Responded', value: ths.filter(x => x.status === 'answered').length, tone: 'blue' }, { label: 'Resolved', value: ths.filter(x => x.status === 'closed').length, tone: 'green' }], blocks });
+    }
+    if (o.sel.decisions) {
+      const dv = all.filter(r => r.decision);
+      groups.push({ key: 'decisions', name: 'Triage Decisions', kpis: [{ label: 'Decisions', value: dv.length, tone: 'ink' }],
+        blocks: [{ type: 'table', heading: 'MCMC Triage Decisions', sheet: 'Triage Decisions',
+        columns: ['Inquiry ID', 'Title', 'Category', 'Decision', 'Reviewed By', 'Reviewed On'], rows: dv.map(r => [id(r), r.title, r.category, r.decision, r.reviewedBy, r.reviewedDate]),
+        empty: 'No triage decisions in the current view.' }] });
+    }
+    return { title: 'All Inquiries — Register Export', subtitle: groups.map(g => g.name).join(' · ') || 'No sections selected', filename: 'SEBENARNYA_All-Inquiries',
+      org: 'Malaysian Communications and Multimedia Commission (MCMC)', generatedBy: 'Siti Rahman (MCMC Staff)', period: 'All records as of 23 Sep 2026',
+      filters: [['Search', q ? '"' + s.searchQuery + '"' : 'None'], ['Category', cat === 'all' ? 'All Categories' : cat], ['Status', st === 'all' ? 'All Statuses' : st]], groups };
+  }
+
+  exportVals() {
+    if (!window.SBExport) { clearTimeout(this._exRetry); this._exRetry = setTimeout(() => this.forceUpdate(), 300); this._ex = { exportOpen: false }; return this._ex; }
+    this._ex = window.SBExport.vals(this, {
+      sections: [
+        { key: 'register', label: 'Inquiry Register', desc: 'Every inquiry in the current view with status' },
+        { key: 'rejections', label: 'Agency Rejections', desc: 'Rejected inquiries, agency and reason' },
+        { key: 'clarifications', label: 'Clarification Requests', desc: 'Agency questions, MCMC responses, message log' },
+        { key: 'decisions', label: 'Triage Decisions', desc: 'Validate / discard decisions and reviewer' }
+      ],
+      buildSpec: (o) => this.buildExportSpec(o), ranges: false,
+      intro: 'Export the inquiry register using the filters currently applied on this page.',
+      preparedBy: 'Siti Rahman · MCMC Staff', detailLabel: 'Include descriptions & message log',
+      filename: 'SEBENARNYA_All-Inquiries', onExported: (r) => this.showToast(`Exported: ${r.filename}`)
+    });
+    return this._ex;
+  }
+
+  openPanel(id) { this.setState({ panelId: id, panelTab: 'details' }); }
+  closePanel() { this.setState({ panelId: null }); }
+  setPanelTab(tab) { this.setState({ panelTab: tab }); }
+
+  renderVals() {
+    const s = this.state;
+    const cat = s.categoryFilter, df = s.dateFilter, q = s.searchQuery.toLowerCase();
+
+    const matches = (row) => {
+      if (q && !row.title.toLowerCase().includes(q)) return false;
+      if (cat !== 'all' && row.category !== cat) return false;
+      if (df !== 'all' && row.daysAgo > parseInt(df, 10)) return false;
+      return true;
+    };
+
+    const pendingFiltered = this.pending.filter(matches);
+    const activeNavIndex = 3;
+    const navDefs = [
+      { label: 'Dashboard', icon: 'grid' },
+      { label: 'New Inquiries / Triage', icon: 'inbox' },
+      { label: 'Assign to Agency', icon: 'share' },
+      { label: 'All Inquiries', icon: 'folder' },
+      { label: 'Agency Management', icon: 'building' },
+      { label: 'Reports', icon: 'chart' },
+      { label: 'Registered Users', icon: 'users' }
+    ];
+    const navTargets = [
+      () => { window.location.href = './05-mcmc-auth-dashboard.dc.html'; },
+      () => { window.location.href = './06-mcmc-triage-assignment.dc.html?tab=pending'; },
+      () => { window.location.href = './06-mcmc-triage-assignment.dc.html?tab=reassign'; },
+      () => {},
+      () => { window.location.href = './07-mcmc-agency-reports.dc.html'; },
+      () => { window.location.href = './07-mcmc-agency-reports.dc.html?screen=reports'; },
+      () => { window.location.href = './15-mcmc-user-management.dc.html'; }
+    ];
+    const navItems = navDefs.map((it, i) => {
+      const active = i === activeNavIndex;
+      return { label: it.label, isActive: active, isInactive: !active,
+        isGrid: it.icon === 'grid', isInbox: it.icon === 'inbox', isShare: it.icon === 'share', isFolder: it.icon === 'folder', isBuilding: it.icon === 'building', isChart: it.icon === 'chart', isUsers: it.icon === 'users',
+        onClick: navTargets[i] };
+    });
+
+    const agencyColorPalette = ['#1D5FBF', '#4B4F58', '#0E8074', '#C4670A', '#6B4FBF', '#C41230', '#1A1A1A', '#1D7A3E'];
+    const agencyChipLabel = (name) => { const m = name.match(/\(([^)]+)\)/); return (m ? m[1] : name).slice(0, 3).toUpperCase(); };
+    const agencyChipColor = (name) => agencyColorPalette[Math.abs(name.split('').reduce((a, c) => a + c.charCodeAt(0), 0)) % agencyColorPalette.length];
+
+    const pendingRows = pendingFiltered.map(r => ({
+      ...r,
+      onOpenPanel: () => this.openPanel(r.id),
+      onReview: (e) => { e.stopPropagation(); this.openReview(r.id, 'pending'); }
+    }));
+    const reassignRows = this.reassign.map(r => ({
+      ...r,
+      rejection: { ...r.rejection, reasonExcerpt: this.truncateAtWord(r.rejection.reason, 46) },
+      agencyChipLabel: agencyChipLabel(r.rejection.agency), agencyChipBg: agencyChipColor(r.rejection.agency),
+      onOpenPanel: () => this.openPanel(r.id),
+      onReassign: (e) => { e.stopPropagation(); this.openAssign(r.id); }
+    }));
+    const reviewedRows = this.reviewed.map(r => ({
+      ...r,
+      decisionBg: r.decision === 'Validated' ? '#E4F5E9' : '#EDEEF0',
+      decisionColor: r.decision === 'Validated' ? '#1D7A3E' : '#4B4F58',
+      onOpen: () => this.openPanel(r.id)
+    }));
+
+    const statusFilter = s.statusFilter || 'all';
+    const catFilter2 = s.categoryFilter, q2 = s.searchQuery.toLowerCase();
+    const matchAll = (title, cat) => (catFilter2 === 'all' || cat === catFilter2) && (!q2 || title.toLowerCase().includes(q2));
+    const clStMap = { open: ['#F1EAFA', '#6B3FA0', 'Awaiting MCMC response'], answered: ['#E4EEFB', '#1D5FBF', 'Clarification answered'] };
+    const assignedRows = this.assigned.filter(r => matchAll(r.title, r.category)).map(r => {
+      const st = this.statusOf(r), [bg, c] = this.statusStyle(st), th = this.activeThreadFor(r);
+      const chip = th ? clStMap[th.status] : null;
+      return { title: r.title, category: r.category, statusLabel: st, statusBg: bg, statusColor: c, _s: st, _order: st === 'Awaiting Clarification' ? 0 : 1,
+        hasSub: true, sub: 'Assigned to ' + r.agency + ' · ' + r.assignedDate + (th ? ' · ' + th.id : ''),
+        hasChip: !!chip && th.status === 'answered', chipLabel: chip ? chip[2] : '', chipBg: chip ? chip[0] : '', chipColor: chip ? chip[1] : '',
+        onOpen: () => this.openPanel(r.id) };
+    });
+    const openAssigned = assignedRows.filter(r => r._s === 'Awaiting Clarification');
+    let allRows = [
+      ...openAssigned,
+      ...this.pending.filter(r => matchAll(r.title, r.category)).map(r => ({ title: r.title, category: r.category, statusLabel: 'Awaiting Review', statusBg: '#EDEEF0', statusColor: '#6B6F76', _s: 'Awaiting Review', onOpen: () => this.openPanel(r.id) })),
+      ...this.reassign.filter(r => matchAll(r.title, r.category)).map(r => ({ title: r.title, category: r.category, statusLabel: 'Needs Reassignment', statusBg: '#EAF1FB', statusColor: '#1D5FBF', _s: 'Needs Reassignment', onOpen: () => this.openPanel(r.id) })),
+      ...assignedRows.filter(r => r._s !== 'Awaiting Clarification'),
+      ...this.reviewed.filter(r => matchAll(r.title, r.category)).map(r => ({ title: r.title, category: r.category, statusLabel: r.decision === 'Validated' ? 'Verified True' : 'Identified Fake', statusBg: r.decision === 'Validated' ? '#E4F5E9' : '#FBE7E9', statusColor: r.decision === 'Validated' ? '#1D7A3E' : '#C41230', _s: r.decision === 'Validated' ? 'Verified True' : 'Identified Fake', onOpen: () => this.openPanel(r.id) }))
+    ];
+    if (statusFilter !== 'all') allRows = allRows.filter(r => r._s === statusFilter);
+    const S = this.store();
+    const openClarifyCount = S ? S.all().filter(th => th.status === 'open').length : 0;
+    const openClarifyInList = this.assigned.filter(r => this.statusOf(r) === 'Awaiting Clarification').length;
+
+
+    const panelRow = this.findInquiry(s.panelId);
+    const panelKind = this.pending.some(x => x.id === s.panelId) ? 'pending' : (this.reassign.some(x => x.id === s.panelId) ? 'reassign' : (this.reviewed.some(x => x.id === s.panelId) ? 'reviewed' : (this.assigned.some(x => x.id === s.panelId) ? 'assigned' : null)));
+    const panelThreads = panelKind === 'assigned' ? this.threadsFor(panelRow) : [];
+    const panelTh = panelThreads.filter(th => th.status !== 'closed')[0] || panelThreads[0] || null;
+    const pLbl = { open: ['Awaiting Your Response', '#F1EAFA', '#6B3FA0'], answered: ['Responded', '#E4EEFB', '#1D5FBF'], closed: ['Resolved', '#E4F5E9', '#1D7A3E'] };
+    const panelClarify = panelTh ? (() => { const last = panelTh.messages.filter(m => m.from !== 'system').slice(-1)[0] || {}; const x = String(last.text || '');
+      return { id: panelTh.id, topic: panelTh.topic, statusLabel: pLbl[panelTh.status][0], statusBg: pLbl[panelTh.status][1], statusColor: pLbl[panelTh.status][2],
+        excerpt: '"' + (x.length > 150 ? x.slice(0, 150).replace(/\s+\S*$/, '') + '…' : x) + '"',
+        meta: 'Last message by ' + (last.author || '—') + ' · ' + panelTh.updatedAt + (panelThreads.length > 1 ? ' · ' + panelThreads.length + ' requests total' : '')
+          + ((panelTh.consults || []).length ? ' · Consulting: ' + panelTh.consults.map(c => (c.agency.match(/\(([^)]+)\)/) || [0, c.agency])[1] + (c.status === 'responded' ? ' (advice given)' : c.status === 'ended' ? ' (ended)' : ' (pending)')).join(', ') : '') }; })() : null;
+    let panelAgencyNames = [];
+    if (panelRow) { if (panelRow.rejection) panelAgencyNames = [panelRow.rejection.agency]; else if (panelRow.agency) panelAgencyNames = [panelRow.agency]; else if (panelRow.agencies) panelAgencyNames = panelRow.agencies; }
+    const panelAgencyChips = panelAgencyNames.map(n => ({ label: agencyChipLabel(n), bg: agencyChipColor(n) }));
+    const panelTabDefs = [{ key: 'details', label: 'Details' }, { key: 'evidence', label: 'Evidence' }, { key: 'activity', label: 'Activity Log' }];
+    const panelTabs = panelTabDefs.map(pt => ({ label: pt.label, color: s.panelTab === pt.key ? '#C41230' : '#8A8F98', borderColor: s.panelTab === pt.key ? '#C41230' : 'transparent', onClick: () => this.setPanelTab(pt.key) }));
+    const panelEvidenceFiles = panelRow ? (panelRow.evidenceFiles || []) : [];
+    const lblFor = (th, m, i) => m.kind === 'invite' ? m.author + ' (MCMC) invited ' + m.agency + ' to consult on ' + th.id : m.kind === 'endConsult' ? 'Consultation with ' + m.agency + ' ended' : m.from === 'consult' ? m.author + ' (' + m.agency + ') gave consultation advice on ' + th.id : m.from === 'system' ? m.text : m.from === 'mcmc' ? m.author + ' (MCMC) responded to clarification ' + th.id
+      : i === 0 ? m.author + ' (' + th.agency.replace(/^.*\(([^)]+)\).*$/, '$1') + ') requested clarification — ' + th.topic : m.author + ' sent a follow-up on ' + th.id;
+    const panelActivity = panelKind === 'assigned' ? [
+      { date: panelRow.dateLabel, text: 'Submitted by public user' },
+      { date: panelRow.assignedDate, text: 'Reviewed by MCMC and assigned to ' + panelRow.agency },
+      ...(panelRow.stage !== 'Awaiting Agency Review' ? [{ date: panelRow.assignedDate, text: 'Jurisdiction accepted by ' + panelRow.agency }] : []),
+      ...panelThreads.slice().reverse().reduce((a, th) => a.concat(th.messages.map((m, i) => ({ date: m.at, text: lblFor(th, m, i) }))), []),
+      ...(panelRow.stage === 'Verified True' || panelRow.stage === 'Identified Fake' ? [{ date: '', text: 'Investigation finalised — ' + panelRow.stage }] : [])
+    ] : panelRow ? [
+      { date: panelRow.dateLabel || panelRow.reviewedDate || '', text: 'Submitted by public user' },
+      { date: panelRow.dateLabel || panelRow.reviewedDate || '', text: panelRow.rejection ? `Rejected by ${panelRow.rejection.agency} \u2014 needs reassignment` : (panelRow.decision ? `Marked as ${panelRow.decision} by ${panelRow.reviewedBy}` : 'Queued for MCMC triage review') }
+    ] : [];
+    const panelActionLabel = panelKind === 'assigned' ? (panelTh ? (panelTh.status === 'open' ? 'Respond to Clarification' : 'View Clarification Thread') : 'Close') : panelKind === 'pending' ? 'Review This Inquiry' : (panelKind === 'reassign' ? 'Reassign This Inquiry' : 'View Full Record');
+    const onPanelAction = () => {
+      if (!panelRow) return;
+      this.closePanel();
+      if (panelKind === 'assigned') { if (panelTh) this.openClarifyThread(panelTh.id); return; }
+      if (panelKind === 'pending') this.openReview(panelRow.id, 'pending');
+      else if (panelKind === 'reassign') this.openAssign(panelRow.id);
+      else this.openReview(panelRow.id, 'reviewed');
+    };
+
+    const cur = this.findInquiry(s.currentId) || {};
+    const isReadOnly = s.screen === 'review' && !!cur.decision;
+    const decisionBg = cur.decision === 'Validated' ? '#E4F5E9' : '#EDEEF0';
+    const decisionColor = cur.decision === 'Validated' ? '#1D7A3E' : '#4B4F58';
+
+    const curForTemplate = {
+      ...cur,
+      decisionBg, decisionColor,
+      rejectionAgency: cur.rejection ? cur.rejection.agency : '',
+      rejectionReason: cur.rejection ? cur.rejection.reason : '',
+      rejectionDate: cur.rejection ? cur.rejection.date : '',
+      excerpt: cur.description ? cur.description.slice(0, 140) + (cur.description.length > 140 ? '…' : '') : '',
+      evidenceFiles: (cur.evidenceFiles || []).map(f => ({ name: f.name, onOpen: () => this.setState({ filePreview: f.name }) }))
+    };
+
+    const agencyCards = this.agencies.map(a => {
+      const selected = s.selectedAgency === a.id;
+      const recommended = this.categoryToAgency[cur.category] === a.id;
+      return {
+        id: a.id, name: a.name + (recommended ? ' (Recommended)' : ''), specialization: a.specialization, workload: a.workload,
+        selected,
+        border: selected ? '2px solid #C41230' : '1.5px solid #EDEEF0',
+        bg: selected ? '#FBE7E9' : '#fff',
+        onSelect: () => this.setState({ selectedAgency: a.id })
+      };
+    });
+
+    return {
+      navItems,
+      isListScreen: s.screen === 'list', isReviewScreen: s.screen === 'review', isAssignScreen: s.screen === 'assign',
+      isPendingTab: s.tab === 'pending', isReassignTab: s.tab === 'reassign', isReviewedTab: s.tab === 'reviewed',
+      tabPendingColor: s.tab === 'pending' ? '#C41230' : '#8A8F98', tabPendingBorder: s.tab === 'pending' ? '#C41230' : 'transparent',
+      tabReassignColor: s.tab === 'reassign' ? '#C41230' : '#8A8F98', tabReassignBorder: s.tab === 'reassign' ? '#C41230' : 'transparent',
+      tabReviewedColor: s.tab === 'reviewed' ? '#C41230' : '#8A8F98', tabReviewedBorder: s.tab === 'reviewed' ? '#C41230' : 'transparent',
+      hasReassign: this.reassign.length > 0, reassignCount: this.reassign.length,
+      onTabPending: () => this.setState({ tab: 'pending' }),
+      onTabReassign: () => this.setState({ tab: 'reassign' }),
+      onTabReviewed: () => this.setState({ tab: 'reviewed' }),
+
+      searchQuery: s.searchQuery, categoryFilter: s.categoryFilter, dateFilter: s.dateFilter,
+      onSearchChange: (e) => this.setState({ searchQuery: e.target.value }),
+      onCategoryChange: (e) => this.setState({ categoryFilter: e.target.value }),
+      onDateChange: (e) => this.setState({ dateFilter: e.target.value }),
+
+      pendingRows, pendingEmpty: pendingRows.length === 0,
+      reassignRows, reassignEmpty: reassignRows.length === 0,
+      reviewedRows, allRows, allEmpty: allRows.length === 0,
+      hasClarifyStrip: openClarifyCount > 0,
+      clarifyStripTitle: openClarifyCount + ' inquir' + (openClarifyCount === 1 ? 'y is' : 'ies are') + ' awaiting clarification from MCMC',
+      clarifyStripFilterLabel: statusFilter === 'Awaiting Clarification' ? 'Show all statuses' : 'Show only these (' + openClarifyInList + ')',
+      onFilterAwaitingClarify: () => this.setState({ statusFilter: statusFilter === 'Awaiting Clarification' ? 'all' : 'Awaiting Clarification' }),
+      onOpenClarifyQueue: () => { window.location.href = './06-mcmc-triage-assignment.dc.html?tab=clarify'; },
+      panelHasClarify: !!panelClarify, panelClarify: panelClarify || {},
+      statusFilter, onStatusFilterChange: (e) => this.setState({ statusFilter: e.target.value }),
+
+      cur: curForTemplate,
+      isReadOnly,
+      showDecisionCard: s.screen === 'review' && !isReadOnly,
+      statusBadgeLabel: isReadOnly ? cur.decision : 'Submitted — Awaiting Review',
+      statusBadgeBg: isReadOnly ? decisionBg : '#EDEEF0',
+      statusBadgeColor: isReadOnly ? decisionColor : '#4B4F58',
+
+      reviewNotes: s.reviewNotes,
+      onReviewNotesChange: (e) => this.setState({ reviewNotes: e.target.value }),
+      onBackToList: (e) => { e.preventDefault(); this.setState({ screen: 'list', tab: s.prevTab }); },
+      onValidate: () => { this.setState({ tab: 'pending' }); this.openAssign(cur.id); },
+      onDiscardClick: () => this.setState({ discardModalOpen: true }),
+      onCancelDiscard: () => this.setState({ discardModalOpen: false }),
+      onConfirmDiscard: () => {
+        this.pending = this.pending.filter(x => x.id !== cur.id);
+        this.setState({ discardModalOpen: false, screen: 'list', tab: 'pending' });
+        this.showToast('Inquiry discarded');
+      },
+      discardModalOpen: s.discardModalOpen,
+
+      assignNotes: s.assignNotes,
+      onAssignNotesChange: (e) => this.setState({ assignNotes: e.target.value }),
+      onViewFull: (e) => { e.preventDefault(); this.setState({ screen: 'review' }); },
+      agencyCards,
+      assignDisabled: !s.selectedAgency,
+      assignBtnBg: s.selectedAgency ? '#C41230' : '#D4D6DA',
+      assignBtnCursor: s.selectedAgency ? 'pointer' : 'not-allowed',
+      onAssign: () => {
+        if (!s.selectedAgency) return;
+        const agencyName = this.agencies.find(a => a.id === s.selectedAgency).name;
+        this.pending = this.pending.filter(x => x.id !== cur.id);
+        this.reassign = this.reassign.filter(x => x.id !== cur.id);
+        this.setState({ screen: 'list', tab: 'pending' });
+        this.showToast(`Inquiry assigned to ${agencyName} successfully!`);
+      },
+
+      filePreview: s.filePreview,
+      onCloseFilePreview: () => this.setState({ filePreview: null }),
+      toastMsg: s.toastMsg,
+      ...this.exportVals(),
+      onExport: () => this._ex.openExport && this._ex.openExport('xlsx'),
+
+      stopProp: (e) => e.stopPropagation(),
+      panelOpen: !!panelRow, panelTitle: panelRow ? panelRow.title : '', panelCategory: panelRow ? panelRow.category : '',
+      panelDate: panelRow ? (panelRow.dateLabel || panelRow.reviewedDate || '') + (panelRow.assignedDate ? ' · Assigned ' + panelRow.assignedDate : '') : '',
+      panelHasAgencies: panelAgencyChips.length > 0, panelAgencyChips,
+      panelTabs, isPanelDetails: s.panelTab === 'details', isPanelEvidence: s.panelTab === 'evidence', isPanelActivity: s.panelTab === 'activity',
+      panelDescription: panelRow ? panelRow.description : '', panelEvidenceFiles, panelActivity,
+      panelActionLabel, onPanelAction,
+      closePanel: () => this.closePanel(),
+
+      profileMenuOpen: s.profileMenuOpen,
+      openProfileMenu: () => { clearTimeout(this.profileCloseTimer); this.setState({ profileMenuOpen: true }); },
+      closeProfileMenuDelayed: () => { this.profileCloseTimer = setTimeout(() => this.setState({ profileMenuOpen: false }), 400); },
+      onOpenProfile: (e) => { if (e && e.preventDefault) e.preventDefault(); window.location.href = './05-mcmc-auth-dashboard.dc.html?view=settings'; },
+      onOpenSettingsLink: (e) => { if (e && e.preventDefault) e.preventDefault(); window.location.href = './05-mcmc-auth-dashboard.dc.html?view=settings'; },
+      onOpenSettings: () => { window.location.href = './05-mcmc-auth-dashboard.dc.html?view=settings'; },
+      onOpenRecentActions: () => { window.location.href = './05-mcmc-auth-dashboard.dc.html?view=recentActions'; },
+      onOpenMonthlyTarget: () => { window.location.href = './05-mcmc-auth-dashboard.dc.html'; },
+      onLogout: (e) => { if (e && e.preventDefault) e.preventDefault(); window.location.href = './01-login.dc.html'; }
+    };
+  }
+}
+
+</script>
+</body>
+</html>

@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+  body { margin: 0; font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif; }
+</style>
+</helmet>
+<div style="font-family:'Inter',sans-serif; color:#1A1A1A; height:100vh; display:flex; flex-direction:column; background:#EDEEF0; overflow:hidden;">
+
+  <div style="height:64px; background:#C41230; display:flex; align-items:center; gap:20px; padding:0 24px; flex-shrink:0; position:relative; box-shadow:0 4px 10px rgba(0,0,0,0.18); z-index:10;">
+    <div style="display:flex; align-items:center; gap:12px; flex-shrink:0;">
+      <svg width="42" height="42" viewBox="0 0 512 512" style="flex-shrink:0;">
+        <defs><clipPath id="icHdrPublic04"><circle cx="256" cy="248" r="150"/></clipPath></defs>
+        <rect x="16" y="16" width="480" height="480" rx="92" ry="92" fill="#ffffff" stroke="#EDEEF0" stroke-width="4"/>
+        <g clip-path="url(#icHdrPublic04)">
+          <path d="M 256 248 L 256 98 A 150 150 0 0 1 386 323 Z" fill="#0072bc" opacity="0.3"/>
+          <path d="M 256 248 L 386 323 A 150 150 0 0 1 126 323 Z" fill="#e31c79" opacity="0.3"/>
+          <path d="M 256 248 L 126 323 A 150 150 0 0 1 256 98 Z" fill="#f5a623" opacity="0.3"/>
+        </g>
+        <circle cx="256" cy="248" r="192" fill="none" stroke="#C41230" stroke-width="24" stroke-dasharray="34 22" stroke-linecap="round"/>
+        <circle cx="256" cy="248" r="165" fill="none" stroke="#C41230" stroke-width="24" stroke-dasharray="30 19" stroke-linecap="round"/>
+        <path d="M 168 248 L 224 304 L 344 178" fill="none" stroke="#ffffff" stroke-width="70" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M 168 248 L 224 304 L 344 178" fill="none" stroke="#C41230" stroke-width="52" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div style="font-family:'Poppins',sans-serif; font-weight:800; font-size:19px; letter-spacing:-0.01em; white-space:nowrap;">
+        <span style="color:#1A1A1A;">SE</span><span style="color:#fff;">BENAR</span><span style="color:#1A1A1A;">NYA.MY</span>
+      </div>
+    </div>
+    <div style="flex:1;"></div>
+    <div style="width:240px; flex-shrink:0; position:relative;">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); pointer-events:none;"><circle cx="11" cy="11" r="7" stroke="#8A8F98" stroke-width="2"/><path d="M21 21l-4.3-4.3" stroke="#8A8F98" stroke-width="2" stroke-linecap="round"/></svg>
+      <input placeholder="Search inquiries..." style="width:100%; padding:9px 14px 9px 36px; border-radius:8px; border:1px solid rgba(255,255,255,0.3); font-family:'Inter',sans-serif; font-size:13px; background:#fff; box-sizing:border-box;" />
+    </div>
+    <div style="display:flex; align-items:center; gap:14px; flex-shrink:0;">
+      <div onClick="{{ goNotifications }}" style="position:relative; width:36px; height:36px; border-radius:8px; background:rgba(255,255,255,0.16); display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;" style-hover="background:rgba(255,255,255,0.24);">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M6 9a6 6 0 0112 0c0 4 1.5 5 1.5 5h-15S6 13 6 9z" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/><path d="M10 18a2 2 0 004 0" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <div style="position:absolute; top:-4px; right:-4px; width:16px; height:16px; background:#C41230; border-radius:50%; border:1.5px solid #fff; color:#fff; font-size:9.5px; font-weight:700; display:flex; align-items:center; justify-content:center;">3</div>
+      </div>
+      <div onMouseEnter="{{ openProfileMenu }}" onMouseLeave="{{ closeProfileMenuDelayed }}" style="position:relative; flex-shrink:0;">
+        <div style="display:flex; align-items:center; gap:8px; flex-shrink:0; cursor:pointer; padding:4px; border-radius:8px;" style-hover="background:rgba(255,255,255,0.16);">
+          <div style="width:34px; height:34px; border-radius:50%; background:#FBE7E9; color:#C41230; font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">AI</div>
+        </div>
+        <sc-if value="{{ profileMenuOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute; top:44px; right:0; width:230px; background:#fff; border:1px solid #EDEEF0; border-radius:10px; box-shadow:0 8px 24px rgba(0,0,0,0.12); z-index:30; overflow:hidden;">
+            <div style="padding:14px 16px; border-bottom:1px solid #F0F1F3;">
+              <div style="font-size:13.5px; font-weight:700;">Ahmad Ismail</div>
+              <div style="font-size:12px; color:#8A8F98; margin:2px 0 4px;">Public User</div>
+              <div style="font-size:11.5px; color:#8A8F98;">ahmad.ismail@email.com</div>
+            </div>
+            <div style="padding:6px;">
+              <a href="#" onClick="{{ onOpenSettings }}" style="display:block; padding:9px 10px; font-size:13px; font-weight:600; color:#4B4F58; text-decoration:none; border-radius:6px;" style-hover="background:#F7F7F8;">Settings</a>
+              <a href="#" onClick="{{ onLogout }}" style="display:block; padding:9px 10px; font-size:13px; font-weight:600; color:#C41230; text-decoration:none; border-radius:6px;" style-hover="background:#FBE7E9;">Log Out</a>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </div>
+
+  <div style="flex:1; display:flex; gap:16px; min-height:0; overflow:hidden;">
+
+    <div style="width:216px; background:#fff; box-shadow:1px 0 0 rgba(0,0,0,0.05); display:flex; flex-direction:column; flex-shrink:0; overflow:auto;">
+      <div style="padding:16px 14px 8px; font-size:11px; font-weight:700; color:#8A8F98; text-transform:uppercase; letter-spacing:0.05em;">Menu</div>
+      <div style="flex:1; padding:0 10px; display:flex; flex-direction:column; gap:2px;">
+        <sc-for list="{{ menuItems }}" as="item" hint-placeholder-count="5">
+          <sc-if value="{{ item.isActive }}" hint-placeholder-val="{{ false }}">
+          <div onClick="{{ item.onClick }}" style="display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:8px; background:#C41230; cursor:pointer; font-size:13px; font-weight:600; color:#fff; transition:background 0.15s ease;" style-hover="background:#A10E27;">
+            <sc-if value="{{ item.isDashboard }}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M4 11.5L12 4l8 7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 10v9a1 1 0 001 1h10a1 1 0 001-1v-9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 20v-5.5a1 1 0 011-1h2a1 1 0 011 1V20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></sc-if>
+            <sc-if value="{{ item.isSubmit }}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 8v8M8 12h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></sc-if>
+            <sc-if value="{{ item.isMyInquiries }}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M3.5 6.5A1.5 1.5 0 015 5h4.3a1.5 1.5 0 011.1.5l1.4 1.5H19a1.5 1.5 0 011.5 1.5v9a1.5 1.5 0 01-1.5 1.5H5a1.5 1.5 0 01-1.5-1.5v-11z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></sc-if>
+            <sc-if value="{{ item.isProfile }}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><circle cx="12" cy="8" r="3.5" stroke="currentColor" stroke-width="1.8"/><path d="M4.5 20c1-4 5-5.5 7.5-5.5s6.5 1.5 7.5 5.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></sc-if>
+            {{ item.label }}
+          </div>
+          </sc-if>
+          <sc-if value="{{ item.isInactive }}" hint-placeholder-val="{{ true }}">
+          <div onClick="{{ item.onClick }}" style="display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:8px; background:transparent; cursor:pointer; font-size:13px; font-weight:600; color:#4B4F58; transition:background 0.15s ease;" style-hover="background:#EDEEF0;">
+            <sc-if value="{{ item.isDashboard }}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M4 11.5L12 4l8 7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 10v9a1 1 0 001 1h10a1 1 0 001-1v-9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 20v-5.5a1 1 0 011-1h2a1 1 0 011 1V20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></sc-if>
+            <sc-if value="{{ item.isSubmit }}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 8v8M8 12h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></sc-if>
+            <sc-if value="{{ item.isMyInquiries }}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M3.5 6.5A1.5 1.5 0 015 5h4.3a1.5 1.5 0 011.1.5l1.4 1.5H19a1.5 1.5 0 011.5 1.5v9a1.5 1.5 0 01-1.5 1.5H5a1.5 1.5 0 01-1.5-1.5v-11z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></sc-if>
+            <sc-if value="{{ item.isProfile }}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><circle cx="12" cy="8" r="3.5" stroke="currentColor" stroke-width="1.8"/><path d="M4.5 20c1-4 5-5.5 7.5-5.5s6.5 1.5 7.5 5.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></sc-if>
+            {{ item.label }}
+          </div>
+          </sc-if>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="flex:1; background:#fff; border-radius:16px; box-shadow:0 1px 3px rgba(0,0,0,0.06); padding:28px 32px; overflow:auto; position:relative; min-width:0; margin:16px 16px 16px 0;">
+
+      <sc-if value="{{ isProfile }}" hint-placeholder-val="{{ false }}">
+        <div>
+          <h1 style="font-size:28px;font-weight:800;color:#1A1A1A;margin:0">Profile Settings</h1>
+          <p style="color:#6B7280;margin:6px 0 24px 0;font-size:15px">Manage your personal information and account security.</p>
+
+          <div style="display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap">
+            <div style="width:220px;flex-shrink:0;display:flex;flex-direction:column;gap:4px">
+              <div onClick="{{ selectTabInfo }}" style="{{ tabInfoStyle }}">Profile Information</div>
+              <div onClick="{{ selectTabSecurity }}" style="{{ tabSecurityStyle }}">Password &amp; Security</div>
+            </div>
+
+            <div style="flex:1;min-width:320px">
+              <sc-if value="{{ isTabInfo }}" hint-placeholder-val="{{ true }}">
+                <div style="background:#fff;border-radius:14px;padding:28px;border:1px solid #EEE;box-shadow:0 1px 2px rgba(0,0,0,0.06);max-width:560px;box-sizing:border-box">
+                  <sc-if value="{{ profileSuccess }}" hint-placeholder-val="{{ false }}">
+                    <div style="background:#DCFCE7;border:1px solid #86EFAC;color:#15803D;border-radius:10px;padding:12px 16px;font-weight:600;font-size:14px;margin-bottom:20px">Profile updated successfully!</div>
+                  </sc-if>
+
+                  <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px">
+                    <div style="width:64px;height:64px;border-radius:50%;background:#C41230;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:22px;flex-shrink:0">AI</div>
+                    <div style="display:flex;flex-direction:column;gap:6px">
+                      <button style="background:#fff;color:#374151;font-weight:700;padding:8px 16px;border-radius:8px;border:1px solid #D1D5DB;cursor:pointer;font-size:13px;width:fit-content" style-hover="background:#F9FAFB">Change Photo</button>
+                      <span style="color:#9CA3AF;font-size:13px;cursor:pointer;width:fit-content" style-hover="color:#C41230">Remove</span>
+                    </div>
+                  </div>
+
+                  <div style="margin-bottom:18px">
+                    <label style="display:block;font-size:13px;font-weight:700;color:#374151;margin-bottom:6px">Full Name</label>
+                    <input type="text" value="{{ fullName }}" onChange="{{ setFullName }}" style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid #D1D5DB;font-size:14px;outline:none;box-sizing:border-box"/>
+                  </div>
+                  <div style="margin-bottom:18px">
+                    <label style="display:block;font-size:13px;font-weight:700;color:#374151;margin-bottom:6px">Email</label>
+                    <input type="text" value="ahmad.ismail@email.com" disabled="{{ true }}" style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid #E5E5E7;font-size:14px;outline:none;box-sizing:border-box;background:#F7F7F8;color:#9CA3AF"/>
+                    <div style="font-size:12px;color:#9CA3AF;margin-top:4px">Email cannot be changed</div>
+                  </div>
+                  <div style="margin-bottom:22px">
+                    <label style="display:block;font-size:13px;font-weight:700;color:#374151;margin-bottom:6px">Phone Number</label>
+                    <input type="text" value="{{ phone }}" onChange="{{ setPhone }}" style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid #D1D5DB;font-size:14px;outline:none;box-sizing:border-box"/>
+                  </div>
+                  <button onClick="{{ saveProfile }}" style="background:#C41230;color:#fff;font-weight:700;padding:12px 24px;border-radius:10px;border:none;cursor:pointer;font-size:14px" style-hover="background:#A50F27">Save Changes</button>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ isTabSecurity }}" hint-placeholder-val="{{ false }}">
+                <div>
+                  <div style="background:#fff;border-radius:14px;padding:28px;border:1px solid #EEE;box-shadow:0 1px 2px rgba(0,0,0,0.06);max-width:560px;box-sizing:border-box;margin-bottom:20px">
+                    <sc-if value="{{ securitySuccess }}" hint-placeholder-val="{{ false }}">
+                      <div style="background:#DCFCE7;border:1px solid #86EFAC;color:#15803D;border-radius:10px;padding:12px 16px;font-weight:600;font-size:14px;margin-bottom:20px">Password updated successfully!</div>
+                    </sc-if>
+
+                    <div style="margin-bottom:18px">
+                      <label style="display:block;font-size:13px;font-weight:700;color:#374151;margin-bottom:6px">Current Password</label>
+                      <div style="position:relative">
+                        <input type="{{ currentPwType }}" value="{{ currentPassword }}" onChange="{{ setCurrentPassword }}" style="width:100%;padding:10px 46px 10px 14px;border-radius:8px;border:1px solid #D1D5DB;font-size:14px;outline:none;box-sizing:border-box"/>
+                        <span onClick="{{ toggleCurrentPw }}" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:12px;font-weight:700;color:#6B7280;cursor:pointer">{{ currentPwLabel }}</span>
+                      </div>
+                    </div>
+
+                    <div style="margin-bottom:8px">
+                      <label style="display:block;font-size:13px;font-weight:700;color:#374151;margin-bottom:6px">New Password</label>
+                      <div style="position:relative">
+                        <input type="{{ newPwType }}" value="{{ newPassword }}" onChange="{{ setNewPassword }}" style="width:100%;padding:10px 46px 10px 14px;border-radius:8px;border:1px solid #D1D5DB;font-size:14px;outline:none;box-sizing:border-box"/>
+                        <span onClick="{{ toggleNewPw }}" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:12px;font-weight:700;color:#6B7280;cursor:pointer">{{ newPwLabel }}</span>
+                      </div>
+                      <sc-if value="{{ showStrength }}" hint-placeholder-val="{{ false }}">
+                        <div style="height:6px;border-radius:3px;background:#E5E7EB;overflow:hidden;margin-top:8px">
+                          <div style="height:100%;width:{{ strengthPct }};background:{{ strengthColor }}"></div>
+                        </div>
+                        <div style="font-size:12px;color:{{ strengthColor }};margin-top:4px;font-weight:600">{{ strengthLabel }}</div>
+                      </sc-if>
+                    </div>
+
+                    <div style="margin-bottom:22px;margin-top:18px">
+                      <label style="display:block;font-size:13px;font-weight:700;color:#374151;margin-bottom:6px">Confirm New Password</label>
+                      <div style="position:relative">
+                        <input type="{{ confirmPwType }}" value="{{ confirmPassword }}" onChange="{{ setConfirmPassword }}" style="{{ confirmInputStyle }}"/>
+                        <span onClick="{{ toggleConfirmPw }}" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:12px;font-weight:700;color:#6B7280;cursor:pointer">{{ confirmPwLabel }}</span>
+                      </div>
+                      <sc-if value="{{ confirmError }}" hint-placeholder-val="{{ false }}">
+                        <div style="margin-top:4px;font-size:12px;color:#C41230">{{ confirmError }}</div>
+                      </sc-if>
+                    </div>
+
+                    <button onClick="{{ updatePassword }}" style="background:#C41230;color:#fff;font-weight:700;padding:12px 24px;border-radius:10px;border:none;cursor:pointer;font-size:14px" style-hover="background:#A50F27">Update Password</button>
+                  </div>
+
+                  <div style="background:#fff;border-radius:14px;padding:24px;border:1px solid #EEE;box-shadow:0 1px 2px rgba(0,0,0,0.06);max-width:560px;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:16px">
+                    <div>
+                      <div style="font-weight:700;font-size:15px;color:#1A1A1A">Two-Factor Authentication</div>
+                      <div style="font-size:13px;color:#6B7280;margin-top:4px">Add an extra layer of security to your account</div>
+                    </div>
+                    <div onClick="{{ toggle2FA }}" style="width:44px;height:24px;border-radius:999px;background:{{ toggle2FABg }};position:relative;cursor:pointer;flex-shrink:0">
+                      <div style="position:absolute;top:2px;left:{{ toggle2FAKnob }};width:20px;height:20px;border-radius:50%;background:#fff;transition:left 0.15s"></div>
+                    </div>
+                  </div>
+                </div>
+              </sc-if>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+    </div>
+  </div>
+
+  <sc-if value="{{ panelOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closePanel }}" style="position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:40"></div>
+    <div style="position:fixed;top:0;right:0;bottom:0;width:380px;background:#fff;box-shadow:-8px 0 30px rgba(0,0,0,0.15);z-index:41;display:flex;flex-direction:column">
+      <div style="padding:20px;border-bottom:1px solid #F0F1F3;display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+        <div style="font-weight:800;font-size:17px;line-height:1.3;color:#1A1A1A">{{ panelTitle }}</div>
+        <div onClick="{{ closePanel }}" style="cursor:pointer;color:#8A8F98;font-size:18px;line-height:1;flex-shrink:0">✕</div>
+      </div>
+      <div style="padding:14px 20px;border-bottom:1px solid #F0F1F3;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <span style="background:#F3F4F6;color:#4B5563;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600">{{ panelCategory }}</span>
+        <span style="padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700;background:{{ panelBadgeBg }};color:{{ panelBadgeColor }}">{{ panelStatus }}</span>
+        <span style="font-size:12.5px;color:#8A8F98">{{ panelDate }}</span>
+      </div>
+      <div style="padding:14px 20px;border-bottom:1px solid #F0F1F3">
+        <div style="font-size:11.5px;font-weight:700;color:#8A8F98;text-transform:uppercase;letter-spacing:0.03em;margin-bottom:6px">Assigned Agency</div>
+        <sc-if value="{{ panelAgencyPending }}" hint-placeholder-val="{{ false }}">
+          <span style="font-size:12px;font-weight:700;color:#6B7280;background:#F3F4F6;padding:3px 10px;border-radius:999px">Pending Assignment</span>
+        </sc-if>
+        <sc-if value="{{ panelAgencyShow }}" hint-placeholder-val="{{ false }}">
+          <span style="font-size:13.5px;font-weight:600;color:#374151">{{ panelAgency }}</span>
+        </sc-if>
+      </div>
+      <div style="display:flex;border-bottom:1px solid #F0F1F3;flex-shrink:0">
+        <sc-for list="{{ panelTabs }}" as="pt" hint-placeholder-count="3">
+          <div onClick="{{ pt.onClick }}" style="flex:1;text-align:center;padding:11px;font-size:12.5px;font-weight:700;cursor:pointer;color:{{ pt.color }};border-bottom:2px solid {{ pt.borderColor }}">{{ pt.label }}</div>
+        </sc-for>
+      </div>
+      <div style="flex:1;overflow:auto;padding:18px 20px">
+        <sc-if value="{{ isPanelDetails }}" hint-placeholder-val="{{ true }}">
+          <div style="font-size:13.5px;color:#4B4F58;line-height:1.6">{{ panelDescription }}</div>
+        </sc-if>
+        <sc-if value="{{ isPanelEvidence }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <sc-for list="{{ panelEvidence }}" as="ef" hint-placeholder-count="2">
+              <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#F7F7F8;border-radius:8px;font-size:12.5px;font-weight:600">📎 {{ ef.name }}</div>
+            </sc-for>
+            <sc-if value="{{ panelNoEvidence }}" hint-placeholder-val="{{ false }}">
+              <span style="font-size:13px;color:#9CA3AF">No evidence files attached.</span>
+            </sc-if>
+          </div>
+        </sc-if>
+        <sc-if value="{{ isPanelActivity }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <sc-for list="{{ panelActivity }}" as="ac" hint-placeholder-count="3">
+              <div style="display:flex;gap:10px">
+                <div style="width:8px;height:8px;border-radius:50%;background:{{ ac.dotColor }};margin-top:5px;flex-shrink:0"></div>
+                <div>
+                  <div style="font-size:11.5px;color:#8A8F98;font-weight:600;margin-bottom:2px">{{ ac.dateDisplay }}</div>
+                  <div style="font-size:13px;color:#1A1A1A;font-weight:600">{{ ac.label }}</div>
+                  <div style="font-size:12.5px;color:#6B7280;margin-top:2px">{{ ac.note }}</div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
+      <div style="padding:16px 20px;border-top:1px solid #F0F1F3;flex-shrink:0">
+        <button onClick="{{ onViewFullFromPanel }}" style="width:100%;background:#C41230;color:#fff;border:none;padding:11px;border-radius:8px;font-size:13.5px;font-weight:700;cursor:pointer" style-hover="background:#A50F27">View Full Details</button>
+      </div>
+    </div>
+  </sc-if>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const PUBLIC_INQUIRIES = [
+  { id: 1, title: 'New Election Law Amendment Rumor', category: 'Politics', status: 'Submitted', dateSubmitted: '2026-09-02', agency: null,
+    description: 'A message circulating on Telegram claims a sudden amendment to election law will be passed without public consultation.', sourceLink: '',
+    evidence: [{ name: 'telegram_message.jpg' }],
+    history: [ { label: 'Submitted', date: '2026-09-02', note: 'Inquiry received', done: true }, { label: 'Under Investigation', date: '', note: 'Awaiting review assignment', done: false }, { label: 'Outcome', date: '', note: 'Pending investigation result', done: false } ] },
+  { id: 2, title: 'Herbal Injection Claims to Cure Diabetes', category: 'Health', status: 'Under Investigation', dateSubmitted: '2026-08-27', agency: 'Ministry of Health (MOH)',
+    description: 'A viral video promotes an unlicensed herbal injection said to fully cure diabetes within a week.', sourceLink: 'https://tiktok.com/@example/video/1',
+    evidence: [{ name: 'video_screenshot.png' }],
+    history: [ { label: 'Submitted', date: '2026-08-27', note: 'Inquiry received', done: true }, { label: 'Under Investigation', date: '2026-08-28', note: 'Assigned to MOH for review', done: true }, { label: 'Outcome', date: '', note: 'Pending investigation result', done: false } ] },
+  { id: 3, title: 'Fuel Subsidy Adjustment Confirmed for October', category: 'Finance', status: 'Verified as True', dateSubmitted: '2026-08-18', agency: 'Ministry of Finance',
+    description: 'Reports of a targeted fuel subsidy adjustment taking effect in October were checked against official statements.', sourceLink: 'https://mof.gov.my/notice/fuel-subsidy',
+    evidence: [{ name: 'mof_statement.pdf' }],
+    history: [ { label: 'Submitted', date: '2026-08-18', note: 'Inquiry received', done: true }, { label: 'Under Investigation', date: '2026-08-19', note: 'Assigned to Ministry of Finance', done: true }, { label: 'Outcome', date: '2026-08-22', note: 'Confirmed accurate — matches official notice', done: true } ] },
+  { id: 4, title: 'Claim: All SIM Cards Require Re-registration by Month End', category: 'Technology', status: 'Identified as Fake', dateSubmitted: '2026-08-12', agency: 'MCMC',
+    description: 'A message urges users to "re-register" their SIM cards via a suspicious link or risk deactivation.', sourceLink: '',
+    evidence: [{ name: 'sms_screenshot.jpg' }],
+    history: [ { label: 'Submitted', date: '2026-08-12', note: 'Inquiry received', done: true }, { label: 'Under Investigation', date: '2026-08-13', note: 'Assigned to MCMC for review', done: true }, { label: 'Outcome', date: '2026-08-15', note: 'Confirmed as a phishing scam', done: true } ] },
+  { id: 5, title: 'Viral Claim of Water Contamination in Klang Valley', category: 'Social Issues', status: 'Rejected', dateSubmitted: '2026-08-08', agency: 'Ministry of Environment',
+    description: 'A post claims tap water across Klang Valley is contaminated, without any supporting source.', sourceLink: '',
+    evidence: [],
+    history: [ { label: 'Submitted', date: '2026-08-08', note: 'Inquiry received', done: true }, { label: 'Under Investigation', date: '2026-08-09', note: 'Reviewed by Ministry of Environment', done: true }, { label: 'Outcome', date: '2026-08-11', note: 'Rejected — no supporting evidence found', done: true } ] },
+  { id: 6, title: 'Alleged Leaked Cabinet Reshuffle List', category: 'Politics', status: 'Under Investigation', dateSubmitted: '2026-08-25', agency: 'MCMC',
+    description: 'An image purporting to be a leaked cabinet reshuffle list is circulating on WhatsApp groups.', sourceLink: '',
+    evidence: [{ name: 'leaked_list.jpg' }],
+    history: [ { label: 'Submitted', date: '2026-08-25', note: 'Inquiry received', done: true }, { label: 'Under Investigation', date: '2026-08-26', note: 'Assigned to MCMC for review', done: true }, { label: 'Outcome', date: '', note: 'Pending investigation result', done: false } ] },
+  { id: 7, title: 'Free Health Screening Program Confirmed for B40 Group', category: 'Health', status: 'Verified as True', dateSubmitted: '2026-08-05', agency: 'Ministry of Health (MOH)',
+    description: 'A post about a free health screening program for the B40 income group was checked against MOH records.', sourceLink: 'https://moh.gov.my/screening-b40',
+    evidence: [{ name: 'moh_circular.pdf' }],
+    history: [ { label: 'Submitted', date: '2026-08-05', note: 'Inquiry received', done: true }, { label: 'Under Investigation', date: '2026-08-06', note: 'Assigned to MOH for review', done: true }, { label: 'Outcome', date: '2026-08-09', note: 'Confirmed accurate — program verified', done: true } ] },
+  { id: 8, title: 'Claim of New Digital Banking License Announcement', category: 'Finance', status: 'Submitted', dateSubmitted: '2026-09-04', agency: null,
+    description: 'A blog post claims a new digital banking license was awarded this week, ahead of any official announcement.', sourceLink: 'https://example-blog.my/digital-bank-license',
+    evidence: [],
+    history: [ { label: 'Submitted', date: '2026-09-04', note: 'Inquiry received', done: true }, { label: 'Under Investigation', date: '', note: 'Awaiting review assignment', done: false }, { label: 'Outcome', date: '', note: 'Pending investigation result', done: false } ] }
+];
+
+class Component extends DCLogic {
+  state = {
+    screen: new URLSearchParams(location.search).get('screen') || 'profile',
+    activeMenu: new URLSearchParams(location.search).get('screen') || 'profile',
+    profileMenuOpen: false,
+    searchText: '', statusFilter: 'All', categoryFilter: 'All', dateFilter: 'All Time',
+    statusDdOpen: false, categoryDdOpen: false, dateDdOpen: false,
+    currentPage: 1, selectedId: 1,
+    profileTab: 'info',
+    fullName: 'Ahmad Ismail', phone: '+60 12-345 6789', profileSuccess: false,
+    currentPassword: '', newPassword: '', confirmPassword: '',
+    showCurrent: false, showNew: false, showConfirm: false,
+    confirmError: null, securitySuccess: false, twoFA: false,
+    panelId: null, panelTab: 'details'
+  };
+
+  goDashboard = () => { window.location.href = './03-public-core.dc.html'; };
+  goSubmit = () => { window.location.href = './03-public-core.dc.html?screen=submit'; };
+  goMyInquiries = () => { window.location.href = './03-public-core.dc.html?screen=myinquiries'; };
+  goBrowse = () => this.setState({ screen: 'browse', activeMenu: 'browse' });
+  goNotifications = () => { window.location.href = './03-public-core.dc.html?screen=notifications'; };
+  goProfile = () => this.setState({ screen: 'profile', activeMenu: 'profile' });
+  openProfileMenu = () => { clearTimeout(this.profileCloseTimer); this.setState({ profileMenuOpen: true }); };
+  closeProfileMenuDelayed = () => { this.profileCloseTimer = setTimeout(() => this.setState({ profileMenuOpen: false }), 400); };
+  onOpenProfile = (e) => { if (e && e.preventDefault) e.preventDefault(); this.setState({ profileMenuOpen: false }); this.goProfile(); };
+  onOpenSettings = (e) => { if (e && e.preventDefault) e.preventDefault(); this.setState({ profileMenuOpen: false }); this.goProfile(); };
+  onLogout = (e) => { if (e && e.preventDefault) e.preventDefault(); this.setState({ profileMenuOpen: false }); window.location.href = './02-public-auth-flow.dc.html'; };
+  selectMenu = (key) => {
+    if (key === 'browse') this.goBrowse();
+    else if (key === 'profile') this.goProfile();
+    else this.setState({ screen: 'placeholder', activeMenu: key });
+  };
+
+  selectPublicInquiry = (id) => this.setState({ screen: 'browseDetail', selectedId: id });
+  openPanel = (id) => this.setState({ panelId: id, panelTab: 'details' });
+  closePanel = () => this.setState({ panelId: null });
+  setPanelTab = (tab) => this.setState({ panelTab: tab });
+
+  setSearch = (e) => this.setState({ searchText: e.target.value, currentPage: 1 });
+  toggleStatusDd = () => this.setState(s => ({ statusDdOpen: !s.statusDdOpen, categoryDdOpen: false, dateDdOpen: false }));
+  toggleCategoryDd = () => this.setState(s => ({ categoryDdOpen: !s.categoryDdOpen, statusDdOpen: false, dateDdOpen: false }));
+  toggleDateDd = () => this.setState(s => ({ dateDdOpen: !s.dateDdOpen, statusDdOpen: false, categoryDdOpen: false }));
+  selectStatus = (v) => this.setState({ statusFilter: v, statusDdOpen: false, currentPage: 1 });
+  selectCategory = (v) => this.setState({ categoryFilter: v, categoryDdOpen: false, currentPage: 1 });
+  selectDate = (v) => this.setState({ dateFilter: v, dateDdOpen: false, currentPage: 1 });
+
+  prevPage = () => this.setState(s => ({ currentPage: Math.max(1, s.currentPage - 1) }));
+  nextPage = (max) => this.setState(s => ({ currentPage: Math.min(max, s.currentPage + 1) }));
+  goToPage = (n) => this.setState({ currentPage: n });
+
+  selectTabInfo = () => this.setState({ profileTab: 'info' });
+  selectTabSecurity = () => this.setState({ profileTab: 'security' });
+  setFullName = (e) => this.setState({ fullName: e.target.value });
+  setPhone = (e) => this.setState({ phone: e.target.value });
+  saveProfile = () => { this.setState({ profileSuccess: true }); setTimeout(() => this.setState({ profileSuccess: false }), 4000); };
+
+  setCurrentPassword = (e) => this.setState({ currentPassword: e.target.value });
+  setNewPassword = (e) => this.setState({ newPassword: e.target.value });
+  setConfirmPassword = (e) => this.setState({ confirmPassword: e.target.value, confirmError: null });
+  toggleCurrentPw = () => this.setState(s => ({ showCurrent: !s.showCurrent }));
+  toggleNewPw = () => this.setState(s => ({ showNew: !s.showNew }));
+  toggleConfirmPw = () => this.setState(s => ({ showConfirm: !s.showConfirm }));
+  toggle2FA = () => this.setState(s => ({ twoFA: !s.twoFA }));
+
+  updatePassword = () => {
+    const s = this.state;
+    if (s.newPassword !== s.confirmPassword || !s.confirmPassword) {
+      this.setState({ confirmError: 'Passwords do not match' });
+      return;
+    }
+    this.setState({ securitySuccess: true, confirmError: null });
+    setTimeout(() => this.setState({ securitySuccess: false }), 4000);
+  };
+
+  getStatusStyle(status) {
+    const map = {
+      'Submitted': { bg: '#F3F4F6', color: '#4B5563' },
+      'Under Investigation': { bg: '#FEF3C7', color: '#B45309' },
+      'Verified as True': { bg: '#DCFCE7', color: '#15803D' },
+      'Identified as Fake': { bg: '#FCE8EA', color: '#C41230' },
+      'Rejected': { bg: '#E2E8F0', color: '#475569' }
+    };
+    return map[status] || map['Submitted'];
+  }
+
+  renderVals() {
+    const s = this.state;
+    const menuData = [
+      { key: 'dashboard', label: 'Home', isDashboard: true, onClick: this.goDashboard },
+      { key: 'submit', label: 'Submit Inquiry', isSubmit: true, onClick: this.goSubmit },
+      { key: 'myinquiries', label: 'My Inquiries', isMyInquiries: true, onClick: this.goMyInquiries },
+      { key: 'profile', label: 'Profile Settings', isProfile: true, onClick: this.goProfile }
+    ];
+    const menuItems = menuData.map(m => {
+      const active = s.activeMenu === m.key;
+      return { ...m, isActive: active, isInactive: !active };
+    });
+
+    const q = s.searchText.trim().toLowerCase();
+    const filtered = PUBLIC_INQUIRIES.filter(inq =>
+      (!q || inq.title.toLowerCase().includes(q)) &&
+      (s.statusFilter === 'All' || inq.status === s.statusFilter) &&
+      (s.categoryFilter === 'All' || inq.category === s.categoryFilter)
+    );
+    const pageSize = 5;
+    const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+    const currentPage = Math.min(s.currentPage, totalPages);
+    const pageSlice = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+    const pageRows = pageSlice.map(inq => {
+      const st = this.getStatusStyle(inq.status);
+      return { ...inq, badgeBg: st.bg, badgeColor: st.color, agencyPending: !inq.agency, agencyDisplayShow: !!inq.agency, agencyDisplay: inq.agency || '', onOpenPanel: () => this.openPanel(inq.id) };
+    });
+
+    const panelRow = PUBLIC_INQUIRIES.find(i => i.id === s.panelId) || null;
+    const panelSt = panelRow ? this.getStatusStyle(panelRow.status) : { bg: '', color: '' };
+    const panelTabDefs = [{ key: 'details', label: 'Details' }, { key: 'evidence', label: 'Evidence' }, { key: 'activity', label: 'Activity Log' }];
+    const panelTabs = panelTabDefs.map(pt => ({ label: pt.label, color: s.panelTab === pt.key ? '#C41230' : '#8A8F98', borderColor: s.panelTab === pt.key ? '#C41230' : 'transparent', onClick: () => this.setPanelTab(pt.key) }));
+    const panelActivity = panelRow ? panelRow.history.map(h => ({ label: h.label, note: h.note, dateDisplay: h.date || 'Pending', dotColor: h.done ? '#C41230' : '#E5E7EB' })) : [];
+
+    const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1).map(n => ({
+      n, onClick: () => this.goToPage(n),
+      style: { padding: '8px 14px', borderRadius: 8, border: n === currentPage ? '1px solid #C41230' : '1px solid #D1D5DB', background: n === currentPage ? '#C41230' : '#fff', color: n === currentPage ? '#fff' : '#374151', fontSize: 13, cursor: 'pointer', fontWeight: 600 }
+    }));
+
+    const selRaw = PUBLIC_INQUIRIES.find(i => i.id === s.selectedId) || PUBLIC_INQUIRIES[0];
+    const selSt = this.getStatusStyle(selRaw.status);
+    const historySteps = selRaw.history.map((h, idx) => ({
+      ...h, showLine: idx !== selRaw.history.length - 1,
+      dotColor: h.done ? '#C41230' : '#E5E7EB', lineColor: h.done ? '#C41230' : '#E5E7EB',
+      textColor: h.done ? '#1A1A1A' : '#9CA3AF', noteColor: h.done ? '#374151' : '#B0B0B0',
+      dateDisplay: h.date || 'Pending'
+    }));
+    const selected = { ...selRaw, badgeBg: selSt.bg, badgeColor: selSt.color, agencyPending: !selRaw.agency, agencyDisplayShow: !!selRaw.agency, agencyDisplay: selRaw.agency || '', noEvidence: selRaw.evidence.length === 0, history: historySteps };
+
+    const mkFilterOptions = (values, onSelect) => values.map(v => ({ value: v, onClick: () => onSelect(v) }));
+
+    const activeTabStyle = { padding: '12px 16px', borderRadius: 8, background: '#FCE8EA', color: '#C41230', fontWeight: 700, fontSize: 14, cursor: 'pointer' };
+    const inactiveTabStyle = { padding: '12px 16px', borderRadius: 8, background: 'transparent', color: '#6B7280', fontWeight: 600, fontSize: 14, cursor: 'pointer' };
+
+    const strengthLen = s.newPassword.length;
+    let strengthPct = '0%', strengthColor = '#E5E7EB', strengthLabel = '';
+    if (strengthLen > 0 && strengthLen < 6) { strengthPct = '33%'; strengthColor = '#DC2626'; strengthLabel = 'Weak'; }
+    else if (strengthLen >= 6 && strengthLen < 10) { strengthPct = '66%'; strengthColor = '#D97706'; strengthLabel = 'Medium'; }
+    else if (strengthLen >= 10) { strengthPct = '100%'; strengthColor = '#16A34A'; strengthLabel = 'Strong'; }
+
+    return {
+      isProfile: s.screen === 'profile',
+      menuItems,
+      profileMenuOpen: s.profileMenuOpen, openProfileMenu: this.openProfileMenu, closeProfileMenuDelayed: this.closeProfileMenuDelayed,
+      onOpenProfile: this.onOpenProfile, onOpenSettings: this.onOpenSettings, onLogout: this.onLogout,
+      searchText: s.searchText, setSearch: this.setSearch,
+      statusFilter: s.statusFilter, categoryFilter: s.categoryFilter, dateFilter: s.dateFilter,
+      statusDdOpen: s.statusDdOpen, categoryDdOpen: s.categoryDdOpen, dateDdOpen: s.dateDdOpen,
+      toggleStatusDd: this.toggleStatusDd, toggleCategoryDd: this.toggleCategoryDd, toggleDateDd: this.toggleDateDd,
+      statusOptions: mkFilterOptions(['All', 'Submitted', 'Under Investigation', 'Verified as True', 'Identified as Fake', 'Rejected'], this.selectStatus),
+      categoryOptions: mkFilterOptions(['All', 'Politics', 'Health', 'Finance', 'Technology', 'Social Issues', 'Other'], this.selectCategory),
+      dateOptions: mkFilterOptions(['All Time', 'Last 7 Days', 'Last 30 Days', 'Last Year'], this.selectDate),
+      pageRows, noResults: pageRows.length === 0,
+      pageNumbers, prevPage: this.prevPage, nextPage: () => this.nextPage(totalPages),
+      selected,
+      goBrowse: this.goBrowse, goNotifications: this.goNotifications,
+      profileTab: s.profileTab, isTabInfo: s.profileTab === 'info', isTabSecurity: s.profileTab === 'security',
+      selectTabInfo: this.selectTabInfo, selectTabSecurity: this.selectTabSecurity,
+      tabInfoStyle: s.profileTab === 'info' ? activeTabStyle : inactiveTabStyle,
+      tabSecurityStyle: s.profileTab === 'security' ? activeTabStyle : inactiveTabStyle,
+      fullName: s.fullName, setFullName: this.setFullName, phone: s.phone, setPhone: this.setPhone,
+      profileSuccess: s.profileSuccess, saveProfile: this.saveProfile,
+      currentPassword: s.currentPassword, newPassword: s.newPassword, confirmPassword: s.confirmPassword,
+      setCurrentPassword: this.setCurrentPassword, setNewPassword: this.setNewPassword, setConfirmPassword: this.setConfirmPassword,
+      currentPwType: s.showCurrent ? 'text' : 'password', newPwType: s.showNew ? 'text' : 'password', confirmPwType: s.showConfirm ? 'text' : 'password',
+      currentPwLabel: s.showCurrent ? 'Hide' : 'Show', newPwLabel: s.showNew ? 'Hide' : 'Show', confirmPwLabel: s.showConfirm ? 'Hide' : 'Show',
+      toggleCurrentPw: this.toggleCurrentPw, toggleNewPw: this.toggleNewPw, toggleConfirmPw: this.toggleConfirmPw,
+      showStrength: strengthLen > 0, strengthPct, strengthColor, strengthLabel,
+      confirmInputStyle: { width: '100%', padding: '10px 46px 10px 14px', borderRadius: 8, border: '1px solid ' + (s.confirmError ? '#C41230' : '#D1D5DB'), fontSize: 14, outline: 'none', boxSizing: 'border-box' },
+      confirmError: s.confirmError, securitySuccess: s.securitySuccess, updatePassword: this.updatePassword,
+      twoFA: s.twoFA, toggle2FA: this.toggle2FA, toggle2FABg: s.twoFA ? '#C41230' : '#D1D5DB', toggle2FAKnob: s.twoFA ? '22px' : '2px',
+
+      panelOpen: !!panelRow, panelTitle: panelRow ? panelRow.title : '', panelStatus: panelRow ? panelRow.status : '',
+      panelBadgeBg: panelSt.bg, panelBadgeColor: panelSt.color,
+      panelCategory: panelRow ? panelRow.category : '', panelDate: panelRow ? panelRow.dateSubmitted : '',
+      panelAgencyPending: !!panelRow && !panelRow.agency, panelAgencyShow: !!panelRow && !!panelRow.agency, panelAgency: panelRow ? (panelRow.agency || '') : '',
+      panelTabs, isPanelDetails: s.panelTab === 'details', isPanelEvidence: s.panelTab === 'evidence', isPanelActivity: s.panelTab === 'activity',
+      panelDescription: panelRow ? panelRow.description : '', panelEvidence: panelRow ? panelRow.evidence : [], panelNoEvidence: !!panelRow && panelRow.evidence.length === 0,
+      panelActivity,
+      closePanel: this.closePanel,
+      onViewFullFromPanel: () => { const id = s.panelId; this.closePanel(); this.selectPublicInquiry(id); }
+    };
+  }
+}
+</script>
+</body>
+</html>
