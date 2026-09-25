@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\InquiryCategory;
 use App\Enums\InquiryStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -22,6 +23,9 @@ class Inquiry extends Model
         'source_url',
         'category',
         'status',
+        'reviewed_by',
+        'reviewed_at',
+        'jurisdiction_accepted_at',
         'resolution_notes',
         'resolved_at',
     ];
@@ -29,7 +33,10 @@ class Inquiry extends Model
     protected function casts(): array
     {
         return [
+            'category' => InquiryCategory::class,
             'status' => InquiryStatus::class,
+            'reviewed_at' => 'datetime',
+            'jurisdiction_accepted_at' => 'datetime',
             'resolved_at' => 'datetime',
         ];
     }
@@ -49,6 +56,11 @@ class Inquiry extends Model
         return $this->belongsTo(User::class, 'assigned_to');
     }
 
+    public function reviewer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'reviewed_by');
+    }
+
     public function evidence(): HasMany
     {
         return $this->hasMany(InquiryEvidence::class);
@@ -62,5 +74,28 @@ class Inquiry extends Model
     public function clarificationThreads(): HasMany
     {
         return $this->hasMany(ClarificationThread::class);
+    }
+
+    /**
+     * True when assigned to an agency but that agency hasn't accepted
+     * jurisdiction yet. Not a stored status — the design prototypes surface
+     * this as a display-only overlay ("Awaiting Jurisdiction Review") on top
+     * of the stored InquiryStatus::UnderInvestigation value.
+     */
+    public function isAwaitingJurisdiction(): bool
+    {
+        return $this->status === InquiryStatus::UnderInvestigation
+            && $this->agency_id !== null
+            && $this->jurisdiction_accepted_at === null;
+    }
+
+    /**
+     * True when an open (unresolved) clarification thread exists for this
+     * inquiry. Also not stored — mirrors the prototype's effStatus() overlay
+     * ("Awaiting Clarification") computed from clarify-store.js thread state.
+     */
+    public function hasOpenClarification(): bool
+    {
+        return $this->clarificationThreads()->where('status', 'open')->exists();
     }
 }

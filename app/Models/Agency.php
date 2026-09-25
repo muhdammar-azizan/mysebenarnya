@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\InquiryCategory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -13,6 +14,7 @@ class Agency extends Model
     protected $fillable = [
         'name',
         'code',
+        'specialization',
         'description',
         'contact_email',
         'contact_phone',
@@ -22,6 +24,7 @@ class Agency extends Model
     protected function casts(): array
     {
         return [
+            'specialization' => InquiryCategory::class,
             'is_active' => 'boolean',
         ];
     }

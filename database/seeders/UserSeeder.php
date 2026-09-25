@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\AgencyStaffRole;
 use App\Enums\UserRole;
 use App\Models\Agency;
 use App\Models\User;
@@ -38,6 +39,18 @@ class UserSeeder extends Seeder
             'password' => Hash::make('password'),
             'role' => UserRole::AgencyStaff,
             'agency_id' => $moh->id,
+            'agency_role' => AgencyStaffRole::Admin,
+            'must_change_password' => false,
+            'email_verified_at' => now(),
+        ]);
+
+        User::create([
+            'name' => 'Farah Diyana',
+            'email' => 'agency.moh.reviewer@sebenarnya.my',
+            'password' => Hash::make('password'),
+            'role' => UserRole::AgencyStaff,
+            'agency_id' => $moh->id,
+            'agency_role' => AgencyStaffRole::Reviewer,
             'must_change_password' => false,
             'email_verified_at' => now(),
         ]);
@@ -48,6 +61,7 @@ class UserSeeder extends Seeder
             'password' => Hash::make('password'),
             'role' => UserRole::AgencyStaff,
             'agency_id' => $bnm->id,
+            'agency_role' => AgencyStaffRole::Admin,
             'must_change_password' => true,
             'email_verified_at' => now(),
         ]);
@@ -58,6 +72,7 @@ class UserSeeder extends Seeder
             'password' => Hash::make('password'),
             'role' => UserRole::AgencyStaff,
             'agency_id' => $spr->id,
+            'agency_role' => AgencyStaffRole::Admin,
             'must_change_password' => false,
             'email_verified_at' => now(),
         ]);

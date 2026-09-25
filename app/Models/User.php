@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\AgencyStaffRole;
 use App\Enums\UserRole;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -27,6 +28,7 @@ class User extends Authenticatable
         'password',
         'role',
         'agency_id',
+        'agency_role',
         'phone',
         'profile_photo_path',
         'must_change_password',
@@ -53,6 +55,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'role' => UserRole::class,
+            'agency_role' => AgencyStaffRole::class,
             'must_change_password' => 'boolean',
         ];
     }
@@ -85,5 +88,15 @@ class User extends Authenticatable
     public function isAgencyStaff(): bool
     {
         return $this->role === UserRole::AgencyStaff;
+    }
+
+    public function isAgencyAdmin(): bool
+    {
+        return $this->isAgencyStaff() && $this->agency_role === AgencyStaffRole::Admin;
+    }
+
+    public function isAgencyReviewer(): bool
+    {
+        return $this->isAgencyStaff() && $this->agency_role === AgencyStaffRole::Reviewer;
     }
 }

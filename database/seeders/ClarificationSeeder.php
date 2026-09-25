@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\InquiryCategory;
 use App\Enums\InquiryStatus;
 use App\Enums\UserRole;
 use App\Models\Agency;
@@ -20,8 +21,8 @@ class ClarificationSeeder extends Seeder
         $agencyStaff = User::where('role', UserRole::AgencyStaff)->where('agency_id', Agency::where('code', 'BNM')->value('id'))->first();
         $spr = Agency::where('code', 'SPR')->first();
 
-        $scamInquiry = Inquiry::where('category', 'Scam')->where('status', InquiryStatus::UnderInvestigation)->first();
-        $electionInquiry = Inquiry::where('category', 'Politics')->where('status', InquiryStatus::UnderInvestigation)->first();
+        $scamInquiry = Inquiry::where('category', InquiryCategory::FinancialScams)->where('status', InquiryStatus::UnderInvestigation)->whereNull('jurisdiction_accepted_at')->first();
+        $electionInquiry = Inquiry::where('category', InquiryCategory::ElectoralPolitical)->where('status', InquiryStatus::UnderInvestigation)->first();
 
         if ($scamInquiry) {
             $thread = ClarificationThread::create([
