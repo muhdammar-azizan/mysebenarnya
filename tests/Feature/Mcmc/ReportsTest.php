@@ -81,4 +81,37 @@ class ReportsTest extends TestCase
             ->set('tab', 'users')
             ->assertSee('Total Public Users');
     }
+
+    public function test_user_growth_trend_can_be_isolated_to_mcmc_staff(): void
+    {
+        $staff = User::factory()->mcmcStaff()->create();
+        User::factory()->mcmcStaff()->create();
+        User::factory()->create();
+
+        $component = Volt::actingAs($staff)
+            ->test('mcmc.reports.index')
+            ->set('tab', 'users')
+            ->set('userTypeFilter', 'mcmc_staff');
+
+        $totalInTrend = collect($component->get('userTrend'))->sum('count');
+        $this->assertSame(2, $totalInTrend);
+    }
+
+    public function test_users_by_agency_can_be_filtered_to_a_single_agency(): void
+    {
+        $staff = User::factory()->mcmcStaff()->create();
+        $agencyA = Agency::factory()->create(['name' => 'Agency Alpha']);
+        $agencyB = Agency::factory()->create(['name' => 'Agency Beta']);
+        User::factory()->agencyStaff()->create(['agency_id' => $agencyA->id]);
+        User::factory()->agencyStaff()->create(['agency_id' => $agencyB->id]);
+
+        $component = Volt::actingAs($staff)
+            ->test('mcmc.reports.index')
+            ->set('tab', 'users')
+            ->set('userAgencyFilter', $agencyA->id);
+
+        $rows = $component->get('usersByAgency');
+        $this->assertCount(1, $rows);
+        $this->assertSame('Agency Alpha', $rows->first()->name);
+    }
 }

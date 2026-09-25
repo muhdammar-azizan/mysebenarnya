@@ -30,6 +30,12 @@ new #[Layout('layouts.mcmc')] class extends Component
     #[Url]
     public string $categoryFilter = 'All';
 
+    #[Url]
+    public string $userTypeFilter = 'public';
+
+    #[Url]
+    public string $userAgencyFilter = 'All';
+
     public function clearDateFilter(): void
     {
         $this->dateFrom = '';
@@ -50,6 +56,24 @@ new #[Layout('layouts.mcmc')] class extends Component
     public function getCategoryOptionsProperty(): array
     {
         return InquiryCategory::cases();
+    }
+
+    public function getUserTypeOptionsProperty(): array
+    {
+        return [
+            'public' => 'Public User',
+            'mcmc_staff' => 'MCMC Staff',
+            'agency_staff' => 'Agency Staff',
+        ];
+    }
+
+    protected function userTypeFilterRole(): UserRole
+    {
+        return match ($this->userTypeFilter) {
+            'mcmc_staff' => UserRole::McmcStaff,
+            'agency_staff' => UserRole::AgencyStaff,
+            default => UserRole::Public,
+        };
     }
 
     protected function monthlySeries(\Closure $queryFactory, string $column = 'created_at'): array
@@ -169,7 +193,7 @@ new #[Layout('layouts.mcmc')] class extends Component
 
     public function getUserTrendProperty(): array
     {
-        return $this->monthlySeries(fn () => User::where('role', UserRole::Public));
+        return $this->monthlySeries(fn () => User::where('role', $this->userTypeFilterRole()));
     }
 
     protected function usersInRange()
@@ -191,10 +215,29 @@ new #[Layout('layouts.mcmc')] class extends Component
 
     public function getUsersByAgencyProperty()
     {
-        return Agency::withCount(['users' => function ($q) {
-            $q->when($this->dateFrom, fn ($qq) => $qq->whereDate('created_at', '>=', $this->dateFrom))
-                ->when($this->dateTo, fn ($qq) => $qq->whereDate('created_at', '<=', $this->dateTo));
-        }])->orderByDesc('users_count')->get();
+        return Agency::query()
+            ->when($this->userAgencyFilter !== 'All', fn ($q) => $q->where('id', $this->userAgencyFilter))
+            ->withCount(['users' => function ($q) {
+                $q->when($this->dateFrom, fn ($qq) => $qq->whereDate('created_at', '>=', $this->dateFrom))
+                    ->when($this->dateTo, fn ($qq) => $qq->whereDate('created_at', '<=', $this->dateTo));
+            }])
+            ->orderByDesc('users_count')
+            ->get();
+    }
+
+    protected function userGrowthPeriodLabel(): string
+    {
+        $parts = [$this->periodLabel()];
+
+        if ($this->userTypeFilter !== 'public') {
+            $parts[] = 'User Type: '.$this->userTypeOptions[$this->userTypeFilter];
+        }
+
+        if ($this->userAgencyFilter !== 'All') {
+            $parts[] = 'Agency: '.(Agency::find($this->userAgencyFilter)?->name ?? '—');
+        }
+
+        return implode(' · ', $parts);
     }
 
     protected function inquiryOverviewSections(): array
@@ -297,7 +340,7 @@ new #[Layout('layouts.mcmc')] class extends Component
             ],
             'tables' => [
                 [
-                    'heading' => 'Monthly Registrations',
+                    'heading' => 'Monthly Registrations — '.$this->userTypeOptions[$this->userTypeFilter],
                     'columns' => ['Month', 'New Registrations'],
                     'rows' => collect($this->userTrend)->map(fn ($r) => [$r['label'], $r['count']])->all(),
                     'chart' => collect($this->userTrend)->map(fn ($r) => ['label' => $r['label'], 'value' => $r['count']])->all(),
@@ -322,7 +365,7 @@ new #[Layout('layouts.mcmc')] class extends Component
 
     public function exportUsersPdf()
     {
-        return $this->downloadPdf('SEBENARNYA_User-Growth', 'User Growth Report', $this->periodLabel(), $this->userGrowthSections());
+        return $this->downloadPdf('SEBENARNYA_User-Growth', 'User Growth Report', $this->userGrowthPeriodLabel(), $this->userGrowthSections());
     }
 
     public function exportUsersExcel()
@@ -515,8 +558,21 @@ new #[Layout('layouts.mcmc')] class extends Component
                 <div class="text-3xl font-extrabold text-gray-900">{{ $this->userStats['agency'] }}</div>
             </div>
         </div>
+
         <div class="bg-white border border-gray-100 rounded-2xl p-6 mb-6">
-            <div class="font-bold text-gray-900 mb-4">{{ __('Monthly Registrations') }}</div>
+            <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+                <div class="font-bold text-gray-900">{{ __('Monthly Registrations') }} — {{ $this->userTypeOptions[$userTypeFilter] }}</div>
+                <div class="flex items-center gap-2">
+                    <select wire:model.live="userTypeFilter" class="rounded-lg border-gray-300 text-xs focus:border-brand focus:ring-brand">
+                        @foreach ($this->userTypeOptions as $value => $label)
+                            <option value="{{ $value }}">{{ $label }}</option>
+                        @endforeach
+                    </select>
+                    @if ($userTypeFilter !== 'public')
+                        <button wire:click="$set('userTypeFilter', 'public')" class="text-xs font-semibold text-brand">{{ __('Reset') }}</button>
+                    @endif
+                </div>
+            </div>
             <div class="flex items-end gap-4 h-32">
                 @php $max = max(1, collect($this->userTrend)->max('count')); @endphp
                 @foreach ($this->userTrend as $point)
@@ -528,8 +584,22 @@ new #[Layout('layouts.mcmc')] class extends Component
                 @endforeach
             </div>
         </div>
+
         <div class="bg-white border border-gray-100 rounded-2xl p-6">
-            <div class="font-bold text-gray-900 mb-4">{{ __('Users by Agency') }}</div>
+            <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+                <div class="font-bold text-gray-900">{{ __('Users by Agency') }}</div>
+                <div class="flex items-center gap-2">
+                    <select wire:model.live="userAgencyFilter" class="rounded-lg border-gray-300 text-xs focus:border-brand focus:ring-brand">
+                        <option value="All">{{ __('All Agencies') }}</option>
+                        @foreach ($this->agencyOptions as $a)
+                            <option value="{{ $a->id }}">{{ $a->name }}</option>
+                        @endforeach
+                    </select>
+                    @if ($userAgencyFilter !== 'All')
+                        <button wire:click="$set('userAgencyFilter', 'All')" class="text-xs font-semibold text-brand">{{ __('Reset') }}</button>
+                    @endif
+                </div>
+            </div>
             <div class="flex flex-col gap-3">
                 @forelse ($this->usersByAgency as $a)
                     <div class="flex items-center justify-between text-sm">
@@ -537,7 +607,7 @@ new #[Layout('layouts.mcmc')] class extends Component
                         <span class="font-bold text-gray-700">{{ $a->users_count }}</span>
                     </div>
                 @empty
-                    <p class="text-sm text-gray-400">{{ __('No agency staff registered yet.') }}</p>
+                    <p class="text-sm text-gray-400">{{ __('No agency staff registered for the selected filter.') }}</p>
                 @endforelse
             </div>
         </div>
