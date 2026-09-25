@@ -6,6 +6,10 @@
     <x-mcmc-layout>
         <livewire:mcmc.dashboard />
     </x-mcmc-layout>
+@elseif (auth()->user()->isAgencyStaff())
+    <x-agency-layout>
+        <livewire:agency.dashboard />
+    </x-agency-layout>
 @else
     <x-app-layout>
         <x-slot name="header">

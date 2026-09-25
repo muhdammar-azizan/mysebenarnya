@@ -1,6 +1,11 @@
 @php
-    $sidebarPortal = auth()->user()->isPublic() || auth()->user()->isMcmcStaff();
-    $layoutComponent = auth()->user()->isPublic() ? 'public-layout' : (auth()->user()->isMcmcStaff() ? 'mcmc-layout' : 'app-layout');
+    $sidebarPortal = auth()->user()->isPublic() || auth()->user()->isMcmcStaff() || auth()->user()->isAgencyStaff();
+    $layoutComponent = match (true) {
+        auth()->user()->isPublic() => 'public-layout',
+        auth()->user()->isMcmcStaff() => 'mcmc-layout',
+        auth()->user()->isAgencyStaff() => 'agency-layout',
+        default => 'app-layout',
+    };
 @endphp
 <x-dynamic-component :component="$layoutComponent">
     <x-slot name="header">

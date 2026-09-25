@@ -39,4 +39,14 @@ Route::middleware(['auth', 'verified', 'role:mcmc_staff'])->prefix('mcmc')->name
     Volt::route('notifications', 'mcmc.notifications.index')->name('notifications.index');
 });
 
+Route::middleware(['auth', 'verified', 'role:agency_staff'])->prefix('agency')->name('agency.')->group(function () {
+    Volt::route('inquiries', 'agency.inquiries.index')->name('inquiries.index');
+    Volt::route('inquiries/{inquiry}', 'agency.inquiries.show')->name('inquiries.show');
+
+    Volt::route('reports', 'agency.reports.index')->name('reports.index');
+    Volt::route('activity', 'agency.activity.index')->name('activity.index');
+    Volt::route('organization', 'agency.organization.index')->name('organization.index');
+    Volt::route('notifications', 'agency.notifications.index')->name('notifications.index');
+});
+
 require __DIR__.'/auth.php';

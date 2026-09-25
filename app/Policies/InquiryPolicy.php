@@ -76,6 +76,29 @@ class InquiryPolicy
     }
 
     /**
+     * Agency accept/reject jurisdiction: only the assigned agency's own
+     * staff, only while assigned but not yet accepted.
+     */
+    public function reviewJurisdiction(User $user, Inquiry $inquiry): bool
+    {
+        return $user->isAgencyStaff()
+            && $user->agency_id === $inquiry->agency_id
+            && $inquiry->isAwaitingJurisdiction();
+    }
+
+    /**
+     * Agency investigate/update/finalize: only the assigned agency's own
+     * staff, only after jurisdiction has been accepted.
+     */
+    public function updateInvestigation(User $user, Inquiry $inquiry): bool
+    {
+        return $user->isAgencyStaff()
+            && $user->agency_id === $inquiry->agency_id
+            && $inquiry->status === InquiryStatus::UnderInvestigation
+            && ! $inquiry->isAwaitingJurisdiction();
+    }
+
+    /**
      * Determine whether the user can update the model.
      */
     public function update(User $user, Inquiry $inquiry): bool
