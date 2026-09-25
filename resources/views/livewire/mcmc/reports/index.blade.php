@@ -1,5 +1,6 @@
 <?php
 
+use App\Concerns\GeneratesReports;
 use App\Enums\InquiryStatus;
 use App\Enums\UserRole;
 use App\Models\Agency;
@@ -11,6 +12,8 @@ use Livewire\Volt\Component;
 
 new #[Layout('layouts.mcmc')] class extends Component
 {
+    use GeneratesReports;
+
     #[Url]
     public string $tab = 'inquiries';
 
@@ -66,10 +69,118 @@ new #[Layout('layouts.mcmc')] class extends Component
             'verified' => User::where('role', UserRole::Public)->whereNotNull('email_verified_at')->count(),
         ];
     }
+
+    protected function inquiryOverviewSections(): array
+    {
+        return [[
+            'name' => 'Inquiry Overview',
+            'kpis' => [
+                ['label' => 'Total Inquiries', 'value' => Inquiry::count()],
+            ],
+            'tables' => [
+                [
+                    'heading' => 'By Status',
+                    'columns' => ['Status', 'Count'],
+                    'rows' => collect($this->statusBreakdown)->map(fn ($r) => [$r['label'], $r['count']])->all(),
+                ],
+                [
+                    'heading' => 'By Category',
+                    'columns' => ['Category', 'Count'],
+                    'rows' => $this->categoryBreakdown->map(fn ($r) => [$r->category?->value, $r->total])->all(),
+                ],
+                [
+                    'heading' => 'Monthly Trend',
+                    'columns' => ['Month', 'Inquiries'],
+                    'rows' => collect($this->inquiryTrend)->map(fn ($r) => [$r['label'], $r['count']])->all(),
+                ],
+            ],
+        ]];
+    }
+
+    public function exportInquiriesPdf()
+    {
+        return $this->downloadPdf('SEBENARNYA_Inquiry-Overview', 'Inquiry Overview Report', 'Last 6 months', $this->inquiryOverviewSections());
+    }
+
+    public function exportInquiriesExcel()
+    {
+        $sections = $this->inquiryOverviewSections()[0]['tables'];
+
+        return $this->downloadExcel('SEBENARNYA_Inquiry-Overview', [
+            ['title' => 'By Status', 'headings' => $sections[0]['columns'], 'rows' => $sections[0]['rows']],
+            ['title' => 'By Category', 'headings' => $sections[1]['columns'], 'rows' => $sections[1]['rows']],
+            ['title' => 'Monthly Trend', 'headings' => $sections[2]['columns'], 'rows' => $sections[2]['rows']],
+        ]);
+    }
+
+    protected function agencyPerformanceRows(): array
+    {
+        return $this->agencyPerformance->map(function ($agency) {
+            $rate = $agency->inquiries_count > 0 ? round(($agency->resolved_count / $agency->inquiries_count) * 100) : 0;
+
+            return [$agency->name, $agency->inquiries_count, $agency->resolved_count, $rate.'%'];
+        })->all();
+    }
+
+    public function exportAgenciesPdf()
+    {
+        $sections = [[
+            'name' => 'Agency Performance',
+            'tables' => [[
+                'columns' => ['Agency', 'Assigned', 'Resolved', 'Resolution Rate'],
+                'rows' => $this->agencyPerformanceRows(),
+            ]],
+        ]];
+
+        return $this->downloadPdf('SEBENARNYA_Agency-Performance', 'Agency Performance Report', 'All records', $sections);
+    }
+
+    public function exportAgenciesExcel()
+    {
+        return $this->downloadExcel('SEBENARNYA_Agency-Performance', [
+            ['title' => 'Agency Performance', 'headings' => ['Agency', 'Assigned', 'Resolved', 'Resolution Rate'], 'rows' => $this->agencyPerformanceRows()],
+        ]);
+    }
+
+    protected function userGrowthSections(): array
+    {
+        return [[
+            'name' => 'User Growth',
+            'kpis' => [
+                ['label' => 'Total Public Users', 'value' => $this->userStats['total']],
+                ['label' => 'Verified', 'value' => $this->userStats['verified']],
+            ],
+            'tables' => [[
+                'heading' => 'Monthly Registrations',
+                'columns' => ['Month', 'New Registrations'],
+                'rows' => collect($this->userTrend)->map(fn ($r) => [$r['label'], $r['count']])->all(),
+            ]],
+        ]];
+    }
+
+    public function exportUsersPdf()
+    {
+        return $this->downloadPdf('SEBENARNYA_User-Growth', 'User Growth Report', 'Last 6 months', $this->userGrowthSections());
+    }
+
+    public function exportUsersExcel()
+    {
+        $table = $this->userGrowthSections()[0]['tables'][0];
+
+        return $this->downloadExcel('SEBENARNYA_User-Growth', [
+            ['title' => 'Monthly Registrations', 'headings' => $table['columns'], 'rows' => $table['rows']],
+        ]);
+    }
 }; ?>
 
 <div>
-    <h1 class="font-display font-extrabold text-2xl text-gray-900 mb-1">{{ __('Reports & Analytics') }}</h1>
+    <div class="flex items-start justify-between gap-4 mb-1">
+        <h1 class="font-display font-extrabold text-2xl text-gray-900">{{ __('Reports & Analytics') }}</h1>
+        <div class="flex gap-2 flex-shrink-0">
+            <button wire:click="export{{ str($tab)->studly() }}Pdf" class="border border-gray-300 hover:bg-gray-50 text-gray-700 font-bold text-xs px-3.5 py-2 rounded-lg">📄 {{ __('Export PDF') }}</button>
+            <button wire:click="export{{ str($tab)->studly() }}Excel" class="border border-gray-300 hover:bg-gray-50 text-gray-700 font-bold text-xs px-3.5 py-2 rounded-lg">📊 {{ __('Export Excel') }}</button>
+        </div>
+    </div>
     <p class="text-gray-500 text-sm mb-6">{{ __('Insights on inquiry trends, agency performance, and user growth.') }}</p>
 
     <div class="flex border-b border-gray-100 mb-6">

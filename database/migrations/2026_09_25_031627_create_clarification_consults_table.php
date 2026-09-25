@@ -17,9 +17,8 @@ return new class extends Migration
             $table->foreignId('requested_by')->constrained('users')->cascadeOnDelete();
             $table->foreignId('consulted_agency_id')->nullable()->constrained('agencies')->nullOnDelete();
             $table->text('question');
-            $table->text('response')->nullable();
             $table->string('status')->default('pending');
-            $table->timestamp('responded_at')->nullable();
+            $table->boolean('unread')->default(true);
             $table->timestamps();
         });
     }

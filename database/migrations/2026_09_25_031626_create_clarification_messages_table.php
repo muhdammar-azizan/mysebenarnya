@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('clarification_thread_id')->constrained()->cascadeOnDelete();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('consult_agency_id')->nullable()->constrained('agencies')->nullOnDelete();
+            $table->boolean('is_system')->default(false);
             $table->text('message');
             $table->timestamps();
         });

@@ -99,6 +99,20 @@ class InquiryPolicy
     }
 
     /**
+     * Agency request clarification from MCMC: only the assigned agency's
+     * own staff, only once jurisdiction is accepted, and only when no
+     * active clarification thread already exists (enforced in the model).
+     */
+    public function requestClarification(User $user, Inquiry $inquiry): bool
+    {
+        return $user->isAgencyStaff()
+            && $user->agency_id === $inquiry->agency_id
+            && $inquiry->status === InquiryStatus::UnderInvestigation
+            && ! $inquiry->isAwaitingJurisdiction()
+            && ! $inquiry->hasOpenClarification();
+    }
+
+    /**
      * Determine whether the user can update the model.
      */
     public function update(User $user, Inquiry $inquiry): bool

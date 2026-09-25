@@ -1,8 +1,11 @@
 @php
+    $unreadClarifications = \App\Models\ClarificationThread::where('unread_by_mcmc', true)->count();
+
     $items = [
         ['route' => 'dashboard', 'label' => __('Dashboard')],
         ['route' => 'mcmc.triage.index', 'label' => __('New Inquiries / Triage')],
         ['route' => 'mcmc.inquiries.index', 'label' => __('All Inquiries')],
+        ['route' => 'mcmc.clarifications.index', 'label' => __('Clarifications'), 'badge' => $unreadClarifications],
         ['route' => 'mcmc.agencies.index', 'label' => __('Agency Management')],
         ['route' => 'mcmc.users.index', 'label' => __('Registered Users')],
         ['route' => 'mcmc.reports.index', 'label' => __('Reports')],
@@ -17,7 +20,10 @@
             <a href="{{ route($item['route']) }}" wire:navigate
                 class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-semibold {{ $active ? 'bg-brand text-white' : 'text-gray-600 hover:bg-gray-100' }}">
                 <span class="w-1.5 h-1.5 rounded-sm {{ $active ? 'bg-white' : 'bg-gray-400' }}"></span>
-                {{ $item['label'] }}
+                <span class="flex-1">{{ $item['label'] }}</span>
+                @if (! empty($item['badge']))
+                    <span class="text-[10px] font-bold rounded-full px-1.5 {{ $active ? 'bg-white text-brand' : 'bg-brand text-white' }}">{{ $item['badge'] }}</span>
+                @endif
             </a>
         @endforeach
     </div>

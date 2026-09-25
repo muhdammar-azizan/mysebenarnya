@@ -16,7 +16,12 @@ return new class extends Migration
             $table->foreignId('inquiry_id')->constrained()->cascadeOnDelete();
             $table->foreignId('opened_by')->constrained('users')->cascadeOnDelete();
             $table->string('subject');
+            $table->string('topic')->nullable();
+            $table->string('priority')->default('Normal');
             $table->string('status')->default('open');
+            $table->boolean('unread_by_agency')->default(false);
+            $table->boolean('unread_by_mcmc')->default(true);
+            $table->foreignId('closed_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
         });
     }

@@ -13,8 +13,17 @@ class ClarificationMessage extends Model
     protected $fillable = [
         'clarification_thread_id',
         'user_id',
+        'consult_agency_id',
+        'is_system',
         'message',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'is_system' => 'boolean',
+        ];
+    }
 
     public function thread(): BelongsTo
     {
@@ -24,5 +33,19 @@ class ClarificationMessage extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function consultAgency(): BelongsTo
+    {
+        return $this->belongsTo(Agency::class, 'consult_agency_id');
+    }
+
+    /**
+     * True when this message was sent by staff from a third-party agency
+     * consulted by MCMC on someone else's case, not the case's own agency.
+     */
+    public function isFromConsultedAgency(): bool
+    {
+        return $this->consult_agency_id !== null && ! $this->is_system;
     }
 }

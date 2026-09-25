@@ -1,6 +1,9 @@
 <?php
 
+use App\Enums\ClarificationPriority;
+use App\Enums\ClarificationTopic;
 use App\Enums\InquiryStatus;
+use App\Models\ClarificationThread;
 use App\Models\Inquiry;
 use App\Models\InquiryActivityLog;
 use App\Models\InquiryEvidence;
@@ -29,6 +32,20 @@ new #[Layout('layouts.agency')] class extends Component
 
     public bool $finalizeModalOpen = false;
 
+    public bool $clarifyModalOpen = false;
+
+    public string $clarifyTopic = '';
+
+    public string $clarifyPriority = 'Normal';
+
+    public string $clarifyText = '';
+
+    public array $replyText = [];
+
+    public ?int $closingThreadId = null;
+
+    public string $closeNote = '';
+
     public function mount(Inquiry $inquiry): void
     {
         $this->authorize('view', $inquiry);
@@ -39,6 +56,100 @@ new #[Layout('layouts.agency')] class extends Component
     public function setTab(string $tab): void
     {
         $this->tab = $tab;
+
+        if ($tab === 'clarify') {
+            $this->clarificationThreads->each(fn ($thread) => $thread->markRead('agency'));
+        }
+    }
+
+    public function getClarificationThreadsProperty()
+    {
+        return $this->inquiry->clarificationThreads()->with(['messages.user', 'messages.consultAgency', 'consults.consultedAgency'])->latest()->get();
+    }
+
+    public function getTopicsProperty(): array
+    {
+        return ClarificationTopic::cases();
+    }
+
+    public function openClarifyModal(): void
+    {
+        $this->authorize('requestClarification', $this->inquiry);
+        $this->reset(['clarifyTopic', 'clarifyText']);
+        $this->clarifyPriority = 'Normal';
+        $this->clarifyModalOpen = true;
+    }
+
+    public function submitClarify(): void
+    {
+        $this->authorize('requestClarification', $this->inquiry);
+
+        $this->validate([
+            'clarifyTopic' => 'required|string',
+            'clarifyText' => 'required|string|min:20',
+        ]);
+
+        try {
+            ClarificationThread::open(
+                inquiry: $this->inquiry,
+                openedBy: Auth::user(),
+                topic: ClarificationTopic::from($this->clarifyTopic),
+                priority: ClarificationPriority::from($this->clarifyPriority),
+                text: $this->clarifyText,
+            );
+        } catch (RuntimeException $e) {
+            $this->addError('clarifyText', $e->getMessage());
+
+            return;
+        }
+
+        $this->clarifyModalOpen = false;
+        $this->tab = 'clarify';
+        session()->flash('status', __('Clarification request sent to MCMC.'));
+    }
+
+    public function sendReply(int $threadId): void
+    {
+        $thread = \App\Models\ClarificationThread::findOrFail($threadId);
+        $this->authorize('reply', $thread);
+
+        $text = trim($this->replyText[$threadId] ?? '');
+
+        if (mb_strlen($text) < 5) {
+            $this->addError('replyText.'.$threadId, __('Please write at least 5 characters.'));
+
+            return;
+        }
+
+        try {
+            $thread->reply(Auth::user(), $text);
+        } catch (RuntimeException $e) {
+            $this->addError('replyText.'.$threadId, $e->getMessage());
+
+            return;
+        }
+
+        $this->replyText[$threadId] = '';
+    }
+
+    public function openCloseModal(int $threadId): void
+    {
+        $this->closingThreadId = $threadId;
+        $this->closeNote = '';
+    }
+
+    public function confirmCloseThread(): void
+    {
+        $thread = \App\Models\ClarificationThread::findOrFail($this->closingThreadId);
+        $this->authorize('close', $thread);
+
+        $this->validate(['closeNote' => 'required|string|min:5']);
+
+        $thread->close(Auth::user(), 'Marked as resolved by '.Auth::user()->name.': '.$this->closeNote, 'agency');
+
+        $this->closingThreadId = null;
+        $this->closeNote = '';
+        session()->flash('status', __('Clarification request resolved.'));
     }
 
     public function acceptJurisdiction(): void
@@ -191,8 +302,13 @@ new #[Layout('layouts.agency')] class extends Component
     </div>
 
     <div class="flex border-b border-gray-100 mb-5">
-        @foreach (['details' => __('Details'), 'evidence' => __('Evidence'), 'activity' => __('Activity Log')] as $key => $label)
-            <button wire:click="setTab('{{ $key }}')" class="px-5 py-3 text-sm font-bold {{ $tab === $key ? 'text-brand border-b-2 border-brand' : 'text-gray-400' }}">{{ $label }}</button>
+        @foreach (['details' => __('Details'), 'evidence' => __('Evidence'), 'clarify' => __('Clarification'), 'activity' => __('Activity Log')] as $key => $label)
+            <button wire:click="setTab('{{ $key }}')" class="px-5 py-3 text-sm font-bold {{ $tab === $key ? 'text-brand border-b-2 border-brand' : 'text-gray-400' }}">
+                {{ $label }}
+                @if ($key === 'clarify' && $this->clarificationThreads->where('unread_by_agency', true)->count())
+                    <span class="ml-1 inline-block w-2 h-2 rounded-full bg-brand align-middle"></span>
+                @endif
+            </button>
         @endforeach
     </div>
 
@@ -263,6 +379,70 @@ new #[Layout('layouts.agency')] class extends Component
                 <p class="text-sm text-gray-400">{{ __('No evidence files attached.') }}</p>
             @endforelse
         </div>
+    @elseif ($tab === 'clarify')
+        @can('requestClarification', $inquiry)
+            <div class="bg-white border border-gray-100 rounded-2xl p-6 mb-6">
+                <div class="font-bold text-gray-900 mb-2">{{ __('Need more information?') }}</div>
+                <p class="text-sm text-gray-500 mb-4">{{ __('Ask MCMC a clarifying question about this case.') }}</p>
+                <button wire:click="openClarifyModal" class="bg-brand hover:bg-brand-dark text-white font-bold text-sm px-5 py-2.5 rounded-lg">{{ __('Request Clarification') }}</button>
+            </div>
+        @endcan
+
+        <div class="flex flex-col gap-5">
+            @forelse ($this->clarificationThreads as $thread)
+                <div class="bg-white border border-gray-100 rounded-2xl overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between gap-3 flex-wrap">
+                        <div>
+                            <div class="font-bold text-gray-900">{{ $thread->topic?->value ?? $thread->subject }}</div>
+                            <div class="text-xs text-gray-400 mt-0.5">{{ $thread->created_at->format('d M Y, H:i') }}
+                                @if ($thread->priority?->value === 'Urgent')
+                                    &middot; <span class="text-brand font-bold">{{ __('Urgent') }}</span>
+                                @endif
+                            </div>
+                        </div>
+                        <span class="px-2.5 py-1 rounded-full text-xs font-bold {{ match($thread->status->value) { 'open' => 'bg-purple-100 text-purple-600', 'answered' => 'bg-blue-100 text-blue-600', default => 'bg-green-100 text-green-700' } }}">
+                            {{ $thread->status->label() }}
+                        </span>
+                    </div>
+
+                    <div class="p-6 flex flex-col gap-4">
+                        @foreach ($thread->messages as $message)
+                            <div class="flex gap-3 {{ $message->user_id === auth()->id() ? 'flex-row-reverse text-right' : '' }}">
+                                <div class="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold {{ $message->is_system ? 'bg-gray-100 text-gray-500' : ($message->isFromConsultedAgency() ? 'bg-teal-100 text-teal-700' : 'bg-brand-light text-brand') }}">
+                                    {{ collect(explode(' ', $message->user->name))->map(fn ($w) => $w[0] ?? '')->take(2)->implode('') }}
+                                </div>
+                                <div class="max-w-md">
+                                    <div class="text-xs font-bold text-gray-500 mb-1">
+                                        {{ $message->user->name }}
+                                        @if ($message->isFromConsultedAgency())
+                                            &middot; {{ $message->consultAgency->name }} ({{ __('Consulted') }})
+                                        @endif
+                                    </div>
+                                    <div class="{{ $message->is_system ? 'italic text-gray-500 text-sm' : 'bg-gray-50 rounded-xl px-4 py-2.5 text-sm text-gray-700' }}">
+                                        {{ $message->message }}
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+
+                    @if ($thread->isActive())
+                        <div class="px-6 py-4 border-t border-gray-100">
+                            <textarea wire:model="replyText.{{ $thread->id }}" rows="2" placeholder="{{ __('Write a follow-up...') }}" class="w-full rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand mb-2"></textarea>
+                            <x-input-error :messages="$errors->get('replyText.'.$thread->id)" class="mb-2" />
+                            <div class="flex gap-2">
+                                <button wire:click="sendReply({{ $thread->id }})" class="bg-brand hover:bg-brand-dark text-white font-bold text-sm px-4 py-2 rounded-lg">{{ __('Send') }}</button>
+                                <button wire:click="openCloseModal({{ $thread->id }})" class="border border-gray-300 hover:bg-gray-50 text-gray-700 font-bold text-sm px-4 py-2 rounded-lg">{{ __('Mark as Resolved') }}</button>
+                            </div>
+                        </div>
+                    @endif
+                </div>
+            @empty
+                <div class="bg-white border border-gray-100 rounded-2xl p-10 text-center text-gray-400">
+                    {{ __('No clarification requests for this inquiry yet.') }}
+                </div>
+            @endforelse
+        </div>
     @else
         <div class="bg-white border border-gray-100 rounded-2xl p-6">
             <div class="flex flex-col gap-5">
@@ -307,6 +487,62 @@ new #[Layout('layouts.agency')] class extends Component
                 <div class="flex gap-3">
                     <button wire:click="confirmFinalize" class="flex-1 bg-brand hover:bg-brand-dark text-white font-bold text-sm px-4 py-2.5 rounded-lg">{{ __('Confirm') }}</button>
                     <button wire:click="$set('finalizeModalOpen', false)" class="flex-1 border border-gray-300 hover:bg-gray-50 text-gray-700 font-bold text-sm px-4 py-2.5 rounded-lg">{{ __('Cancel') }}</button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    @if ($clarifyModalOpen)
+        <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-6">
+            <div class="bg-white rounded-xl p-6 w-full max-w-md">
+                <h3 class="font-bold text-gray-900 mb-4">{{ __('Request Clarification from MCMC') }}</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1.5">{{ __('Topic') }}</label>
+                        <select wire:model="clarifyTopic" class="w-full rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
+                            <option value="">{{ __('Select a topic...') }}</option>
+                            @foreach ($this->topics as $case)
+                                <option value="{{ $case->value }}">{{ $case->value }}</option>
+                            @endforeach
+                        </select>
+                        <x-input-error :messages="$errors->get('clarifyTopic')" class="mt-1.5" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1.5">{{ __('Priority') }}</label>
+                        <div class="flex gap-2">
+                            <button type="button" wire:click="$set('clarifyPriority', 'Normal')" class="flex-1 border-2 rounded-lg p-3 text-left {{ $clarifyPriority === 'Normal' ? 'border-purple-500 bg-purple-50' : 'border-gray-100' }}">
+                                <div class="text-sm font-bold text-gray-900">{{ __('Normal') }}</div>
+                                <div class="text-xs text-gray-500">{{ __('Response expected within 2 working days') }}</div>
+                            </button>
+                            <button type="button" wire:click="$set('clarifyPriority', 'Urgent')" class="flex-1 border-2 rounded-lg p-3 text-left {{ $clarifyPriority === 'Urgent' ? 'border-brand bg-brand-light' : 'border-gray-100' }}">
+                                <div class="text-sm font-bold text-gray-900">{{ __('Urgent') }}</div>
+                                <div class="text-xs text-gray-500">{{ __('Time-sensitive / high public risk') }}</div>
+                            </button>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1.5">{{ __('Your Question') }}</label>
+                        <textarea wire:model="clarifyText" rows="4" class="w-full rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand"></textarea>
+                        <x-input-error :messages="$errors->get('clarifyText')" class="mt-1.5" />
+                    </div>
+                </div>
+                <div class="flex gap-3 mt-5">
+                    <button wire:click="submitClarify" class="flex-1 bg-brand hover:bg-brand-dark text-white font-bold text-sm px-4 py-2.5 rounded-lg">{{ __('Send Request') }}</button>
+                    <button wire:click="$set('clarifyModalOpen', false)" class="flex-1 border border-gray-300 hover:bg-gray-50 text-gray-700 font-bold text-sm px-4 py-2.5 rounded-lg">{{ __('Cancel') }}</button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    @if ($closingThreadId)
+        <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-6">
+            <div class="bg-white rounded-xl p-6 w-full max-w-md">
+                <h3 class="font-bold text-gray-900 mb-2">{{ __('Mark this clarification as resolved?') }}</h3>
+                <textarea wire:model="closeNote" rows="3" placeholder="{{ __('Brief note (required)') }}" class="w-full rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand mb-2"></textarea>
+                <x-input-error :messages="$errors->get('closeNote')" class="mb-3" />
+                <div class="flex gap-3">
+                    <button wire:click="confirmCloseThread" class="flex-1 bg-brand hover:bg-brand-dark text-white font-bold text-sm px-4 py-2.5 rounded-lg">{{ __('Confirm') }}</button>
+                    <button wire:click="$set('closingThreadId', null)" class="flex-1 border border-gray-300 hover:bg-gray-50 text-gray-700 font-bold text-sm px-4 py-2.5 rounded-lg">{{ __('Cancel') }}</button>
                 </div>
             </div>
         </div>

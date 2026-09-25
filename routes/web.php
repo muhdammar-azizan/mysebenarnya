@@ -34,6 +34,9 @@ Route::middleware(['auth', 'verified', 'role:mcmc_staff'])->prefix('mcmc')->name
     Volt::route('agencies/create', 'mcmc.agencies.create')->name('agencies.create');
     Volt::route('agencies/{agency}/edit', 'mcmc.agencies.edit')->name('agencies.edit');
 
+    Volt::route('clarifications', 'mcmc.clarifications.index')->name('clarifications.index');
+    Volt::route('clarifications/{thread}', 'mcmc.clarifications.show')->name('clarifications.show');
+
     Volt::route('users', 'mcmc.users.index')->name('users.index');
     Volt::route('reports', 'mcmc.reports.index')->name('reports.index');
     Volt::route('notifications', 'mcmc.notifications.index')->name('notifications.index');
@@ -42,6 +45,9 @@ Route::middleware(['auth', 'verified', 'role:mcmc_staff'])->prefix('mcmc')->name
 Route::middleware(['auth', 'verified', 'role:agency_staff'])->prefix('agency')->name('agency.')->group(function () {
     Volt::route('inquiries', 'agency.inquiries.index')->name('inquiries.index');
     Volt::route('inquiries/{inquiry}', 'agency.inquiries.show')->name('inquiries.show');
+
+    Volt::route('consultations', 'agency.consultations.index')->name('consultations.index');
+    Volt::route('consultations/{consult}', 'agency.consultations.show')->name('consultations.show');
 
     Volt::route('reports', 'agency.reports.index')->name('reports.index');
     Volt::route('activity', 'agency.activity.index')->name('activity.index');
