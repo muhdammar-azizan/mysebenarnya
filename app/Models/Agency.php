@@ -38,4 +38,26 @@ class Agency extends Model
     {
         return $this->hasMany(Inquiry::class);
     }
+
+    /**
+     * Derive a short unique code from an agency name, e.g. "Ministry of
+     * Health Malaysia" -> "MOHM", disambiguating on collision.
+     */
+    public static function generateCodeFrom(string $name): string
+    {
+        $words = preg_split('/[\s\-]+/', preg_replace('/[^A-Za-z0-9\s\-]/', '', $name)) ?: [];
+        $words = array_values(array_filter($words, fn ($w) => ! in_array(strtolower($w), ['of', 'the', 'and', 'for'], true)));
+
+        $base = strtoupper(implode('', array_map(fn ($w) => $w[0], array_slice($words, 0, 5)))) ?: 'AGY';
+
+        $code = $base;
+        $suffix = 1;
+
+        while (static::where('code', $code)->exists()) {
+            $suffix++;
+            $code = $base.$suffix;
+        }
+
+        return $code;
+    }
 }

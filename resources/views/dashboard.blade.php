@@ -2,6 +2,10 @@
     <x-public-layout>
         <livewire:public.dashboard />
     </x-public-layout>
+@elseif (auth()->user()->isMcmcStaff())
+    <x-mcmc-layout>
+        <livewire:mcmc.dashboard />
+    </x-mcmc-layout>
 @else
     <x-app-layout>
         <x-slot name="header">

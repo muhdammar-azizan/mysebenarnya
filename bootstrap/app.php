@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->appendToGroup('web', \App\Http\Middleware\EnsurePasswordIsNotExpired::class);
+        $middleware->appendToGroup('web', \App\Http\Middleware\TouchLastActive::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

@@ -57,6 +57,7 @@ class User extends Authenticatable
             'role' => UserRole::class,
             'agency_role' => AgencyStaffRole::class,
             'must_change_password' => 'boolean',
+            'last_active_at' => 'datetime',
         ];
     }
 

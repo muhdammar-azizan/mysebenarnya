@@ -55,6 +55,27 @@ class InquiryPolicy
     }
 
     /**
+     * MCMC triage: validate/discard, only while still Submitted.
+     */
+    public function triage(User $user, Inquiry $inquiry): bool
+    {
+        return $user->isMcmcStaff() && $inquiry->status === InquiryStatus::Submitted;
+    }
+
+    /**
+     * MCMC assign/reassign to an agency: the first assignment happens from
+     * the "Validate" step while still Submitted; reassignment happens after
+     * an agency rejected jurisdiction (Rejected).
+     */
+    public function assign(User $user, Inquiry $inquiry): bool
+    {
+        return $user->isMcmcStaff() && in_array($inquiry->status, [
+            InquiryStatus::Submitted,
+            InquiryStatus::Rejected,
+        ], true);
+    }
+
+    /**
      * Determine whether the user can update the model.
      */
     public function update(User $user, Inquiry $inquiry): bool
