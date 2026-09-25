@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Mcmc;
 
+use App\Enums\InquiryCategory;
 use App\Enums\InquiryStatus;
 use App\Models\Agency;
 use App\Models\Inquiry;
@@ -36,6 +37,39 @@ class ReportsTest extends TestCase
             ->set('tab', 'agencies')
             ->assertSee('Test Agency')
             ->assertSee('50%');
+    }
+
+    public function test_agency_performance_tab_can_be_filtered_to_a_single_agency(): void
+    {
+        $staff = User::factory()->mcmcStaff()->create();
+        $agencyA = Agency::factory()->create(['name' => 'Agency Alpha']);
+        $agencyB = Agency::factory()->create(['name' => 'Agency Beta']);
+        Inquiry::factory()->create(['agency_id' => $agencyA->id, 'status' => InquiryStatus::VerifiedTrue]);
+        Inquiry::factory()->create(['agency_id' => $agencyB->id, 'status' => InquiryStatus::VerifiedTrue]);
+
+        $component = Volt::actingAs($staff)
+            ->test('mcmc.reports.index')
+            ->set('tab', 'agencies')
+            ->set('agencyFilter', $agencyA->id);
+
+        $rows = $component->get('agencyPerformance');
+        $this->assertCount(1, $rows);
+        $this->assertSame('Agency Alpha', $rows->first()->name);
+    }
+
+    public function test_agency_performance_tab_can_be_filtered_by_category(): void
+    {
+        $staff = User::factory()->mcmcStaff()->create();
+        $agency = Agency::factory()->create(['name' => 'Test Agency']);
+        Inquiry::factory()->create(['agency_id' => $agency->id, 'category' => InquiryCategory::HealthMedical, 'status' => InquiryStatus::VerifiedTrue]);
+        Inquiry::factory()->create(['agency_id' => $agency->id, 'category' => InquiryCategory::ElectoralPolitical, 'status' => InquiryStatus::VerifiedTrue]);
+
+        $component = Volt::actingAs($staff)
+            ->test('mcmc.reports.index')
+            ->set('tab', 'agencies')
+            ->set('categoryFilter', InquiryCategory::HealthMedical->value);
+
+        $this->assertSame(1, $component->get('agencyPerformance')->first()->inquiries_count);
     }
 
     public function test_user_growth_tab_shows_registration_stats(): void
