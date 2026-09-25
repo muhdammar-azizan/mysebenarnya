@@ -74,8 +74,20 @@ new #[Layout('layouts.mcmc')] class extends Component
 <div>
     <a href="{{ route('mcmc.agencies.index') }}" wire:navigate class="inline-flex items-center gap-1.5 text-gray-500 hover:text-brand font-semibold text-sm mb-5">&larr; {{ __('Back to Agency Management') }}</a>
 
-    <h1 class="font-display font-extrabold text-2xl text-gray-900 mb-1">{{ __('Edit Agency') }}</h1>
-    <p class="text-gray-500 text-sm mb-6">{{ $agency->code }}</p>
+    <div class="flex items-center gap-4 mb-6">
+        @if ($agency->logo_path)
+            <img src="{{ asset('storage/'.$agency->logo_path) }}" class="w-14 h-14 rounded-xl object-cover border border-gray-100" alt="{{ __('Agency logo') }}">
+        @else
+            <div class="w-14 h-14 rounded-xl bg-brand text-white flex items-center justify-center font-bold text-lg flex-shrink-0">
+                {{ collect(explode(' ', $agency->name))->map(fn ($w) => $w[0] ?? '')->take(2)->implode('') }}
+            </div>
+        @endif
+        <div>
+            <h1 class="font-display font-extrabold text-2xl text-gray-900">{{ __('Edit Agency') }}</h1>
+            <p class="text-gray-500 text-sm">{{ $agency->code }}</p>
+        </div>
+    </div>
+    <p class="text-xs text-gray-400 -mt-4 mb-6">{{ __('The agency logo is managed by the agency itself under their Agency Profile page.') }}</p>
 
     @if ($saved)
         <div class="bg-green-50 border border-green-200 text-green-700 rounded-lg px-4 py-3 font-semibold text-sm mb-5">✓ {{ __('Agency details saved.') }}</div>

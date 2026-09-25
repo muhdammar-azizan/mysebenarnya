@@ -18,6 +18,7 @@ class Agency extends Model
         'description',
         'contact_email',
         'contact_phone',
+        'logo_path',
         'is_active',
     ];
 

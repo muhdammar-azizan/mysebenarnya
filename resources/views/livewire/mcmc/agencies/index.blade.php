@@ -40,7 +40,18 @@ new #[Layout('layouts.mcmc')] class extends Component
             <tbody>
                 @forelse ($this->agencies as $agency)
                     <tr wire:key="agency-{{ $agency->id }}" class="border-t border-gray-50 hover:bg-gray-50">
-                        <td class="px-5 py-3.5 font-semibold text-gray-900">{{ $agency->name }} <span class="text-gray-400 font-normal">({{ $agency->code }})</span></td>
+                        <td class="px-5 py-3.5 font-semibold text-gray-900">
+                            <div class="flex items-center gap-2.5">
+                                @if ($agency->logo_path)
+                                    <img src="{{ asset('storage/'.$agency->logo_path) }}" class="w-7 h-7 rounded-md object-cover flex-shrink-0" alt="">
+                                @else
+                                    <div class="w-7 h-7 rounded-md bg-brand text-white flex items-center justify-center font-bold text-[10px] flex-shrink-0">
+                                        {{ collect(explode(' ', $agency->name))->map(fn ($w) => $w[0] ?? '')->take(2)->implode('') }}
+                                    </div>
+                                @endif
+                                <span>{{ $agency->name }} <span class="text-gray-400 font-normal">({{ $agency->code }})</span></span>
+                            </div>
+                        </td>
                         <td class="px-5 py-3.5 text-gray-600">{{ $agency->specialization?->value }}</td>
                         <td class="px-5 py-3.5 text-gray-600">{{ $agency->contact_email }}</td>
                         <td class="px-5 py-3.5 text-gray-600">{{ $agency->users_count }}</td>

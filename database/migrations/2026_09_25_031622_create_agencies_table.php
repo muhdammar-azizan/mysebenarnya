@@ -19,6 +19,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->string('contact_email')->nullable();
             $table->string('contact_phone')->nullable();
+            $table->string('logo_path')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });

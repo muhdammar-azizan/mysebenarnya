@@ -7,7 +7,9 @@ use App\Models\Agency;
 use App\Models\User;
 use App\Notifications\AgencyStaffInvited;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Volt\Volt;
 use Tests\TestCase;
 
@@ -28,6 +30,86 @@ class OrganizationProfileTest extends TestCase
             ->assertHasNoErrors();
 
         $this->assertSame('newcontact@agency.gov.my', $agency->fresh()->contact_email);
+    }
+
+    public function test_admin_can_update_agency_name(): void
+    {
+        $agency = Agency::factory()->create(['name' => 'Old Agency Name']);
+        $admin = User::factory()->agencyStaff()->create(['agency_id' => $agency->id, 'agency_role' => AgencyStaffRole::Admin]);
+
+        Volt::actingAs($admin)
+            ->test('agency.organization.index')
+            ->set('agencyName', 'New Agency Name')
+            ->set('contactEmail', $agency->contact_email ?? 'contact@agency.gov.my')
+            ->set('contactPhone', $agency->contact_phone ?? '03-1111 2222')
+            ->call('saveInfo')
+            ->assertHasNoErrors();
+
+        $this->assertSame('New Agency Name', $agency->fresh()->name);
+    }
+
+    public function test_reviewer_cannot_update_agency_name(): void
+    {
+        $agency = Agency::factory()->create(['name' => 'Original Name']);
+        $reviewer = User::factory()->agencyStaff()->create(['agency_id' => $agency->id, 'agency_role' => AgencyStaffRole::Reviewer]);
+
+        Volt::actingAs($reviewer)
+            ->test('agency.organization.index')
+            ->set('agencyName', 'Hacked Name')
+            ->call('saveInfo')
+            ->assertForbidden();
+
+        $this->assertSame('Original Name', $agency->fresh()->name);
+    }
+
+    public function test_admin_can_upload_agency_logo(): void
+    {
+        Storage::fake('public');
+
+        $agency = Agency::factory()->create();
+        $admin = User::factory()->agencyStaff()->create(['agency_id' => $agency->id, 'agency_role' => AgencyStaffRole::Admin]);
+
+        Volt::actingAs($admin)
+            ->test('agency.organization.index')
+            ->set('newLogo', UploadedFile::fake()->image('logo.png'))
+            ->call('saveLogo')
+            ->assertHasNoErrors();
+
+        $agency->refresh();
+        $this->assertNotNull($agency->logo_path);
+        Storage::disk('public')->assertExists($agency->logo_path);
+    }
+
+    public function test_admin_can_remove_agency_logo(): void
+    {
+        Storage::fake('public');
+
+        $agency = Agency::factory()->create(['logo_path' => 'agency-logos/existing.png']);
+        Storage::disk('public')->put('agency-logos/existing.png', 'fake-content');
+        $admin = User::factory()->agencyStaff()->create(['agency_id' => $agency->id, 'agency_role' => AgencyStaffRole::Admin]);
+
+        Volt::actingAs($admin)
+            ->test('agency.organization.index')
+            ->call('removeLogo');
+
+        $this->assertNull($agency->fresh()->logo_path);
+        Storage::disk('public')->assertMissing('agency-logos/existing.png');
+    }
+
+    public function test_reviewer_cannot_upload_agency_logo(): void
+    {
+        Storage::fake('public');
+
+        $agency = Agency::factory()->create();
+        $reviewer = User::factory()->agencyStaff()->create(['agency_id' => $agency->id, 'agency_role' => AgencyStaffRole::Reviewer]);
+
+        Volt::actingAs($reviewer)
+            ->test('agency.organization.index')
+            ->set('newLogo', UploadedFile::fake()->image('logo.png'))
+            ->call('saveLogo')
+            ->assertForbidden();
+
+        $this->assertNull($agency->fresh()->logo_path);
     }
 
     public function test_reviewer_cannot_update_agency_contact_details(): void
