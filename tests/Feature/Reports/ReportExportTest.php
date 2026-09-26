@@ -5,6 +5,7 @@ namespace Tests\Feature\Reports;
 use App\Enums\InquiryStatus;
 use App\Models\Agency;
 use App\Models\Inquiry;
+use App\Models\ReportExport;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Volt\Volt;
@@ -23,6 +24,19 @@ class ReportExportTest extends TestCase
             ->test('mcmc.reports.index')
             ->call('exportInquiriesPdf')
             ->assertFileDownloaded();
+    }
+
+    public function test_every_export_is_logged_for_the_dashboard_counter(): void
+    {
+        $staff = User::factory()->mcmcStaff()->create();
+        Inquiry::factory()->create(['status' => InquiryStatus::VerifiedTrue]);
+
+        Volt::actingAs($staff)->test('mcmc.reports.index')->call('exportInquiriesPdf');
+        Volt::actingAs($staff)->test('mcmc.reports.index')->call('exportInquiriesExcel');
+
+        $this->assertSame(2, ReportExport::where('user_id', $staff->id)->count());
+        $this->assertDatabaseHas('report_exports', ['format' => 'pdf', 'user_id' => $staff->id]);
+        $this->assertDatabaseHas('report_exports', ['format' => 'excel', 'user_id' => $staff->id]);
     }
 
     public function test_mcmc_can_export_inquiry_overview_as_excel(): void

@@ -3,6 +3,7 @@
 namespace App\Concerns;
 
 use App\Exports\MultiSheetReportExport;
+use App\Models\ReportExport;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
@@ -14,6 +15,16 @@ trait GeneratesReports
     protected function reportId(): string
     {
         return 'RPT-'.now()->format('Ymd').'-'.strtoupper(substr(bin2hex(random_bytes(2)), 0, 4));
+    }
+
+    protected function logReportExport(string $reportId, string $reportType, string $format): void
+    {
+        ReportExport::create([
+            'user_id' => Auth::id(),
+            'report_id' => $reportId,
+            'report_type' => $reportType,
+            'format' => $format,
+        ]);
     }
 
     /**
@@ -34,6 +45,8 @@ trait GeneratesReports
             'sections' => $sections,
         ]);
 
+        $this->logReportExport($reportId, $filename, 'pdf');
+
         // Livewire's native file-download support expects a real
         // BinaryFileResponse backed by a file on disk; dompdf's own
         // ->download() instead returns the PDF bytes inline in a generic
@@ -50,6 +63,8 @@ trait GeneratesReports
      */
     protected function downloadExcel(string $filename, array $sheets): BinaryFileResponse|StreamedResponse
     {
+        $this->logReportExport($this->reportId(), $filename, 'excel');
+
         return Excel::download(new MultiSheetReportExport($sheets), $filename.'_'.now()->format('Ymd').'.xlsx');
     }
 }
