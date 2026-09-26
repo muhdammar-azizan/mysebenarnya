@@ -11,6 +11,12 @@ new #[Layout('layouts.public')] class extends Component
 
     public string $filter = 'all';
 
+    /**
+     * Statuses that mean something went wrong with the inquiry and the
+     * submitter may want to follow up — these surface under "Mentions".
+     */
+    protected const ACTIONABLE_STATUSES = ['Rejected', 'Discarded'];
+
     public function updatingFilter(): void
     {
         $this->resetPage();
@@ -35,8 +41,19 @@ new #[Layout('layouts.public')] class extends Component
     {
         return Auth::user()->notifications()
             ->when($this->filter === 'unread', fn ($q) => $q->whereNull('read_at'))
+            ->when($this->filter === 'action', fn ($q) => $q->whereIn('data->to_status', self::ACTIONABLE_STATUSES))
             ->latest()
             ->paginate(10);
+    }
+
+    public function iconFor(?string $toStatus): array
+    {
+        return match ($toStatus) {
+            'Verified True' => ['icon' => '✓', 'bg' => 'bg-green-100', 'color' => 'text-green-700'],
+            'Identified Fake' => ['icon' => '✕', 'bg' => 'bg-brand-light', 'color' => 'text-brand'],
+            'Rejected', 'Discarded' => ['icon' => '⚠', 'bg' => 'bg-amber-50', 'color' => 'text-amber-600'],
+            default => ['icon' => '🔔', 'bg' => 'bg-gray-100', 'color' => 'text-gray-500'],
+        };
     }
 }; ?>
 
@@ -55,13 +72,15 @@ new #[Layout('layouts.public')] class extends Component
                 <span class="bg-brand text-white rounded-full px-1.5 text-[10px]">{{ $this->unreadCount }}</span>
             @endif
         </button>
+        <button wire:click="$set('filter', 'action')" class="px-3.5 py-1.5 rounded-full text-xs font-bold {{ $filter === 'action' ? 'bg-brand-light text-brand' : 'bg-gray-100 text-gray-500' }}">{{ __('Mentions/Actions Required') }}</button>
     </div>
 
     <div class="bg-white border border-gray-100 rounded-2xl overflow-hidden">
         @forelse ($this->rows as $notification)
+            @php $iconDef = $this->iconFor($notification->data['to_status'] ?? null); @endphp
             <div wire:key="notif-{{ $notification->id }}" wire:click="markRead('{{ $notification->id }}')"
                 class="flex items-start gap-3 px-5 py-4 border-b border-gray-50 last:border-0 cursor-pointer hover:bg-gray-50">
-                <div class="w-7 h-7 rounded-full bg-gray-100 flex-shrink-0 flex items-center justify-center text-sm">🔔</div>
+                <div class="w-7 h-7 rounded-full {{ $iconDef['bg'] }} {{ $iconDef['color'] }} flex-shrink-0 flex items-center justify-center text-sm">{{ $iconDef['icon'] }}</div>
                 <div class="flex-1 min-w-0">
                     <div class="text-sm {{ $notification->read_at ? 'font-medium text-gray-600' : 'font-bold text-gray-900' }}">
                         {{ $notification->data['message'] ?? 'Notification' }}

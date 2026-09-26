@@ -56,4 +56,19 @@ class NotificationsTest extends TestCase
             ->set('filter', 'unread')
             ->assertSee('No notifications in this filter');
     }
+
+    public function test_mentions_filter_only_shows_actionable_statuses(): void
+    {
+        $user = User::factory()->create(['role' => UserRole::Public]);
+        $inquiry = Inquiry::factory()->create(['submitted_by' => $user->id]);
+
+        $user->notify(new InquiryStatusChanged($inquiry, 'Submitted', 'Verified True'));
+        $user->notify(new InquiryStatusChanged($inquiry, 'Submitted', 'Discarded'));
+
+        $component = Volt::actingAs($user)
+            ->test('public.notifications.index')
+            ->set('filter', 'action');
+
+        $this->assertCount(1, $component->get('rows'));
+    }
 }
