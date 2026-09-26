@@ -23,6 +23,25 @@ class InvestigationWorkflowTest extends TestCase
         ]);
     }
 
+    public function test_show_page_displays_submitters_prior_submission_count(): void
+    {
+        $agency = Agency::factory()->create();
+        $staff = User::factory()->agencyStaff()->create(['agency_id' => $agency->id]);
+        $submitter = User::factory()->create();
+
+        Inquiry::factory()->count(3)->create(['submitted_by' => $submitter->id]);
+        $inquiry = Inquiry::factory()->create([
+            'agency_id' => $agency->id,
+            'submitted_by' => $submitter->id,
+            'status' => InquiryStatus::UnderInvestigation,
+        ]);
+
+        Volt::actingAs($staff)
+            ->test('agency.inquiries.show', ['inquiry' => $inquiry])
+            ->assertSee('Prior Submissions')
+            ->assertSee('3');
+    }
+
     public function test_agency_can_accept_jurisdiction(): void
     {
         $agency = Agency::factory()->create();

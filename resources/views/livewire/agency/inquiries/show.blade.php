@@ -302,6 +302,10 @@ new #[Layout('layouts.agency')] class extends Component
                 <div class="text-sm font-semibold text-gray-700 mt-0.5">{{ $inquiry->submitter?->name }}</div>
             </div>
             <div>
+                <div class="text-[11px] font-bold text-gray-400 uppercase tracking-wide">{{ __('Prior Submissions') }}</div>
+                <div class="text-sm font-semibold text-gray-700 mt-0.5">{{ $inquiry->submitter?->submittedInquiries()->count() - 1 }}</div>
+            </div>
+            <div>
                 <div class="text-[11px] font-bold text-gray-400 uppercase tracking-wide">{{ __('Date Assigned') }}</div>
                 <div class="text-sm font-semibold text-gray-700 mt-0.5">{{ $inquiry->updated_at->format('d M Y') }}</div>
             </div>
