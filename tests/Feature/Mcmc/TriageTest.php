@@ -131,4 +131,33 @@ class TriageTest extends TestCase
 
         $this->actingAs($user)->get(route('mcmc.triage.index'))->assertForbidden();
     }
+
+    public function test_assigned_to_agency_tab_lists_inquiries_under_investigation(): void
+    {
+        $staff = User::factory()->mcmcStaff()->create();
+        $agency = Agency::factory()->create(['name' => 'Ministry of Test']);
+        Inquiry::factory()->create([
+            'status' => InquiryStatus::UnderInvestigation,
+            'agency_id' => $agency->id,
+            'title' => 'Out with an agency now',
+            'reviewed_at' => now(),
+        ]);
+
+        Volt::actingAs($staff)
+            ->test('mcmc.triage.index')
+            ->set('tab', 'assigned')
+            ->assertSee('Out with an agency now')
+            ->assertSee('Ministry of Test');
+    }
+
+    public function test_assigned_to_agency_tab_excludes_other_statuses(): void
+    {
+        $staff = User::factory()->mcmcStaff()->create();
+        Inquiry::factory()->create(['status' => InquiryStatus::Submitted, 'title' => 'Still pending triage']);
+
+        Volt::actingAs($staff)
+            ->test('mcmc.triage.index')
+            ->set('tab', 'assigned')
+            ->assertDontSee('Still pending triage');
+    }
 }

@@ -168,6 +168,11 @@ new #[Layout('layouts.mcmc')] class extends Component
         return Inquiry::where('status', InquiryStatus::Rejected)->with('submitter')->latest()->get();
     }
 
+    public function getAssignedRowsProperty()
+    {
+        return Inquiry::where('status', InquiryStatus::UnderInvestigation)->with('agency')->latest('reviewed_at')->get();
+    }
+
     public function getReviewedRowsProperty()
     {
         return InquiryActivityLog::with(['inquiry', 'user'])
@@ -207,6 +212,9 @@ new #[Layout('layouts.mcmc')] class extends Component
             </button>
             <button wire:click="$set('tab', 'reviewed')" class="px-5 py-3 text-sm font-bold {{ $tab === 'reviewed' ? 'text-brand border-b-2 border-brand' : 'text-gray-400' }}">
                 {{ __('Reviewed History') }}
+            </button>
+            <button wire:click="$set('tab', 'assigned')" class="px-5 py-3 text-sm font-bold {{ $tab === 'assigned' ? 'text-brand border-b-2 border-brand' : 'text-gray-400' }}">
+                {{ __('Assigned to Agency') }} ({{ $this->assignedRows->count() }})
             </button>
         </div>
 
@@ -276,7 +284,7 @@ new #[Layout('layouts.mcmc')] class extends Component
                     </tbody>
                 </table>
             </div>
-        @else
+        @elseif ($tab === 'reviewed')
             <div class="bg-white border border-gray-100 rounded-2xl overflow-hidden divide-y divide-gray-50">
                 @forelse ($this->reviewedRows as $log)
                     <div class="flex items-center justify-between px-5 py-3.5">
@@ -289,6 +297,36 @@ new #[Layout('layouts.mcmc')] class extends Component
                 @empty
                     <p class="px-5 py-10 text-center text-gray-400">{{ __('No triage decisions yet.') }}</p>
                 @endforelse
+            </div>
+        @else
+            <div class="bg-white border border-gray-100 rounded-2xl overflow-hidden">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="bg-gray-50 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">
+                            <th class="px-5 py-3">{{ __('Title') }}</th>
+                            <th class="px-5 py-3">{{ __('Assigned Agency') }}</th>
+                            <th class="px-5 py-3">{{ __('Assigned Date') }}</th>
+                            <th class="px-5 py-3">{{ __('Status') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($this->assignedRows as $row)
+                            <tr wire:key="assigned-{{ $row->id }}" onclick="window.location='{{ route('mcmc.inquiries.show', $row) }}'" class="border-t border-gray-50 hover:bg-gray-50 cursor-pointer">
+                                <td class="px-5 py-3.5 font-semibold text-gray-900">{{ $row->title }}</td>
+                                <td class="px-5 py-3.5 text-gray-600">{{ $row->agency?->name ?? '—' }}</td>
+                                <td class="px-5 py-3.5 text-gray-600 whitespace-nowrap">{{ $row->reviewed_at?->format('d M Y') ?? '—' }}</td>
+                                <td class="px-5 py-3.5">
+                                    <x-inquiry-status-badge :status="$row->status" />
+                                    @if ($row->isAwaitingJurisdiction())
+                                        <span class="ml-1 inline-block px-2 py-0.5 rounded-full text-[11px] font-bold bg-gray-100 text-gray-500">{{ __('Awaiting Review') }}</span>
+                                    @endif
+                                </td>
+                            </tr>
+                        @empty
+                            <tr><td colspan="4" class="px-5 py-10 text-center text-gray-400">{{ __('No inquiries currently assigned to an agency.') }}</td></tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
         @endif
     @elseif ($screen === 'review')

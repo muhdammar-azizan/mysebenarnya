@@ -1,11 +1,9 @@
 @php
-    $unreadClarifications = \App\Models\ClarificationThread::where('unread_by_mcmc', true)->count();
-
     $items = [
         ['route' => 'dashboard', 'label' => __('Dashboard')],
-        ['route' => 'mcmc.triage.index', 'label' => __('New Inquiries / Triage')],
+        ['route' => 'mcmc.triage.index', 'label' => __('New Inquiries / Triage'), 'excludeTabs' => ['assigned']],
+        ['route' => 'mcmc.triage.index', 'label' => __('Assign to Agency'), 'query' => ['tab' => 'assigned'], 'requireTab' => 'assigned'],
         ['route' => 'mcmc.inquiries.index', 'label' => __('All Inquiries')],
-        ['route' => 'mcmc.clarifications.index', 'label' => __('Clarifications'), 'badge' => $unreadClarifications],
         ['route' => 'mcmc.agencies.index', 'label' => __('Agency Management')],
         ['route' => 'mcmc.users.index', 'label' => __('Registered Users')],
         ['route' => 'mcmc.reports.index', 'label' => __('Reports')],
@@ -16,8 +14,14 @@
     <div class="px-4 pb-2 text-xs font-bold text-gray-400 uppercase tracking-wider">{{ __('Menu') }}</div>
     <div class="px-2.5 flex flex-col gap-0.5">
         @foreach ($items as $item)
-            @php $active = request()->routeIs($item['route']) || request()->routeIs($item['route'].'.*'); @endphp
-            <a href="{{ route($item['route']) }}" wire:navigate
+            @php
+                $onRoute = request()->routeIs($item['route']) || request()->routeIs($item['route'].'.*');
+                $currentTab = request()->query('tab');
+                $active = $onRoute
+                    && (empty($item['requireTab']) || $currentTab === $item['requireTab'])
+                    && (empty($item['excludeTabs']) || ! in_array($currentTab, $item['excludeTabs'], true));
+            @endphp
+            <a href="{{ route($item['route'], $item['query'] ?? []) }}" wire:navigate
                 class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-semibold {{ $active ? 'bg-brand text-white' : 'text-gray-600 hover:bg-gray-100' }}">
                 <span class="w-1.5 h-1.5 rounded-sm {{ $active ? 'bg-white' : 'bg-gray-400' }}"></span>
                 <span class="flex-1">{{ $item['label'] }}</span>
