@@ -13,6 +13,7 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans antialiased bg-[#EDEEF0]">
+        <x-network-error-banner />
         <div class="h-screen flex flex-col overflow-hidden">
             <!-- Top bar -->
             <header class="h-16 flex-shrink-0 bg-brand shadow flex items-center gap-5 px-6 z-20">

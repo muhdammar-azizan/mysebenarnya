@@ -79,4 +79,22 @@ class SubmitInquiryTest extends TestCase
 
         $this->actingAs($staff)->get(route('inquiries.create'))->assertForbidden();
     }
+
+    public function test_shows_a_retry_banner_when_submission_fails_unexpectedly(): void
+    {
+        $user = User::factory()->create(['role' => UserRole::Public]);
+
+        // An invalid category string passes Livewire's own 'required|string' rule
+        // but fails Eloquent's enum cast when persisting, exercising the same
+        // unexpected-failure path a real storage/DB error would take.
+        Volt::actingAs($user)
+            ->test('public.inquiries.create')
+            ->set('title', 'Fake claim about free money')
+            ->set('category', 'Not A Real Category')
+            ->set('description', 'This is a sufficiently long description of the claim being reported.')
+            ->call('submit')
+            ->assertSee('Something went wrong while submitting your inquiry');
+
+        $this->assertDatabaseCount('inquiries', 0);
+    }
 }

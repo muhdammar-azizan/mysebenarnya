@@ -30,6 +30,8 @@ new #[Layout('layouts.public')] class extends Component
     /** @var array<int, \Livewire\Features\SupportFileUploads\TemporaryUploadedFile> */
     public array $evidence = [];
 
+    public string $submissionError = '';
+
     public function removeEvidence(int $index): void
     {
         unset($this->evidence[$index]);
@@ -38,6 +40,8 @@ new #[Layout('layouts.public')] class extends Component
 
     public function submit(): void
     {
+        $this->submissionError = '';
+
         $this->validate([
             'title' => 'required|string|max:255',
             'category' => 'required|string',
@@ -46,35 +50,43 @@ new #[Layout('layouts.public')] class extends Component
             'evidence.*' => 'file|max:10240|mimes:jpg,jpeg,png,pdf',
         ]);
 
-        $inquiry = Inquiry::create([
-            'submitted_by' => Auth::id(),
-            'title' => $this->title,
-            'category' => $this->category,
-            'description' => $this->description,
-            'source_url' => $this->source_url ?: null,
-            'status' => InquiryStatus::Submitted,
-        ]);
-
-        foreach ($this->evidence as $file) {
-            $path = $file->store('evidence', 'public');
-
-            InquiryEvidence::create([
-                'inquiry_id' => $inquiry->id,
-                'uploaded_by' => Auth::id(),
-                'file_path' => $path,
-                'file_name' => $file->getClientOriginalName(),
-                'file_type' => $file->getMimeType(),
-                'file_size' => $file->getSize(),
+        try {
+            $inquiry = Inquiry::create([
+                'submitted_by' => Auth::id(),
+                'title' => $this->title,
+                'category' => $this->category,
+                'description' => $this->description,
+                'source_url' => $this->source_url ?: null,
+                'status' => InquiryStatus::Submitted,
             ]);
-        }
 
-        InquiryActivityLog::create([
-            'inquiry_id' => $inquiry->id,
-            'user_id' => Auth::id(),
-            'action' => 'submitted',
-            'to_status' => InquiryStatus::Submitted->value,
-            'notes' => 'Inquiry submitted by public user.',
-        ]);
+            foreach ($this->evidence as $file) {
+                $path = $file->store('evidence', 'public');
+
+                InquiryEvidence::create([
+                    'inquiry_id' => $inquiry->id,
+                    'uploaded_by' => Auth::id(),
+                    'file_path' => $path,
+                    'file_name' => $file->getClientOriginalName(),
+                    'file_type' => $file->getMimeType(),
+                    'file_size' => $file->getSize(),
+                ]);
+            }
+
+            InquiryActivityLog::create([
+                'inquiry_id' => $inquiry->id,
+                'user_id' => Auth::id(),
+                'action' => 'submitted',
+                'to_status' => InquiryStatus::Submitted->value,
+                'notes' => 'Inquiry submitted by public user.',
+            ]);
+        } catch (\Throwable $e) {
+            report($e);
+
+            $this->submissionError = __('Something went wrong while submitting your inquiry. Please try again, or contact support if the issue persists.');
+
+            return;
+        }
 
         session()->flash('status', 'Inquiry submitted successfully.');
 
@@ -146,6 +158,8 @@ new #[Layout('layouts.public')] class extends Component
                 </div>
             @endif
         </div>
+
+        <x-form-error-banner :message="$submissionError" retry="submit" />
 
         <div class="flex gap-3 pt-2">
             <button type="submit" class="bg-brand hover:bg-brand-dark text-white font-bold text-sm px-6 py-3 rounded-lg" wire:loading.attr="disabled" wire:target="submit">
