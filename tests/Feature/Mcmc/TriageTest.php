@@ -160,4 +160,99 @@ class TriageTest extends TestCase
             ->set('tab', 'assigned')
             ->assertDontSee('Still pending triage');
     }
+
+    public function test_search_filter_narrows_the_pending_list(): void
+    {
+        $staff = User::factory()->mcmcStaff()->create();
+        Inquiry::factory()->create(['status' => InquiryStatus::Submitted, 'title' => 'Matching search term']);
+        Inquiry::factory()->create(['status' => InquiryStatus::Submitted, 'title' => 'Something else entirely']);
+
+        Volt::actingAs($staff)
+            ->test('mcmc.triage.index')
+            ->set('search', 'Matching')
+            ->assertSee('Matching search term')
+            ->assertDontSee('Something else entirely');
+    }
+
+    public function test_category_filter_narrows_the_pending_list(): void
+    {
+        $staff = User::factory()->mcmcStaff()->create();
+        Inquiry::factory()->create(['status' => InquiryStatus::Submitted, 'title' => 'A health claim', 'category' => \App\Enums\InquiryCategory::HealthMedical]);
+        Inquiry::factory()->create(['status' => InquiryStatus::Submitted, 'title' => 'A finance claim', 'category' => \App\Enums\InquiryCategory::FinancialScams]);
+
+        Volt::actingAs($staff)
+            ->test('mcmc.triage.index')
+            ->set('category', \App\Enums\InquiryCategory::HealthMedical->value)
+            ->assertSee('A health claim')
+            ->assertDontSee('A finance claim');
+    }
+
+    public function test_review_notes_carry_over_to_the_assign_screen(): void
+    {
+        $staff = User::factory()->mcmcStaff()->create();
+        $inquiry = Inquiry::factory()->create(['status' => InquiryStatus::Submitted]);
+
+        Volt::actingAs($staff)
+            ->test('mcmc.triage.index')
+            ->call('openReview', $inquiry->id)
+            ->set('reviewNotes', 'Looks credible, worth investigating.')
+            ->call('validateAndAssign', $inquiry->id)
+            ->assertSet('assignNotes', 'Looks credible, worth investigating.');
+    }
+
+    public function test_review_notes_carry_over_to_the_discard_modal(): void
+    {
+        $staff = User::factory()->mcmcStaff()->create();
+        $inquiry = Inquiry::factory()->create(['status' => InquiryStatus::Submitted]);
+
+        Volt::actingAs($staff)
+            ->test('mcmc.triage.index')
+            ->call('openReview', $inquiry->id)
+            ->set('reviewNotes', 'Not credible, no sources.')
+            ->call('openDiscardModal')
+            ->assertSet('discardNotes', 'Not credible, no sources.')
+            ->assertSet('discardModalOpen', true);
+    }
+
+    public function test_pending_tab_shows_evidence_count_not_category(): void
+    {
+        $staff = User::factory()->mcmcStaff()->create();
+        $inquiry = Inquiry::factory()->create(['status' => InquiryStatus::Submitted]);
+
+        Volt::actingAs($staff)
+            ->test('mcmc.triage.index')
+            ->assertSee('files attached');
+    }
+
+    public function test_reassign_tab_shows_previous_agency_instead_of_category(): void
+    {
+        $staff = User::factory()->mcmcStaff()->create();
+        $agency = Agency::factory()->create(['name' => 'Rejecting Agency']);
+        Inquiry::factory()->create(['status' => InquiryStatus::Rejected, 'agency_id' => $agency->id]);
+
+        Volt::actingAs($staff)
+            ->test('mcmc.triage.index')
+            ->set('tab', 'reassign')
+            ->assertSee('Rejecting Agency');
+    }
+
+    public function test_assign_screen_shows_agency_workload_and_rejection_banner_when_reassigning(): void
+    {
+        $staff = User::factory()->mcmcStaff()->create();
+        $oldAgency = Agency::factory()->create(['name' => 'Old Agency']);
+        $newAgency = Agency::factory()->create();
+        Inquiry::factory()->create(['status' => InquiryStatus::UnderInvestigation, 'agency_id' => $newAgency->id]);
+        $inquiry = Inquiry::factory()->create([
+            'status' => InquiryStatus::Rejected,
+            'agency_id' => $oldAgency->id,
+            'resolution_notes' => 'Outside our jurisdiction.',
+        ]);
+
+        Volt::actingAs($staff)
+            ->test('mcmc.triage.index')
+            ->call('openAssign', $inquiry->id)
+            ->assertSee('Old Agency')
+            ->assertSee('Outside our jurisdiction')
+            ->assertSee('1 active cases');
+    }
 }

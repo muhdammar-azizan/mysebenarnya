@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\InquiryCategory;
 use App\Enums\InquiryStatus;
 use App\Models\Agency;
 use App\Models\Inquiry;
@@ -21,6 +22,15 @@ new #[Layout('layouts.mcmc')] class extends Component
     #[Url]
     public ?int $currentId = null;
 
+    #[Url]
+    public string $search = '';
+
+    #[Url]
+    public string $category = 'All';
+
+    #[Url]
+    public string $dateRange = 'all';
+
     public array $selectedIds = [];
 
     public bool $discardModalOpen = false;
@@ -33,10 +43,26 @@ new #[Layout('layouts.mcmc')] class extends Component
 
     public string $assignNotes = '';
 
+    public string $reviewNotes = '';
+
     public function openReview(int $id): void
     {
         $this->currentId = $id;
+        $this->reviewNotes = '';
         $this->screen = 'review';
+    }
+
+    public function validateAndAssign(int $id): void
+    {
+        $carriedNotes = $this->reviewNotes;
+        $this->openAssign($id);
+        $this->assignNotes = $carriedNotes;
+    }
+
+    public function openDiscardModal(): void
+    {
+        $this->discardNotes = $this->reviewNotes;
+        $this->discardModalOpen = true;
     }
 
     public function openAssign(int $id): void
@@ -51,6 +77,20 @@ new #[Layout('layouts.mcmc')] class extends Component
     {
         $this->screen = 'list';
         $this->currentId = null;
+    }
+
+    protected function applyFilters($query)
+    {
+        return $query
+            ->when($this->search, fn ($q) => $q->where('title', 'like', '%'.$this->search.'%'))
+            ->when($this->category !== 'All', fn ($q) => $q->where('category', $this->category))
+            ->when($this->dateRange === '7days', fn ($q) => $q->where('created_at', '>=', now()->subDays(7)))
+            ->when($this->dateRange === '30days', fn ($q) => $q->where('created_at', '>=', now()->subDays(30)));
+    }
+
+    public function getCategoriesProperty(): array
+    {
+        return InquiryCategory::cases();
     }
 
     public function toggleSelect(int $id): void
@@ -160,17 +200,17 @@ new #[Layout('layouts.mcmc')] class extends Component
 
     public function getPendingRowsProperty()
     {
-        return Inquiry::where('status', InquiryStatus::Submitted)->with('submitter')->latest()->get();
+        return $this->applyFilters(Inquiry::where('status', InquiryStatus::Submitted)->with('submitter')->withCount('evidence'))->latest()->get();
     }
 
     public function getReassignRowsProperty()
     {
-        return Inquiry::where('status', InquiryStatus::Rejected)->with('submitter')->latest()->get();
+        return $this->applyFilters(Inquiry::where('status', InquiryStatus::Rejected)->with(['submitter', 'agency']))->latest()->get();
     }
 
     public function getAssignedRowsProperty()
     {
-        return Inquiry::where('status', InquiryStatus::UnderInvestigation)->with('agency')->latest('reviewed_at')->get();
+        return $this->applyFilters(Inquiry::where('status', InquiryStatus::UnderInvestigation)->with('agency'))->latest('reviewed_at')->get();
     }
 
     public function getReviewedRowsProperty()
@@ -190,7 +230,24 @@ new #[Layout('layouts.mcmc')] class extends Component
 
     public function getAgenciesProperty()
     {
-        return Agency::where('is_active', true)->orderBy('name')->get();
+        return Agency::where('is_active', true)
+            ->withCount(['inquiries as active_case_count' => fn ($q) => $q->where('status', InquiryStatus::UnderInvestigation)])
+            ->orderBy('name')
+            ->get();
+    }
+
+    public function categoryChip(?InquiryCategory $category): array
+    {
+        return match ($category) {
+            InquiryCategory::HealthMedical => ['bg' => 'bg-brand-light', 'color' => 'text-brand', 'code' => 'HM'],
+            InquiryCategory::FinancialScams => ['bg' => 'bg-teal-50', 'color' => 'text-teal-700', 'code' => 'FS'],
+            InquiryCategory::ElectoralPolitical => ['bg' => 'bg-purple-50', 'color' => 'text-purple-700', 'code' => 'EP'],
+            InquiryCategory::ConsumerRights => ['bg' => 'bg-blue-50', 'color' => 'text-blue-700', 'code' => 'CR'],
+            InquiryCategory::CriminalFraud => ['bg' => 'bg-gray-100', 'color' => 'text-gray-600', 'code' => 'CF'],
+            InquiryCategory::DisasterEmergency => ['bg' => 'bg-amber-50', 'color' => 'text-amber-700', 'code' => 'DE'],
+            InquiryCategory::TechnologyDigital => ['bg' => 'bg-green-50', 'color' => 'text-green-700', 'code' => 'TD'],
+            default => ['bg' => 'bg-gray-100', 'color' => 'text-gray-500', 'code' => 'OT'],
+        };
     }
 }; ?>
 
@@ -218,6 +275,24 @@ new #[Layout('layouts.mcmc')] class extends Component
             </button>
         </div>
 
+        @if ($tab !== 'reviewed')
+            <div class="flex flex-wrap gap-3 mb-5">
+                <input type="text" wire:model.live.debounce.400ms="search" placeholder="{{ __('Search by title...') }}"
+                    class="flex-1 min-w-[200px] rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand" />
+                <select wire:model.live="category" class="rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
+                    <option value="All">{{ __('All Categories') }}</option>
+                    @foreach ($this->categories as $case)
+                        <option value="{{ $case->value }}">{{ $case->value }}</option>
+                    @endforeach
+                </select>
+                <select wire:model.live="dateRange" class="rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
+                    <option value="all">{{ __('All Time') }}</option>
+                    <option value="7days">{{ __('Last 7 Days') }}</option>
+                    <option value="30days">{{ __('Last 30 Days') }}</option>
+                </select>
+            </div>
+        @endif
+
         @if ($tab === 'pending')
             @if (count($selectedIds) > 0)
                 <div class="flex items-center justify-between bg-brand-light border border-red-100 rounded-lg px-4 py-3 mb-4">
@@ -235,7 +310,7 @@ new #[Layout('layouts.mcmc')] class extends Component
                         <tr class="bg-gray-50 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">
                             <th class="px-5 py-3 w-8"><input type="checkbox" wire:click="toggleSelectAll" @checked(count($selectedIds) > 0 && count(array_diff($this->pendingRows->pluck('id')->all(), $selectedIds)) === 0)></th>
                             <th class="px-5 py-3">{{ __('Title') }}</th>
-                            <th class="px-5 py-3">{{ __('Category') }}</th>
+                            <th class="px-5 py-3">{{ __('Evidence') }}</th>
                             <th class="px-5 py-3">{{ __('Submitted') }}</th>
                             <th class="px-5 py-3"></th>
                         </tr>
@@ -245,7 +320,7 @@ new #[Layout('layouts.mcmc')] class extends Component
                             <tr wire:key="pending-{{ $row->id }}" class="border-t border-gray-50 hover:bg-gray-50">
                                 <td class="px-5 py-3.5"><input type="checkbox" wire:click="toggleSelect({{ $row->id }})" @checked(in_array($row->id, $selectedIds))></td>
                                 <td class="px-5 py-3.5 font-semibold text-gray-900">{{ $row->title }}</td>
-                                <td class="px-5 py-3.5 text-gray-600">{{ $row->category?->value }}</td>
+                                <td class="px-5 py-3.5 text-gray-600">{{ $row->evidence_count }} {{ __('file'.($row->evidence_count === 1 ? '' : 's')).' attached' }}</td>
                                 <td class="px-5 py-3.5 text-gray-600 whitespace-nowrap">{{ $row->created_at->format('d M Y') }}</td>
                                 <td class="px-5 py-3.5 text-right">
                                     <button wire:click="openReview({{ $row->id }})" class="text-sm font-bold text-brand hover:underline">{{ __('Review') }}</button>
@@ -263,16 +338,19 @@ new #[Layout('layouts.mcmc')] class extends Component
                     <thead>
                         <tr class="bg-gray-50 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">
                             <th class="px-5 py-3">{{ __('Title') }}</th>
-                            <th class="px-5 py-3">{{ __('Category') }}</th>
+                            <th class="px-5 py-3">{{ __('Prev. Agency') }}</th>
                             <th class="px-5 py-3">{{ __('Rejection Reason') }}</th>
                             <th class="px-5 py-3"></th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse ($this->reassignRows as $row)
+                            @php $agencyChip = $this->categoryChip($row->agency?->specialization); @endphp
                             <tr wire:key="reassign-{{ $row->id }}" class="border-t border-gray-50 hover:bg-gray-50">
                                 <td class="px-5 py-3.5 font-semibold text-gray-900">{{ $row->title }}</td>
-                                <td class="px-5 py-3.5 text-gray-600">{{ $row->category?->value }}</td>
+                                <td class="px-5 py-3.5">
+                                    <span class="inline-flex items-center gap-1.5 {{ $agencyChip['bg'] }} {{ $agencyChip['color'] }} px-2.5 py-1 rounded-full text-xs font-bold">{{ $row->agency?->name ?? '—' }}</span>
+                                </td>
                                 <td class="px-5 py-3.5 text-gray-600">{{ str($row->resolution_notes ?? '—')->limit(60) }}</td>
                                 <td class="px-5 py-3.5 text-right">
                                     <button wire:click="openAssign({{ $row->id }})" class="text-sm font-bold text-blue-600 hover:underline">{{ __('Reassign') }}</button>
@@ -358,9 +436,14 @@ new #[Layout('layouts.mcmc')] class extends Component
                 </div>
             @endif
 
-            <div class="flex gap-3 pt-4 border-t border-gray-100">
-                <button wire:click="openAssign({{ $inquiry->id }})" class="bg-green-600 hover:bg-green-700 text-white font-bold text-sm px-5 py-2.5 rounded-lg">{{ __('Validate') }}</button>
-                <button wire:click="$set('discardModalOpen', true)" class="border border-gray-300 hover:bg-gray-50 text-gray-700 font-bold text-sm px-5 py-2.5 rounded-lg">{{ __('Discard') }}</button>
+            <div class="mb-5 pt-4 border-t border-gray-100">
+                <label class="block text-sm font-bold text-gray-700 mb-1.5">{{ __('Add Review Notes (optional)') }}</label>
+                <textarea wire:model="reviewNotes" rows="2" placeholder="{{ __('Notes will carry over to whichever action you choose below.') }}" class="w-full rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand"></textarea>
+            </div>
+
+            <div class="flex gap-3">
+                <button wire:click="validateAndAssign({{ $inquiry->id }})" class="bg-green-600 hover:bg-green-700 text-white font-bold text-sm px-5 py-2.5 rounded-lg">{{ __('Validate') }}</button>
+                <button wire:click="openDiscardModal" class="border border-gray-300 hover:bg-gray-50 text-gray-700 font-bold text-sm px-5 py-2.5 rounded-lg">{{ __('Discard') }}</button>
             </div>
         </div>
     @else
@@ -371,13 +454,26 @@ new #[Layout('layouts.mcmc')] class extends Component
             <h2 class="font-display font-extrabold text-xl text-gray-900 mb-1">{{ __('Assign to Agency') }}</h2>
             <p class="text-sm text-gray-500 mb-5">{{ $inquiry->title }}</p>
 
+            @if ($inquiry->status === InquiryStatus::Rejected && $inquiry->agency)
+                <div class="flex items-start gap-2.5 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 mb-5 text-sm text-amber-800">
+                    <span class="flex-shrink-0">⚠️</span>
+                    <div>
+                        {{ __('Previously assigned to :agency — Rejected: ":reason" on :date', [
+                            'agency' => $inquiry->agency->name,
+                            'reason' => str($inquiry->resolution_notes ?? '—')->limit(80),
+                            'date' => $inquiry->updated_at->format('d M Y'),
+                        ]) }}
+                    </div>
+                </div>
+            @endif
+
             <div class="grid grid-cols-2 gap-3 mb-5">
                 @foreach ($this->agencies as $agency)
                     @php $recommended = $agency->specialization === $inquiry->category; @endphp
                     <button type="button" wire:click="$set('selectedAgencyId', {{ $agency->id }})"
                         class="text-left border-2 rounded-xl p-4 {{ $selectedAgencyId === $agency->id ? 'border-brand bg-brand-light' : 'border-gray-100' }}">
                         <div class="font-bold text-sm text-gray-900">{{ $agency->name }} @if ($recommended)<span class="text-brand">({{ __('Recommended') }})</span>@endif</div>
-                        <div class="text-xs text-gray-500 mt-1">{{ $agency->specialization?->value }}</div>
+                        <div class="text-xs text-gray-500 mt-1">{{ $agency->specialization?->value }} · {{ __(':count active cases', ['count' => $agency->active_case_count]) }}</div>
                     </button>
                 @endforeach
             </div>
