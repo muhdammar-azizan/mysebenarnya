@@ -84,6 +84,17 @@ new #[Layout('layouts.public')] class extends Component
         </button>
     </div>
 
+    <div class="bg-white border border-gray-100 rounded-2xl p-6 mb-7 flex items-center justify-between flex-wrap gap-4">
+        <div>
+            <div class="font-bold text-gray-900">{{ __('Ready to verify something new?') }}</div>
+            <div class="text-gray-500 text-sm mt-1">{{ __("Submit a news item you'd like us to investigate.") }}</div>
+        </div>
+        <a href="{{ route('inquiries.create') }}" wire:navigate class="inline-flex items-center gap-2 bg-brand hover:bg-brand-dark text-white font-bold text-sm px-5 py-2.5 rounded-lg flex-shrink-0">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg>
+            {{ __('Submit a New Inquiry') }}
+        </a>
+    </div>
+
     <div class="bg-white border border-gray-100 rounded-2xl overflow-hidden">
         <div class="p-5 border-b border-gray-100 flex flex-wrap gap-3">
             <input type="text" wire:model.live.debounce.400ms="search" placeholder="{{ __('Search by title...') }}"
