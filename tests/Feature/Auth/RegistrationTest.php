@@ -25,12 +25,28 @@ class RegistrationTest extends TestCase
             ->set('name', 'Test User')
             ->set('email', 'test@example.com')
             ->set('password', 'Password123!')
-            ->set('password_confirmation', 'Password123!');
+            ->set('password_confirmation', 'Password123!')
+            ->set('terms', true);
 
         $component->call('register');
 
         $component->assertRedirect(route('dashboard', absolute: false));
 
         $this->assertAuthenticated();
+    }
+
+    public function test_registration_requires_accepting_the_terms(): void
+    {
+        $component = Volt::test('pages.auth.register')
+            ->set('name', 'Test User')
+            ->set('email', 'test@example.com')
+            ->set('password', 'Password123!')
+            ->set('password_confirmation', 'Password123!')
+            ->set('terms', false);
+
+        $component->call('register');
+
+        $component->assertHasErrors(['terms']);
+        $this->assertGuest();
     }
 }

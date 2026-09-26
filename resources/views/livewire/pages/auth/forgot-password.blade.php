@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Password;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
 
-new #[Layout('layouts.guest')] class extends Component
+new #[Layout('layouts.auth')] class extends Component
 {
     public string $email = '';
 
@@ -36,26 +36,26 @@ new #[Layout('layouts.guest')] class extends Component
     }
 }; ?>
 
-<div>
-    <div class="mb-4 text-sm text-gray-600">
-        {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
-    </div>
+<x-auth-card>
+    <div class="font-display font-bold text-2xl mb-1.5">{{ __('Reset Your Password') }}</div>
+    <div class="text-[13px] text-gray-400 mb-6">{{ __("Enter your email and we'll send a reset link.") }}</div>
 
-    <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
-    <form wire:submit="sendPasswordResetLink">
-        <!-- Email Address -->
+    <form wire:submit="sendPasswordResetLink" class="flex flex-col gap-4">
         <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input wire:model="email" id="email" class="block mt-1 w-full" type="email" name="email" required autofocus />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+            <label for="email" class="block text-[13px] font-medium mb-1.5">{{ __('Email') }}</label>
+            <input id="email" type="email" wire:model="email" placeholder="you@example.com" required autofocus
+                class="w-full box-border h-10 px-3 rounded-lg text-sm border focus:outline-none focus:ring-0 {{ $errors->has('email') ? 'border-brand ring-2 ring-brand/10' : 'border-gray-300' }}" />
+            <x-input-error :messages="$errors->get('email')" class="mt-1.5 text-brand" />
         </div>
 
-        <div class="flex items-center justify-end mt-4">
-            <x-primary-button>
-                {{ __('Email Password Reset Link') }}
-            </x-primary-button>
+        <button type="submit" class="h-10 rounded-lg bg-brand hover:bg-brand-dark text-white font-semibold text-sm">
+            {{ __('Send Reset Link') }}
+        </button>
+
+        <div class="text-center">
+            <a href="{{ route('login') }}" wire:navigate class="text-[13px] text-brand font-medium">{{ __('Back to Login') }}</a>
         </div>
     </form>
-</div>
+</x-auth-card>

@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Session;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
 
-new #[Layout('layouts.guest')] class extends Component
+new #[Layout('layouts.auth')] class extends Component
 {
     /**
      * Send an email verification notification to the user.
@@ -35,24 +35,34 @@ new #[Layout('layouts.guest')] class extends Component
     }
 }; ?>
 
-<div>
-    <div class="mb-4 text-sm text-gray-600">
-        {{ __('Thanks for signing up! Before getting started, could you verify your email address by clicking on the link we just emailed to you? If you didn\'t receive the email, we will gladly send you another.') }}
-    </div>
-
-    @if (session('status') == 'verification-link-sent')
-        <div class="mb-4 font-medium text-sm text-green-600">
-            {{ __('A new verification link has been sent to the email address you provided during registration.') }}
+<x-auth-card>
+    <div class="text-center">
+        <div class="w-16 h-16 rounded-full bg-brand-light flex items-center justify-center mx-auto mb-5">
+            <div class="w-[30px] h-[22px] border-[2.5px] border-brand rounded relative">
+                <div class="absolute top-0 left-0 w-[15px] h-[2.5px] bg-brand" style="transform: rotate(28deg); transform-origin: top left;"></div>
+                <div class="absolute top-0 right-0 w-[15px] h-[2.5px] bg-brand" style="transform: rotate(-28deg); transform-origin: top right;"></div>
+            </div>
         </div>
-    @endif
 
-    <div class="mt-4 flex items-center justify-between">
-        <x-primary-button wire:click="sendVerification">
-            {{ __('Resend Verification Email') }}
-        </x-primary-button>
+        <div class="font-display font-bold text-2xl mb-2.5">{{ __('Verify Your Email') }}</div>
+        <div class="text-sm text-gray-500 leading-relaxed mb-6">
+            {{ __("We've sent a verification link to your email. Please check your inbox to activate your account.") }}
+        </div>
 
-        <button wire:click="logout" type="submit" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-            {{ __('Log Out') }}
-        </button>
+        @if (session('status') == 'verification-link-sent')
+            <div class="mb-5 text-sm font-medium text-green-600">
+                {{ __('A new verification link has been sent to the email address you provided during registration.') }}
+            </div>
+        @endif
+
+        <div class="flex flex-col gap-4">
+            <button type="button" wire:click="sendVerification" class="h-10 rounded-lg bg-white text-gray-900 border-[1.5px] border-gray-300 font-semibold text-sm hover:bg-gray-50">
+                {{ __('Resend Verification Email') }}
+            </button>
+
+            <button type="button" wire:click="logout" class="text-[13px] text-brand font-medium">
+                {{ __('Log Out') }}
+            </button>
+        </div>
     </div>
-</div>
+</x-auth-card>
