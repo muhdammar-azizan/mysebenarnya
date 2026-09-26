@@ -3,7 +3,6 @@
         ['route' => 'dashboard', 'label' => __('Home')],
         ['route' => 'inquiries.create', 'label' => __('Submit Inquiry')],
         ['route' => 'inquiries.index', 'label' => __('My Inquiries')],
-        ['route' => 'browse.index', 'label' => __('Browse Public Inquiries')],
         ['route' => 'profile', 'label' => __('Profile Settings')],
     ];
 @endphp

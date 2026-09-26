@@ -24,7 +24,7 @@ new #[Layout('layouts.public')] class extends Component
 }; ?>
 
 <div>
-    <a href="{{ route('browse.index') }}" wire:navigate class="inline-flex items-center gap-1.5 text-gray-500 hover:text-brand font-semibold text-sm mb-5">
+    <a href="{{ route('dashboard') }}" wire:navigate class="inline-flex items-center gap-1.5 text-gray-500 hover:text-brand font-semibold text-sm mb-5">
         &larr; {{ __('Back to Browse') }}
     </a>
 

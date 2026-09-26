@@ -14,30 +14,6 @@ class BrowseTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_it_lists_public_inquiries_from_any_submitter(): void
-    {
-        $viewer = User::factory()->create(['role' => UserRole::Public]);
-        $someoneElse = User::factory()->create(['role' => UserRole::Public]);
-
-        Inquiry::factory()->create(['submitted_by' => $someoneElse->id, 'title' => 'Publicly visible inquiry']);
-
-        Volt::actingAs($viewer)
-            ->test('public.browse.index')
-            ->assertSee('Publicly visible inquiry');
-    }
-
-    public function test_discarded_inquiries_are_excluded_from_browse(): void
-    {
-        $viewer = User::factory()->create(['role' => UserRole::Public]);
-        $submitter = User::factory()->create(['role' => UserRole::Public]);
-
-        Inquiry::factory()->create(['submitted_by' => $submitter->id, 'title' => 'Discarded spam report', 'status' => InquiryStatus::Discarded]);
-
-        Volt::actingAs($viewer)
-            ->test('public.browse.index')
-            ->assertDontSee('Discarded spam report');
-    }
-
     public function test_viewing_a_discarded_inquiry_via_browse_is_forbidden(): void
     {
         $viewer = User::factory()->create(['role' => UserRole::Public]);

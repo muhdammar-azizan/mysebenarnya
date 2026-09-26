@@ -26,7 +26,7 @@
                     </span>
                 </a>
 
-                <form action="{{ route('browse.index') }}" method="GET" class="flex-1 max-w-md">
+                <form action="{{ route('dashboard') }}" method="GET" class="flex-1 max-w-md">
                     <input type="text" name="search" placeholder="{{ __('Search inquiries...') }}"
                         class="w-full text-sm rounded-lg border-0 bg-white/95 focus:ring-2 focus:ring-white/50" />
                 </form>
