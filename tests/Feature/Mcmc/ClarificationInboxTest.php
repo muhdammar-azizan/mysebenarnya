@@ -91,4 +91,53 @@ class ClarificationInboxTest extends TestCase
 
         $this->actingAs($agencyStaff)->get(route('mcmc.clarifications.index'))->assertForbidden();
     }
+
+    public function test_show_page_displays_the_inquiry_summary_card(): void
+    {
+        [, , $inquiry, $thread] = $this->openThread();
+        $inquiry->update(['description' => 'A detailed description of the misinformation claim.']);
+        $mcmc = User::factory()->mcmcStaff()->create();
+
+        Volt::actingAs($mcmc)
+            ->test('mcmc.clarifications.show', ['thread' => $thread])
+            ->assertSee('Inquiry Summary')
+            ->assertSee('A detailed description of the misinformation claim.')
+            ->assertSee('Original Evidence');
+    }
+
+    public function test_show_page_displays_the_assignment_note_when_one_exists(): void
+    {
+        [, , $inquiry, $thread] = $this->openThread();
+        \App\Models\InquiryActivityLog::create([
+            'inquiry_id' => $inquiry->id,
+            'user_id' => User::factory()->mcmcStaff()->create()->id,
+            'action' => 'assigned',
+            'to_status' => InquiryStatus::UnderInvestigation->value,
+            'notes' => 'Please verify with the ministry directly.',
+        ]);
+        $mcmc = User::factory()->mcmcStaff()->create();
+
+        Volt::actingAs($mcmc)
+            ->test('mcmc.clarifications.show', ['thread' => $thread])
+            ->assertSee('Your assignment note:')
+            ->assertSee('Please verify with the ministry directly.');
+    }
+
+    public function test_show_page_displays_the_activity_log_timeline(): void
+    {
+        [, , $inquiry, $thread] = $this->openThread();
+        \App\Models\InquiryActivityLog::create([
+            'inquiry_id' => $inquiry->id,
+            'user_id' => User::factory()->mcmcStaff()->create()->id,
+            'action' => 'assigned',
+            'to_status' => InquiryStatus::UnderInvestigation->value,
+            'notes' => 'Assigned for review.',
+        ]);
+        $mcmc = User::factory()->mcmcStaff()->create();
+
+        Volt::actingAs($mcmc)
+            ->test('mcmc.clarifications.show', ['thread' => $thread])
+            ->assertSee('Activity Log')
+            ->assertSee('Assigned');
+    }
 }

@@ -29,9 +29,26 @@ new #[Layout('layouts.mcmc')] class extends Component
     {
         $this->authorize('view', $thread);
 
-        $this->thread = $thread->load(['inquiry.agency', 'messages.user', 'messages.consultAgency', 'consults.consultedAgency', 'opener']);
+        $this->thread = $thread->load([
+            'inquiry.agency',
+            'inquiry.evidence',
+            'inquiry.activityLogs.user',
+            'messages.user',
+            'messages.consultAgency',
+            'consults.consultedAgency',
+            'opener',
+        ]);
 
         $this->thread->markRead('mcmc');
+    }
+
+    public function getAssignmentNoteProperty(): ?string
+    {
+        return $this->thread->inquiry->activityLogs
+            ->whereIn('action', ['assigned', 'reassigned'])
+            ->sortByDesc('created_at')
+            ->first()
+            ?->notes;
     }
 
     public function sendReply(): void
@@ -157,7 +174,8 @@ new #[Layout('layouts.mcmc')] class extends Component
         </div>
     </div>
 
-    <div class="bg-white border border-gray-100 rounded-2xl overflow-hidden mb-5">
+    <div class="grid grid-cols-[65fr_35fr] gap-4 items-start">
+    <div class="bg-white border border-gray-100 rounded-2xl overflow-hidden">
         <div class="p-6 flex flex-col gap-4">
             @foreach ($thread->messages as $message)
                 <div class="flex gap-3 {{ $message->user_id === auth()->id() ? 'flex-row-reverse text-right' : '' }}">
@@ -192,6 +210,7 @@ new #[Layout('layouts.mcmc')] class extends Component
         @endcan
     </div>
 
+    <div class="flex flex-col gap-4">
     @if ($thread->consults->isNotEmpty())
         <div class="bg-white border border-gray-100 rounded-2xl p-6">
             <div class="font-bold text-gray-900 mb-4">{{ __('Consultations') }}</div>
@@ -215,6 +234,48 @@ new #[Layout('layouts.mcmc')] class extends Component
             </div>
         </div>
     @endif
+
+        <div class="bg-white border border-gray-100 rounded-2xl p-5">
+            <div class="font-bold text-gray-900 mb-2.5">{{ __('Inquiry Summary') }}</div>
+            <div class="text-xs text-gray-400 mb-2.5">
+                {{ $thread->inquiry->category?->value }} &middot;
+                {{ __('Submitted') }} {{ $thread->inquiry->created_at->format('d M Y') }} &middot;
+                {{ __('Assigned') }} {{ $thread->inquiry->reviewed_at?->format('d M Y') ?? '—' }}
+            </div>
+            <p class="text-sm text-gray-600 leading-relaxed mb-3">{{ $thread->inquiry->description }}</p>
+            @if ($this->assignmentNote)
+                <div class="bg-amber-50 rounded-lg px-3 py-2.5 text-xs text-amber-800 leading-relaxed mb-3">
+                    <strong>{{ __('Your assignment note:') }}</strong> {{ $this->assignmentNote }}
+                </div>
+            @endif
+            <div class="text-[11.5px] font-bold text-gray-400 uppercase tracking-wide mb-1.5">{{ __('Original Evidence') }}</div>
+            <div class="flex flex-wrap gap-1.5">
+                @forelse ($thread->inquiry->evidence as $file)
+                    <span class="px-2.5 py-1 bg-gray-50 border border-gray-100 rounded-full text-[11.5px] font-semibold text-gray-700">📎 {{ $file->file_name }}</span>
+                @empty
+                    <span class="text-xs text-gray-400">{{ __('No evidence attached.') }}</span>
+                @endforelse
+            </div>
+        </div>
+
+        <div class="bg-white border border-gray-100 rounded-2xl p-5">
+            <div class="font-bold text-gray-900 mb-3">{{ __('Activity Log') }}</div>
+            <div class="flex flex-col gap-3">
+                @forelse ($thread->inquiry->activityLogs->sortByDesc('created_at') as $log)
+                    <div class="flex gap-2.5">
+                        <div class="w-2 h-2 rounded-full bg-brand mt-1.5 flex-shrink-0"></div>
+                        <div>
+                            <div class="text-[11.5px] font-semibold text-gray-400">{{ $log->created_at->format('d M Y, H:i') }}</div>
+                            <div class="text-[12.5px] font-semibold text-gray-800">{{ str($log->action)->headline() }}</div>
+                        </div>
+                    </div>
+                @empty
+                    <p class="text-xs text-gray-400">{{ __('No activity recorded yet.') }}</p>
+                @endforelse
+            </div>
+        </div>
+    </div>
+    </div>
 
     @if ($inviteModalOpen)
         <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-6">
