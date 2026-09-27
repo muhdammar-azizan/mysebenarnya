@@ -46,7 +46,8 @@ new #[Layout('layouts.agency')] class extends Component
             ->with('activityLogs')
             ->when($this->search, fn ($q) => $q->where('title', 'like', '%'.$this->search.'%'))
             ->when($this->status === 'awaiting', fn ($q) => $q->where('status', InquiryStatus::UnderInvestigation)->whereNull('jurisdiction_accepted_at'))
-            ->when($this->status !== 'All' && $this->status !== 'awaiting', fn ($q) => $q->where('status', $this->status))
+            ->when($this->status === 'resolved', fn ($q) => $q->whereIn('status', [InquiryStatus::VerifiedTrue, InquiryStatus::IdentifiedFake]))
+            ->when($this->status !== 'All' && $this->status !== 'awaiting' && $this->status !== 'resolved', fn ($q) => $q->where('status', $this->status))
             ->when($this->category !== 'All', fn ($q) => $q->where('category', $this->category))
             ->when($this->dateFrom, fn ($q) => $q->whereDate('created_at', '>=', $this->dateFrom))
             ->when($this->dateTo, fn ($q) => $q->whereDate('created_at', '<=', $this->dateTo))
@@ -135,6 +136,7 @@ new #[Layout('layouts.agency')] class extends Component
             <option value="All">{{ __('All Assigned') }}</option>
             <option value="awaiting">{{ __('Awaiting Jurisdiction Review') }}</option>
             <option value="{{ InquiryStatus::UnderInvestigation->value }}">{{ __('Under Investigation') }}</option>
+            <option value="resolved">{{ __('Resolved (Verified or Fake)') }}</option>
             <option value="{{ InquiryStatus::VerifiedTrue->value }}">{{ __('Verified as True') }}</option>
             <option value="{{ InquiryStatus::IdentifiedFake->value }}">{{ __('Identified as Fake') }}</option>
             <option value="{{ InquiryStatus::Rejected->value }}">{{ __('Rejected by us') }}</option>
