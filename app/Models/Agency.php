@@ -16,6 +16,7 @@ class Agency extends Model
         'code',
         'specialization',
         'description',
+        'contact_name',
         'contact_email',
         'contact_phone',
         'logo_path',

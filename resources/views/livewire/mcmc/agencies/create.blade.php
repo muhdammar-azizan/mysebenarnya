@@ -65,6 +65,7 @@ new #[Layout('layouts.mcmc')] class extends Component
             'code' => Agency::generateCodeFrom($validated['name']),
             'specialization' => $validated['specialization'],
             'description' => $this->description ?: null,
+            'contact_name' => $validated['contactName'],
             'contact_email' => $validated['contactEmail'],
             'contact_phone' => $validated['contactPhone'],
         ]);

@@ -21,6 +21,8 @@ new #[Layout('layouts.agency')] class extends Component
 
     public string $agencyName = '';
 
+    public string $contactName = '';
+
     public string $contactEmail = '';
 
     public string $contactPhone = '';
@@ -46,6 +48,7 @@ new #[Layout('layouts.agency')] class extends Component
         $agency = Auth::user()->agency;
 
         $this->agencyName = $agency->name;
+        $this->contactName = $agency->contact_name ?? '';
         $this->contactEmail = $agency->contact_email ?? '';
         $this->contactPhone = $agency->contact_phone ?? '';
         $this->description = $agency->description ?? '';
@@ -69,12 +72,14 @@ new #[Layout('layouts.agency')] class extends Component
 
         $validated = $this->validate([
             'agencyName' => 'required|string|max:255',
+            'contactName' => 'required|string|max:255',
             'contactEmail' => 'required|email|max:255',
             'contactPhone' => 'required|string|max:30',
         ]);
 
         $this->agency->update([
             'name' => $validated['agencyName'],
+            'contact_name' => $validated['contactName'],
             'contact_email' => $validated['contactEmail'],
             'contact_phone' => $validated['contactPhone'],
             'description' => $this->description ?: null,
@@ -176,7 +181,7 @@ new #[Layout('layouts.agency')] class extends Component
 
     <div class="flex border-b border-gray-100 mb-6">
         <button wire:click="$set('tab', 'info')" class="px-5 py-3 text-sm font-bold {{ $tab === 'info' ? 'text-brand border-b-2 border-brand' : 'text-gray-400' }}">{{ __('Agency Information') }}</button>
-        <button wire:click="$set('tab', 'staff')" class="px-5 py-3 text-sm font-bold {{ $tab === 'staff' ? 'text-brand border-b-2 border-brand' : 'text-gray-400' }}">{{ __('Staff') }}</button>
+        <button wire:click="$set('tab', 'security')" class="px-5 py-3 text-sm font-bold {{ $tab === 'security' ? 'text-brand border-b-2 border-brand' : 'text-gray-400' }}">{{ __('Password & Security') }}</button>
     </div>
 
     @if ($tab === 'info')
@@ -277,9 +282,17 @@ new #[Layout('layouts.agency')] class extends Component
 
             @if (auth()->user()->isAgencyAdmin())
                 <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1.5">{{ __('Contact Person Name') }}</label>
+                    <input type="text" wire:model="contactName" class="w-full rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand" />
+                    <x-input-error :messages="$errors->get('contactName')" class="mt-1.5" />
+                </div>
+                <div>
                     <label class="block text-sm font-bold text-gray-700 mb-1.5">{{ __('Contact Email') }}</label>
                     <input type="text" wire:model="contactEmail" class="w-full rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand" />
                     <x-input-error :messages="$errors->get('contactEmail')" class="mt-1.5" />
+                    @if ($contactEmail !== ($this->agency->contact_email ?? ''))
+                        <p class="text-xs text-amber-600 mt-1.5">{{ __('Changing this email will update where MCMC sends official notifications.') }}</p>
+                    @endif
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-1.5">{{ __('Contact Phone Number') }}</label>
@@ -293,6 +306,10 @@ new #[Layout('layouts.agency')] class extends Component
                 <button type="submit" class="bg-brand hover:bg-brand-dark text-white font-bold text-sm px-6 py-3 rounded-lg">{{ __('Save Changes') }}</button>
             @else
                 <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1.5">{{ __('Contact Person Name') }}</label>
+                    <div class="text-sm text-gray-600">{{ $this->agency->contact_name ?? '—' }}</div>
+                </div>
+                <div>
                     <label class="block text-sm font-bold text-gray-700 mb-1.5">{{ __('Contact Email') }}</label>
                     <div class="text-sm text-gray-600">{{ $this->agency->contact_email }}</div>
                 </div>
@@ -304,25 +321,29 @@ new #[Layout('layouts.agency')] class extends Component
             @endif
         </form>
     @else
-        <div class="flex items-center justify-between mb-4 max-w-xl">
-            <div class="font-bold text-gray-900">{{ __('Staff Members') }}</div>
-            @if (auth()->user()->isAgencyAdmin())
-                <button wire:click="openInviteModal" class="bg-brand hover:bg-brand-dark text-white font-bold text-sm px-4 py-2 rounded-lg">+ {{ __('Invite Staff') }}</button>
-            @endif
-        </div>
+        <livewire:profile.update-password-form />
 
-        <div class="bg-white border border-gray-100 rounded-2xl overflow-hidden max-w-xl">
-            @foreach ($this->staff as $staffMember)
-                <div class="flex items-center justify-between px-5 py-4 border-b border-gray-50 last:border-0">
-                    <div class="min-w-0">
-                        <div class="text-sm font-semibold text-gray-900 truncate">{{ $staffMember->name }}</div>
-                        <div class="text-xs text-gray-400 truncate">{{ $staffMember->email }}</div>
-                    </div>
-                    <span class="flex-shrink-0 px-2.5 py-1 rounded-full text-xs font-bold {{ $staffMember->agency_role?->value === 'admin' ? 'bg-brand-light text-brand' : 'bg-gray-100 text-gray-600' }}">
-                        {{ str($staffMember->agency_role?->value ?? '—')->headline() }}
-                    </span>
+        <div class="max-w-xl mt-6">
+            <div class="flex items-center justify-between mb-4">
+                <div class="font-bold text-gray-900">{{ __('Staff Access') }}</div>
+                @if (auth()->user()->isAgencyAdmin())
+                    <button wire:click="openInviteModal" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-semibold text-sm px-4 py-2 rounded-lg">+ {{ __('Invite Staff Member') }}</button>
+                @endif
+            </div>
+
+            <div class="bg-white border border-gray-100 rounded-2xl overflow-hidden">
+                <div class="grid grid-cols-[1.4fr_1.6fr_90px_90px] gap-3 px-5 py-2.5 text-[11px] font-bold text-gray-400 uppercase tracking-wide bg-gray-50 border-b border-gray-100">
+                    <div>{{ __('Staff Name') }}</div><div>{{ __('Email') }}</div><div>{{ __('Role') }}</div><div>{{ __('Status') }}</div>
                 </div>
-            @endforeach
+                @foreach ($this->staff as $staffMember)
+                    <div class="grid grid-cols-[1.4fr_1.6fr_90px_90px] gap-3 px-5 py-3.5 text-xs border-b border-gray-50 last:border-0 items-center">
+                        <div class="font-semibold text-gray-900 truncate">{{ $staffMember->name }}</div>
+                        <div class="text-gray-400 truncate" title="{{ $staffMember->email }}">{{ $staffMember->email }}</div>
+                        <div class="text-gray-600">{{ str($staffMember->agency_role?->value ?? '—')->headline() }}</div>
+                        <div><span class="bg-green-100 text-green-700 text-[10.5px] font-bold px-2.5 py-0.5 rounded-full">{{ __('Active') }}</span></div>
+                    </div>
+                @endforeach
+            </div>
         </div>
     @endif
 

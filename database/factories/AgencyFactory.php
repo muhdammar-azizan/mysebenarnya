@@ -24,6 +24,7 @@ class AgencyFactory extends Factory
             'name' => $name,
             'code' => Agency::generateCodeFrom($name),
             'specialization' => fake()->randomElement(InquiryCategory::cases()),
+            'contact_name' => fake()->name(),
             'contact_email' => fake()->unique()->companyEmail(),
             'contact_phone' => fake()->phoneNumber(),
             'is_active' => true,

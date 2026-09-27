@@ -175,4 +175,63 @@ class OrganizationProfileTest extends TestCase
             ->assertSee($agency->specialization->value)
             ->assertSee('Locked');
     }
+
+    public function test_admin_can_update_the_contact_person_name(): void
+    {
+        $agency = Agency::factory()->create();
+        $admin = User::factory()->agencyStaff()->create(['agency_id' => $agency->id, 'agency_role' => AgencyStaffRole::Admin]);
+
+        Volt::actingAs($admin)
+            ->test('agency.organization.index')
+            ->set('contactName', 'Dr. New Contact')
+            ->call('saveInfo')
+            ->assertHasNoErrors();
+
+        $this->assertSame('Dr. New Contact', $agency->fresh()->contact_name);
+    }
+
+    public function test_registering_an_agency_sets_its_initial_contact_name(): void
+    {
+        $staff = User::factory()->mcmcStaff()->create();
+
+        Volt::actingAs($staff)
+            ->test('mcmc.agencies.create')
+            ->set('name', 'Ministry of Testing')
+            ->set('specialization', \App\Enums\InquiryCategory::HealthMedical->value)
+            ->set('contactName', 'Dr. Test Person')
+            ->set('contactEmail', 'admin2@testing.gov.my')
+            ->set('contactPhone', '03-1234 5678')
+            ->call('register')
+            ->assertHasNoErrors();
+
+        $agency = Agency::where('name', 'Ministry of Testing')->first();
+        $this->assertSame('Dr. Test Person', $agency->contact_name);
+    }
+
+    public function test_security_tab_shows_password_form_and_staff_access(): void
+    {
+        $agency = Agency::factory()->create();
+        $admin = User::factory()->agencyStaff()->create(['agency_id' => $agency->id, 'agency_role' => AgencyStaffRole::Admin, 'name' => 'Admin Person']);
+        $reviewer = User::factory()->agencyStaff()->create(['agency_id' => $agency->id, 'agency_role' => AgencyStaffRole::Reviewer, 'name' => 'Reviewer Person']);
+
+        Volt::actingAs($admin)
+            ->test('agency.organization.index')
+            ->set('tab', 'security')
+            ->assertSee('Update Password')
+            ->assertSee('Staff Access')
+            ->assertSee('Admin Person')
+            ->assertSee('Reviewer Person')
+            ->assertDontSee('Two-Factor Authentication');
+    }
+
+    public function test_password_tab_no_longer_has_its_own_top_level_staff_tab(): void
+    {
+        $agency = Agency::factory()->create();
+        $admin = User::factory()->agencyStaff()->create(['agency_id' => $agency->id, 'agency_role' => AgencyStaffRole::Admin]);
+
+        Volt::actingAs($admin)
+            ->test('agency.organization.index')
+            ->assertSee('Password & Security')
+            ->assertDontSee('Staff Members');
+    }
 }
