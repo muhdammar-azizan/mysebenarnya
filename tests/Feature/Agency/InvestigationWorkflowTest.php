@@ -109,6 +109,19 @@ class InvestigationWorkflowTest extends TestCase
             ->assertForbidden();
     }
 
+    public function test_investigation_section_discloses_the_reviewing_officer(): void
+    {
+        $agency = Agency::factory()->create();
+        $staff = User::factory()->agencyStaff()->create(['agency_id' => $agency->id]);
+        $inquiry = $this->assignedInquiry($agency, jurisdictionAccepted: true);
+
+        Volt::actingAs($staff)
+            ->test('agency.inquiries.show', ['inquiry' => $inquiry])
+            ->assertSee('Reviewing Officer:')
+            ->assertSee($staff->name)
+            ->assertSee('will be recorded with this status update');
+    }
+
     public function test_agency_can_save_draft_investigation_notes_without_changing_status(): void
     {
         $agency = Agency::factory()->create();

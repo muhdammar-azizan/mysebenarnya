@@ -43,6 +43,7 @@ new #[Layout('layouts.agency')] class extends Component
         $agencyId = Auth::user()->agency_id;
 
         return Inquiry::where('agency_id', $agencyId)
+            ->with('activityLogs')
             ->when($this->search, fn ($q) => $q->where('title', 'like', '%'.$this->search.'%'))
             ->when($this->status === 'awaiting', fn ($q) => $q->where('status', InquiryStatus::UnderInvestigation)->whereNull('jurisdiction_accepted_at'))
             ->when($this->status !== 'All' && $this->status !== 'awaiting', fn ($q) => $q->where('status', $this->status))
@@ -51,6 +52,15 @@ new #[Layout('layouts.agency')] class extends Component
             ->when($this->dateTo, fn ($q) => $q->whereDate('created_at', '<=', $this->dateTo))
             ->latest()
             ->paginate(10);
+    }
+
+    public function notesFromMcmc(Inquiry $inquiry): ?string
+    {
+        return $inquiry->activityLogs
+            ->whereIn('action', ['assigned', 'reassigned'])
+            ->sortByDesc('created_at')
+            ->first()
+            ?->notes;
     }
 
     public function getAssignedCountProperty(): int
@@ -144,30 +154,37 @@ new #[Layout('layouts.agency')] class extends Component
     </div>
 
     <div class="bg-white border border-gray-100 rounded-2xl overflow-hidden">
-        <table class="w-full text-sm">
+        <table class="w-full text-sm table-fixed">
             <thead>
                 <tr class="bg-gray-50 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">
-                    <th class="px-5 py-3">{{ __('Title') }}</th>
-                    <th class="px-5 py-3">{{ __('Category') }}</th>
-                    <th class="px-5 py-3">{{ __('Status') }}</th>
-                    <th class="px-5 py-3">{{ __('Date Assigned') }}</th>
+                    <th class="px-5 py-3 w-[34%]">{{ __('Title') }}</th>
+                    <th class="px-5 py-3 w-[20%]">{{ __('Status') }}</th>
+                    <th class="px-5 py-3">{{ __('Notes from MCMC') }}</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse ($this->rows as $inquiry)
+                    @php $note = $this->notesFromMcmc($inquiry); @endphp
                     <tr wire:key="row-{{ $inquiry->id }}" onclick="window.location='{{ route('agency.inquiries.show', $inquiry) }}'" class="border-t border-gray-50 hover:bg-gray-50 cursor-pointer">
-                        <td class="px-5 py-3.5 font-semibold text-gray-900">{{ $inquiry->title }}</td>
-                        <td class="px-5 py-3.5 text-gray-600">{{ $inquiry->category?->value }}</td>
+                        <td class="px-5 py-3.5">
+                            <div class="font-semibold text-gray-900">{{ $inquiry->title }}</div>
+                            <div class="text-xs text-gray-400 mt-0.5">{{ $inquiry->category?->value }} &middot; {{ __('Assigned') }} {{ $inquiry->reviewed_at?->format('d M Y') ?? $inquiry->updated_at->format('d M Y') }}</div>
+                            @if ($inquiry->hasOpenClarification())
+                                <div class="inline-flex items-center gap-1.5 mt-1.5 bg-purple-50 text-purple-700 text-[10.5px] font-bold px-2 py-0.5 rounded-full">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-current"></span>{{ __('Clarification Pending') }}
+                                </div>
+                            @endif
+                        </td>
                         <td class="px-5 py-3.5">
                             <x-inquiry-status-badge :status="$inquiry->status" />
                             @if ($inquiry->isAwaitingJurisdiction())
                                 <span class="ml-1 inline-block px-2 py-0.5 rounded-full text-[11px] font-bold bg-gray-100 text-gray-500">{{ __('Awaiting Review') }}</span>
                             @endif
                         </td>
-                        <td class="px-5 py-3.5 text-gray-600 whitespace-nowrap">{{ $inquiry->updated_at->format('d M Y') }}</td>
+                        <td class="px-5 py-3.5 text-gray-500 text-xs truncate" title="{{ $note }}">{{ $note ?: '—' }}</td>
                     </tr>
                 @empty
-                    <tr><td colspan="4" class="px-5 py-10 text-center text-gray-400">{{ __('No assigned inquiries found.') }}</td></tr>
+                    <tr><td colspan="3" class="px-5 py-10 text-center text-gray-400">{{ __('No assigned inquiries found.') }}</td></tr>
                 @endforelse
             </tbody>
         </table>

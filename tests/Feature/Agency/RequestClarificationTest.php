@@ -47,7 +47,7 @@ class RequestClarificationTest extends TestCase
         ]);
     }
 
-    public function test_cannot_request_clarification_while_awaiting_jurisdiction_review(): void
+    public function test_can_request_clarification_while_still_awaiting_jurisdiction_review(): void
     {
         $agency = Agency::factory()->create();
         $staff = User::factory()->agencyStaff()->create(['agency_id' => $agency->id]);
@@ -59,8 +59,16 @@ class RequestClarificationTest extends TestCase
 
         Volt::actingAs($staff)
             ->test('agency.inquiries.show', ['inquiry' => $inquiry])
-            ->call('openClarifyModal')
-            ->assertForbidden();
+            ->set('tab', 'clarify')
+            ->set('clarifyTopic', ClarificationTopic::JurisdictionScope->value)
+            ->set('clarifyText', 'Is this really within our jurisdiction, or should it go to another agency?')
+            ->call('submitClarify')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('clarification_threads', [
+            'inquiry_id' => $inquiry->id,
+            'topic' => ClarificationTopic::JurisdictionScope->value,
+        ]);
     }
 
     public function test_cannot_request_a_second_clarification_while_one_is_active(): void
@@ -73,6 +81,19 @@ class RequestClarificationTest extends TestCase
             ->test('agency.inquiries.show', ['inquiry' => $inquiry])
             ->call('openClarifyModal')
             ->assertForbidden();
+    }
+
+    public function test_clarify_modal_discloses_the_requesting_officer(): void
+    {
+        [$staff, $inquiry] = $this->assignedInquiry();
+
+        Volt::actingAs($staff)
+            ->test('agency.inquiries.show', ['inquiry' => $inquiry])
+            ->set('tab', 'clarify')
+            ->call('openClarifyModal')
+            ->assertSee('Requesting Officer:')
+            ->assertSee($staff->name)
+            ->assertSee('will be recorded in the audit trail');
     }
 
     public function test_agency_can_follow_up_and_resolve_their_own_thread(): void

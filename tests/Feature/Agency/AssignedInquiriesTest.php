@@ -117,6 +117,36 @@ class AssignedInquiriesTest extends TestCase
         Notification::assertSentTo($agencyStaff, \App\Notifications\InquiryAssignedToAgency::class);
     }
 
+    public function test_assigned_tab_shows_the_latest_note_from_mcmc(): void
+    {
+        $agency = Agency::factory()->create();
+        $staff = User::factory()->agencyStaff()->create(['agency_id' => $agency->id]);
+        $mcmc = User::factory()->mcmcStaff()->create();
+        $inquiry = Inquiry::factory()->create(['agency_id' => $agency->id, 'title' => 'Case with a note']);
+        \App\Models\InquiryActivityLog::create([
+            'inquiry_id' => $inquiry->id,
+            'user_id' => $mcmc->id,
+            'action' => 'assigned',
+            'notes' => 'Please prioritize — this is time-sensitive.',
+        ]);
+
+        Volt::actingAs($staff)
+            ->test('agency.inquiries.index')
+            ->assertSee('Please prioritize');
+    }
+
+    public function test_assigned_tab_shows_a_clarification_pending_chip_when_a_thread_is_open(): void
+    {
+        $agency = Agency::factory()->create();
+        $staff = User::factory()->agencyStaff()->create(['agency_id' => $agency->id]);
+        $inquiry = Inquiry::factory()->create(['agency_id' => $agency->id, 'status' => InquiryStatus::UnderInvestigation, 'jurisdiction_accepted_at' => now()]);
+        \App\Models\ClarificationThread::open($inquiry, $staff, \App\Enums\ClarificationTopic::Other, \App\Enums\ClarificationPriority::Normal, 'A question.');
+
+        Volt::actingAs($staff)
+            ->test('agency.inquiries.index')
+            ->assertSee('Clarification Pending');
+    }
+
     public function test_inviting_an_agency_to_consult_notifies_its_staff(): void
     {
         Notification::fake();

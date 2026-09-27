@@ -377,6 +377,10 @@ new #[Layout('layouts.agency')] class extends Component
                 <label class="block text-sm font-bold text-gray-700 mb-1.5">{{ __('Attach Supporting Evidence (optional)') }}</label>
                 <input type="file" wire:model="newEvidence" multiple class="block text-sm mb-5" />
 
+                <div class="text-xs text-gray-500 bg-gray-50 rounded-lg px-3.5 py-2.5 mb-5">
+                    {{ __('Reviewing Officer:') }} <strong class="text-gray-900">{{ auth()->user()->name }}</strong> — {{ __('will be recorded with this status update.') }}
+                </div>
+
                 <div class="flex gap-3">
                     @if ($verdict === 'keep')
                         <button wire:click="saveDraft" class="bg-brand hover:bg-brand-dark text-white font-bold text-sm px-6 py-3 rounded-lg">{{ __('Save Draft') }}</button>
@@ -539,6 +543,9 @@ new #[Layout('layouts.agency')] class extends Component
                         <label class="block text-sm font-bold text-gray-700 mb-1.5">{{ __('Your Question') }}</label>
                         <textarea wire:model="clarifyText" rows="4" class="w-full rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand"></textarea>
                         <x-input-error :messages="$errors->get('clarifyText')" class="mt-1.5" />
+                    </div>
+                    <div class="text-xs text-gray-500 bg-gray-50 rounded-lg px-3.5 py-2.5">
+                        {{ __('Requesting Officer:') }} <strong class="text-gray-900">{{ auth()->user()->name }}</strong> — {{ __('name and timestamp will be recorded in the audit trail.') }}
                     </div>
                 </div>
                 <div class="flex gap-3 mt-5">
