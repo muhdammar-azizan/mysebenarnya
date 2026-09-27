@@ -1,6 +1,8 @@
 <?php
 
+use App\Concerns\GeneratesReports;
 use App\Enums\UserRole;
+use App\Models\Inquiry;
 use App\Models\InquiryActivityLog;
 use App\Models\User;
 use Livewire\Attributes\Layout;
@@ -10,6 +12,7 @@ use Livewire\WithPagination;
 
 new #[Layout('layouts.mcmc')] class extends Component
 {
+    use GeneratesReports;
     use WithPagination;
 
     #[Url]
@@ -44,7 +47,7 @@ new #[Layout('layouts.mcmc')] class extends Component
         $this->panelUserId = null;
     }
 
-    public function getRowsProperty()
+    protected function baseQuery()
     {
         return User::where('role', UserRole::Public)
             ->withCount('submittedInquiries')
@@ -52,14 +55,36 @@ new #[Layout('layouts.mcmc')] class extends Component
             ->when($this->status === 'Verified', fn ($q) => $q->whereNotNull('email_verified_at'))
             ->when($this->status === 'Unverified', fn ($q) => $q->whereNull('email_verified_at'))
             ->when($this->dateFrom, fn ($q) => $q->whereDate('created_at', '>=', $this->dateFrom))
-            ->when($this->dateTo, fn ($q) => $q->whereDate('created_at', '<=', $this->dateTo))
-            ->latest()
-            ->paginate(10);
+            ->when($this->dateTo, fn ($q) => $q->whereDate('created_at', '<=', $this->dateTo));
+    }
+
+    public function getRowsProperty()
+    {
+        return $this->baseQuery()->latest()->paginate(10);
+    }
+
+    public function getSummaryProperty(): array
+    {
+        $publicUsers = User::where('role', UserRole::Public);
+
+        return [
+            'total' => (clone $publicUsers)->count(),
+            'verified' => (clone $publicUsers)->whereNotNull('email_verified_at')->count(),
+            'unverified' => (clone $publicUsers)->whereNull('email_verified_at')->count(),
+            'active' => (clone $publicUsers)->where('last_active_at', '>=', now()->subDays(30))->count(),
+        ];
     }
 
     public function getPanelUserProperty(): ?User
     {
         return $this->panelUserId ? User::withCount('submittedInquiries')->find($this->panelUserId) : null;
+    }
+
+    public function getPanelInquiriesProperty()
+    {
+        return $this->panelUserId
+            ? Inquiry::where('submitted_by', $this->panelUserId)->latest()->limit(10)->get()
+            : collect();
     }
 
     public function getPanelActivityProperty()
@@ -68,17 +93,76 @@ new #[Layout('layouts.mcmc')] class extends Component
             return collect();
         }
 
-        return InquiryActivityLog::with('inquiry')
-            ->where('user_id', $this->panelUserId)
+        $user = $this->panelUser;
+        $events = collect();
+
+        $events->push(['date' => $user->created_at, 'label' => __('Account registered')]);
+        if ($user->email_verified_at) {
+            $events->push(['date' => $user->email_verified_at, 'label' => __('Email verified')]);
+        }
+
+        InquiryActivityLog::with('inquiry')
+            ->where(fn ($q) => $q->where('user_id', $user->id)->orWhereHas('inquiry', fn ($qq) => $qq->where('submitted_by', $user->id)))
             ->latest()
-            ->limit(10)
-            ->get();
+            ->limit(20)
+            ->get()
+            ->each(function ($log) use ($events) {
+                $events->push(['date' => $log->created_at, 'label' => str($log->action)->headline().': '.$log->inquiry?->title]);
+            });
+
+        return $events->sortByDesc('date')->values();
+    }
+
+    public function exportPdf()
+    {
+        $rows = $this->baseQuery()->latest()->get()->map(fn ($u) => [
+            $u->name,
+            $u->email,
+            $u->created_at->format('d M Y'),
+            $u->email_verified_at ? 'Verified' : 'Unverified',
+            $u->submitted_inquiries_count,
+        ])->all();
+
+        $filters = [];
+        $filters[] = $this->status !== 'All' ? $this->status : __('All Statuses');
+        if ($this->search) {
+            $filters[] = __('Search: ":q"', ['q' => $this->search]);
+        }
+
+        return $this->downloadPdf('SEBENARNYA_Registered-Users', 'Registered Users', implode(' · ', $filters), [[
+            'name' => 'Registered Users',
+            'kpis' => [
+                ['label' => 'Total', 'value' => $this->summary['total']],
+                ['label' => 'Verified', 'value' => $this->summary['verified']],
+                ['label' => 'Unverified', 'value' => $this->summary['unverified']],
+                ['label' => 'Active (30d)', 'value' => $this->summary['active']],
+            ],
+            'tables' => [[
+                'heading' => 'User Directory',
+                'columns' => ['Name', 'Email', 'Registered', 'Status', 'Inquiries'],
+                'rows' => $rows,
+            ]],
+        ]]);
     }
 }; ?>
 
 <div>
-    <h1 class="font-display font-extrabold text-2xl text-gray-900 mb-1">{{ __('Registered Users') }}</h1>
-    <p class="text-gray-500 text-sm mb-6">{{ __('Public users, their profiles, and submission activity.') }}</p>
+    <div class="flex items-start justify-between gap-4 mb-1">
+        <div>
+            <h1 class="font-display font-extrabold text-2xl text-gray-900">{{ __('Registered Users') }}</h1>
+            <p class="text-gray-500 text-sm mt-1">{{ __('View all registered public user accounts, profile details, and activity history.') }}</p>
+        </div>
+        <button wire:click="exportPdf" class="bg-brand hover:bg-brand-dark text-white font-bold text-sm px-5 py-2.5 rounded-lg whitespace-nowrap flex items-center gap-2">
+            📄 {{ __('Export Report') }}
+        </button>
+    </div>
+
+    <div class="flex flex-wrap gap-5 text-sm font-semibold text-gray-600 my-5">
+        <span>{{ __('Total:') }} <b class="text-gray-900">{{ $this->summary['total'] }}</b></span>
+        <span class="text-green-700">{{ __('Verified:') }} <b>{{ $this->summary['verified'] }}</b></span>
+        <span class="text-amber-600">{{ __('Unverified:') }} <b>{{ $this->summary['unverified'] }}</b></span>
+        <span class="text-blue-700">{{ __('Active (30d):') }} <b>{{ $this->summary['active'] }}</b></span>
+    </div>
 
     <div class="flex flex-wrap gap-3 mb-6">
         <input type="text" wire:model.live.debounce.400ms="search" placeholder="{{ __('Search by name or email...') }}"
@@ -141,15 +225,25 @@ new #[Layout('layouts.mcmc')] class extends Component
                         <div><div class="text-[11px] font-bold text-gray-400 uppercase">{{ __('Registered') }}</div><div class="font-semibold text-gray-800">{{ $this->panelUser->created_at->format('d M Y') }}</div></div>
                         <div><div class="text-[11px] font-bold text-gray-400 uppercase">{{ __('Last Active') }}</div><div class="font-semibold text-gray-800">{{ $this->panelUser->last_active_at?->diffForHumans() ?? __('Never') }}</div></div>
                         <div><div class="text-[11px] font-bold text-gray-400 uppercase">{{ __('Total Inquiries') }}</div><div class="font-semibold text-gray-800">{{ $this->panelUser->submitted_inquiries_count }}</div></div>
+                        <div class="border-t border-gray-100 pt-3.5">
+                            <div class="text-[11px] font-bold text-gray-400 uppercase mb-2">{{ __('Submitted Inquiries') }}</div>
+                            <div class="flex flex-col gap-2">
+                                @forelse ($this->panelInquiries as $inquiry)
+                                    <div class="bg-gray-50 rounded-lg px-3 py-2 text-xs font-semibold text-gray-800">{{ $inquiry->title }}</div>
+                                @empty
+                                    <span class="text-xs text-gray-400">{{ __('No inquiries submitted yet.') }}</span>
+                                @endforelse
+                            </div>
+                        </div>
                     </div>
                 @else
                     <div class="flex flex-col gap-4">
-                        @forelse ($this->panelActivity as $log)
+                        @forelse ($this->panelActivity as $event)
                             <div class="flex gap-3">
                                 <div class="w-2 h-2 rounded-full bg-brand mt-1.5 flex-shrink-0"></div>
                                 <div>
-                                    <div class="text-[11px] font-bold text-gray-400">{{ $log->created_at->format('d M Y') }}</div>
-                                    <div class="text-sm font-semibold text-gray-900">{{ str($log->action)->headline() }}: {{ $log->inquiry?->title }}</div>
+                                    <div class="text-[11px] font-bold text-gray-400">{{ $event['date']->format('d M Y') }}</div>
+                                    <div class="text-sm font-semibold text-gray-900">{{ $event['label'] }}</div>
                                 </div>
                             </div>
                         @empty

@@ -61,4 +61,57 @@ class RegisteredUsersTest extends TestCase
             ->assertSee('In Range User')
             ->assertDontSee('Out Of Range User');
     }
+
+    public function test_summary_stats_reflect_all_public_users_regardless_of_filters(): void
+    {
+        $staff = User::factory()->mcmcStaff()->create();
+        User::factory()->create(['role' => UserRole::Public, 'name' => 'Zed Verified', 'email_verified_at' => now()]);
+        User::factory()->create(['role' => UserRole::Public, 'name' => 'Aaron Unverified', 'email_verified_at' => null]);
+
+        Volt::actingAs($staff)
+            ->test('mcmc.users.index')
+            ->set('search', 'Zed')
+            ->assertSeeText('Total: 2')
+            ->assertSeeText('Verified: 1')
+            ->assertSeeText('Unverified: 1');
+    }
+
+    public function test_export_report_downloads_a_pdf(): void
+    {
+        $staff = User::factory()->mcmcStaff()->create();
+        User::factory()->create(['role' => UserRole::Public]);
+
+        Volt::actingAs($staff)
+            ->test('mcmc.users.index')
+            ->call('exportPdf')
+            ->assertFileDownloaded();
+    }
+
+    public function test_panel_lists_the_users_submitted_inquiries(): void
+    {
+        $staff = User::factory()->mcmcStaff()->create();
+        $publicUser = User::factory()->create(['role' => UserRole::Public]);
+        \App\Models\Inquiry::factory()->create(['submitted_by' => $publicUser->id, 'title' => 'My submitted claim']);
+
+        Volt::actingAs($staff)
+            ->test('mcmc.users.index')
+            ->call('openPanel', $publicUser->id)
+            ->assertSee('Submitted Inquiries')
+            ->assertSee('My submitted claim');
+    }
+
+    public function test_activity_tab_includes_account_registration_and_actions_taken_on_their_inquiries(): void
+    {
+        $staff = User::factory()->mcmcStaff()->create();
+        $publicUser = User::factory()->create(['role' => UserRole::Public]);
+        $inquiry = \App\Models\Inquiry::factory()->create(['submitted_by' => $publicUser->id, 'status' => \App\Enums\InquiryStatus::Discarded]);
+        \App\Models\InquiryActivityLog::create(['inquiry_id' => $inquiry->id, 'user_id' => $staff->id, 'action' => 'discarded']);
+
+        Volt::actingAs($staff)
+            ->test('mcmc.users.index')
+            ->call('openPanel', $publicUser->id)
+            ->set('panelTab', 'activity')
+            ->assertSee('Account registered')
+            ->assertSee('Discarded');
+    }
 }
