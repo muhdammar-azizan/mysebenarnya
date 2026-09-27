@@ -3,6 +3,7 @@
 use App\Models\Agency;
 use App\Models\ClarificationConsult;
 use App\Models\ClarificationThread;
+use App\Notifications\AgencyConsultRequested;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
@@ -96,12 +97,14 @@ new #[Layout('layouts.mcmc')] class extends Component
         $agency = Agency::findOrFail($this->inviteAgencyId);
 
         try {
-            $this->thread->inviteConsult(Auth::user(), $agency, $this->inviteQuestion);
+            $consult = $this->thread->inviteConsult(Auth::user(), $agency, $this->inviteQuestion);
         } catch (RuntimeException $e) {
             $this->addError('inviteAgencyId', $e->getMessage());
 
             return;
         }
+
+        $agency->users->each(fn ($staff) => $staff->notify(new AgencyConsultRequested($consult)));
 
         $this->inviteModalOpen = false;
         $this->thread->refresh();

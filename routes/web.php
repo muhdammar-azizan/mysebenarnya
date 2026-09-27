@@ -47,7 +47,6 @@ Route::middleware(['auth', 'verified', 'role:agency_staff'])->prefix('agency')->
     Volt::route('inquiries', 'agency.inquiries.index')->name('inquiries.index');
     Volt::route('inquiries/{inquiry}', 'agency.inquiries.show')->name('inquiries.show');
 
-    Volt::route('consultations', 'agency.consultations.index')->name('consultations.index');
     Volt::route('consultations/{consult}', 'agency.consultations.show')->name('consultations.show');
 
     Volt::route('reports', 'agency.reports.index')->name('reports.index');

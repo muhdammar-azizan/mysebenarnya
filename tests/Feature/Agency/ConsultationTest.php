@@ -36,7 +36,7 @@ class ConsultationTest extends TestCase
         [$consultedStaff, $consult] = $this->pendingConsult();
 
         Volt::actingAs($consultedStaff)
-            ->test('agency.consultations.index')
+            ->test('agency.inquiries.index', ['tab' => 'consult'])
             ->assertSee($consult->thread->inquiry->title);
     }
 

@@ -5,6 +5,7 @@ use App\Enums\InquiryStatus;
 use App\Models\Agency;
 use App\Models\Inquiry;
 use App\Models\InquiryActivityLog;
+use App\Notifications\InquiryAssignedToAgency;
 use App\Notifications\InquiryStatusChanged;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
@@ -191,6 +192,8 @@ new #[Layout('layouts.mcmc')] class extends Component
         if (! $wasReassignment) {
             $inquiry->submitter?->notify(new InquiryStatusChanged($inquiry, $fromStatus, InquiryStatus::UnderInvestigation->value));
         }
+
+        $agency->users->each(fn ($staff) => $staff->notify(new InquiryAssignedToAgency($inquiry)));
 
         $this->backToList();
         $this->tab = $wasReassignment ? 'reassign' : 'pending';

@@ -46,7 +46,7 @@ new #[Layout('layouts.agency')] class extends Component
 }; ?>
 
 <div>
-    <a href="{{ route('agency.consultations.index') }}" wire:navigate class="inline-flex items-center gap-1.5 text-gray-500 hover:text-brand font-semibold text-sm mb-5">&larr; {{ __('Back to Consultations') }}</a>
+    <a href="{{ route('agency.inquiries.index', ['tab' => 'consult']) }}" wire:navigate class="inline-flex items-center gap-1.5 text-gray-500 hover:text-brand font-semibold text-sm mb-5">&larr; {{ __('Back to Consultations') }}</a>
 
     @if (session('status'))
         <div class="bg-green-50 border border-green-200 text-green-700 rounded-lg px-4 py-3 font-semibold text-sm mb-5">✓ {{ session('status') }}</div>

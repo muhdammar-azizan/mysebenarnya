@@ -1,14 +1,7 @@
 @php
-    $pendingConsults = auth()->user()->agency_id
-        ? \App\Models\ClarificationConsult::where('consulted_agency_id', auth()->user()->agency_id)
-            ->where('status', \App\Enums\ConsultStatus::Pending)
-            ->count()
-        : 0;
-
     $items = [
         ['route' => 'dashboard', 'label' => __('Dashboard')],
         ['route' => 'agency.inquiries.index', 'label' => __('Assigned Inquiries')],
-        ['route' => 'agency.consultations.index', 'label' => __('Consultations'), 'badge' => $pendingConsults],
         ['route' => 'agency.reports.index', 'label' => __('Reports')],
         ['route' => 'agency.activity.index', 'label' => __('Activity Log')],
         ['route' => 'agency.organization.index', 'label' => __('Agency Profile')],
