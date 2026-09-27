@@ -57,6 +57,66 @@ new #[Layout('layouts.mcmc')] class extends Component
     #[Url]
     public string $agencyFilter = 'All';
 
+    public bool $exportOpen = false;
+
+    public bool $exportJustCompleted = false;
+
+    public string $exportFormat = 'pdf';
+
+    public array $exportSections = ['user' => true, 'inquiry' => true, 'agency' => true];
+
+    public array $exportHistory = [];
+
+    public function openExport(): void
+    {
+        $this->exportOpen = true;
+        $this->exportJustCompleted = false;
+    }
+
+    public function closeExport(): void
+    {
+        $this->exportOpen = false;
+        $this->exportJustCompleted = false;
+    }
+
+    public function exportAnother(): void
+    {
+        $this->exportJustCompleted = false;
+    }
+
+    public function toggleSection(string $key): void
+    {
+        $this->exportSections[$key] = ! ($this->exportSections[$key] ?? false);
+    }
+
+    public function toggleAllSections(): void
+    {
+        $allOn = ! in_array(false, $this->exportSections, true);
+
+        foreach ($this->exportSections as $key => $value) {
+            $this->exportSections[$key] = ! $allOn;
+        }
+    }
+
+    public function getExportSectionListProperty(): array
+    {
+        return [
+            ['key' => 'user', 'label' => __('User Reports'), 'desc' => __('Registrations, cumulative growth, user records'), 'count' => $this->userStatCards[0]['value']],
+            ['key' => 'inquiry', 'label' => __('Inquiry Reports'), 'desc' => __('Monthly status breakdown, categories, inquiry records'), 'count' => $this->inquiryStatCards[0]['value']],
+            ['key' => 'agency', 'label' => __('Agency Performance Reports'), 'desc' => __('Resolution time, workload, rejection rate'), 'count' => $this->agencyPerformance->count()],
+        ];
+    }
+
+    public function getExportFiltersLabelProperty(): string
+    {
+        return $this->periodLabel();
+    }
+
+    public function getExportFilenameProperty(): string
+    {
+        return 'SEBENARNYA_MCMC-Report_'.now()->format('Ymd').'.'.($this->exportFormat === 'excel' ? 'xlsx' : 'pdf');
+    }
+
     public function clearCustomDates(): void
     {
         $this->dateFrom = '';
@@ -355,15 +415,6 @@ new #[Layout('layouts.mcmc')] class extends Component
         ];
     }
 
-    public function exportMethodSuffix(): string
-    {
-        return match ($this->tab) {
-            'agency' => 'Agencies',
-            'user' => 'Users',
-            default => 'Inquiries',
-        };
-    }
-
     protected function inquiryOverviewSections(): array
     {
         return [[
@@ -384,21 +435,6 @@ new #[Layout('layouts.mcmc')] class extends Component
         ]];
     }
 
-    public function exportInquiriesPdf()
-    {
-        return $this->downloadPdf('SEBENARNYA_Inquiry-Reports', 'Inquiry Reports', $this->periodLabel(), $this->inquiryOverviewSections());
-    }
-
-    public function exportInquiriesExcel()
-    {
-        $sections = $this->inquiryOverviewSections()[0]['tables'];
-
-        return $this->downloadExcel('SEBENARNYA_Inquiry-Reports', [
-            ['title' => 'Monthly Status Breakdown', 'headings' => $sections[0]['columns'], 'rows' => $sections[0]['rows']],
-            ['title' => 'Category Distribution', 'headings' => $sections[1]['columns'], 'rows' => $sections[1]['rows']],
-        ]);
-    }
-
     protected function agencyPerformanceRows(): array
     {
         return $this->agencyPerformance->map(fn ($a) => [
@@ -416,9 +452,9 @@ new #[Layout('layouts.mcmc')] class extends Component
         return ['Agency', 'Assigned', 'Resolved', 'Pending', 'Avg. Resolution Time', 'Rejection Rate'];
     }
 
-    public function exportAgenciesPdf()
+    protected function agencyPerformanceSection(): array
     {
-        $sections = [[
+        return [
             'name' => 'Agency Performance Reports',
             'kpis' => $this->agencyStatCards,
             'tables' => [[
@@ -426,16 +462,7 @@ new #[Layout('layouts.mcmc')] class extends Component
                 'columns' => $this->agencyPerformanceColumns(),
                 'rows' => $this->agencyPerformanceRows(),
             ]],
-        ]];
-
-        return $this->downloadPdf('SEBENARNYA_Agency-Performance', 'Agency Performance Reports', $this->periodLabel(), $sections);
-    }
-
-    public function exportAgenciesExcel()
-    {
-        return $this->downloadExcel('SEBENARNYA_Agency-Performance', [
-            ['title' => 'Agency Performance', 'headings' => $this->agencyPerformanceColumns(), 'rows' => $this->agencyPerformanceRows()],
-        ]);
+        ];
     }
 
     protected function userGrowthSections(): array
@@ -453,27 +480,64 @@ new #[Layout('layouts.mcmc')] class extends Component
         ]];
     }
 
-    public function exportUsersPdf()
+    public function generateExport()
     {
-        return $this->downloadPdf('SEBENARNYA_User-Reports', 'User Reports', $this->periodLabel(), $this->userGrowthSections());
-    }
+        $sections = [];
 
-    public function exportUsersExcel()
-    {
-        $tables = $this->userGrowthSections()[0]['tables'];
+        if ($this->exportSections['user'] ?? false) {
+            $sections[] = $this->userGrowthSections()[0];
+        }
+        if ($this->exportSections['inquiry'] ?? false) {
+            $sections[] = $this->inquiryOverviewSections()[0];
+        }
+        if ($this->exportSections['agency'] ?? false) {
+            $sections[] = $this->agencyPerformanceSection();
+        }
 
-        return $this->downloadExcel('SEBENARNYA_User-Reports', [
-            ['title' => 'Monthly Registrations', 'headings' => $tables[0]['columns'], 'rows' => $tables[0]['rows']],
-        ]);
+        if (empty($sections)) {
+            $this->addError('exportSections', __('Select at least one section to export.'));
+
+            return;
+        }
+
+        if ($this->exportFormat === 'excel') {
+            $sheets = [];
+            foreach ($sections as $section) {
+                foreach ($section['tables'] as $table) {
+                    $sheets[] = ['title' => $table['heading'], 'headings' => $table['columns'], 'rows' => $table['rows']];
+                }
+            }
+            $response = $this->downloadExcel('SEBENARNYA_MCMC-Report', $sheets);
+        } else {
+            $response = $this->downloadPdf('SEBENARNYA_MCMC-Report', 'MCMC Reports & Analytics', $this->periodLabel(), $sections);
+        }
+
+        $this->exportHistory[] = ['filename' => $this->exportFilename, 'meta' => now()->format('d M, H:i')];
+        $this->exportJustCompleted = true;
+
+        return $response;
     }
 }; ?>
 
 <div>
     <div class="flex items-start justify-between gap-4 mb-1">
         <h1 class="font-display font-extrabold text-2xl text-gray-900">{{ __('Reports & Analytics') }}</h1>
-        <div class="flex gap-2 flex-shrink-0">
-            <button wire:click="export{{ $this->exportMethodSuffix() }}Pdf" class="border border-gray-300 hover:bg-gray-50 text-gray-700 font-bold text-xs px-3.5 py-2 rounded-lg">📄 {{ __('Export PDF') }}</button>
-            <button wire:click="export{{ $this->exportMethodSuffix() }}Excel" class="border border-gray-300 hover:bg-gray-50 text-gray-700 font-bold text-xs px-3.5 py-2 rounded-lg">📊 {{ __('Export Excel') }}</button>
+        <div class="flex-shrink-0">
+            <x-export-modal
+                :export-open="$exportOpen"
+                :export-just-completed="$exportJustCompleted"
+                :export-format="$exportFormat"
+                :export-sections="$exportSections"
+                :export-history="$exportHistory"
+                :export-filters-label="$this->exportFiltersLabel"
+                :export-filename="$this->exportFilename"
+                :sections="$this->exportSectionList"
+                :show-period="true"
+                period-property="dateRange"
+                :period-options="['month' => __('This Month'), '3m' => __('Last 3 Months'), '6m' => __('Last 6 Months'), 'year' => __('This Year')]"
+                :prepared-by="auth()->user()->name.' (MCMC Staff)'"
+                :intro-text="__('Export MCMC reports using the sections and period currently selected.')"
+            />
         </div>
     </div>
     <p class="text-gray-500 text-sm mb-6">{{ __('Generate insights on user activity, inquiry trends, and agency performance.') }}</p>

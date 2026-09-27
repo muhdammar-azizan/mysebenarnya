@@ -16,6 +16,64 @@ new #[Layout('layouts.agency')] class extends Component
     #[Url]
     public string $selectedMonth = '';
 
+    public bool $exportOpen = false;
+
+    public bool $exportJustCompleted = false;
+
+    public string $exportFormat = 'pdf';
+
+    public array $exportSections = ['summary' => true];
+
+    public array $exportHistory = [];
+
+    public function openExport(): void
+    {
+        $this->exportOpen = true;
+        $this->exportJustCompleted = false;
+    }
+
+    public function closeExport(): void
+    {
+        $this->exportOpen = false;
+        $this->exportJustCompleted = false;
+    }
+
+    public function exportAnother(): void
+    {
+        $this->exportJustCompleted = false;
+    }
+
+    public function toggleSection(string $key): void
+    {
+        $this->exportSections[$key] = ! ($this->exportSections[$key] ?? false);
+    }
+
+    public function toggleAllSections(): void
+    {
+        $allOn = ! in_array(false, $this->exportSections, true);
+
+        foreach ($this->exportSections as $key => $value) {
+            $this->exportSections[$key] = ! $allOn;
+        }
+    }
+
+    public function getExportSectionListProperty(): array
+    {
+        return [
+            ['key' => 'summary', 'label' => __('Performance Summary'), 'desc' => __('Key metrics and monthly resolution trend'), 'count' => $this->totalResolved],
+        ];
+    }
+
+    public function getExportFiltersLabelProperty(): string
+    {
+        return $this->periodLabel();
+    }
+
+    public function getExportFilenameProperty(): string
+    {
+        return 'SEBENARNYA_'.str(Auth::user()->agency->code)->slug().'-Report_'.now()->format('Ymd').'.'.($this->exportFormat === 'excel' ? 'xlsx' : 'pdf');
+    }
+
     protected function agencyId(): int
     {
         return Auth::user()->agency_id;
@@ -166,19 +224,30 @@ new #[Layout('layouts.agency')] class extends Component
         ]];
     }
 
-    public function exportPdf()
+    public function generateExport()
     {
-        return $this->downloadPdf('SEBENARNYA_'.str(Auth::user()->agency->code)->slug().'-Report', Auth::user()->agency->name.' Performance Report', $this->periodLabel(), $this->reportSections());
-    }
+        if (empty(array_filter($this->exportSections))) {
+            $this->addError('exportSections', __('Select at least one section to export.'));
 
-    public function exportExcel()
-    {
-        $tables = $this->reportSections()[0]['tables'];
+            return;
+        }
 
-        return $this->downloadExcel('SEBENARNYA_'.str(Auth::user()->agency->code)->slug().'-Report', [
-            ['title' => 'Monthly Resolution Trend', 'headings' => $tables[0]['columns'], 'rows' => $tables[0]['rows']],
-            ['title' => 'Breakdown by Category', 'headings' => $tables[1]['columns'], 'rows' => $tables[1]['rows']],
-        ]);
+        $filenameBase = 'SEBENARNYA_'.str(Auth::user()->agency->code)->slug().'-Report';
+
+        if ($this->exportFormat === 'excel') {
+            $tables = $this->reportSections()[0]['tables'];
+            $response = $this->downloadExcel($filenameBase, [
+                ['title' => 'Monthly Resolution Trend', 'headings' => $tables[0]['columns'], 'rows' => $tables[0]['rows']],
+                ['title' => 'Breakdown by Category', 'headings' => $tables[1]['columns'], 'rows' => $tables[1]['rows']],
+            ]);
+        } else {
+            $response = $this->downloadPdf($filenameBase, Auth::user()->agency->name.' Performance Report', $this->periodLabel(), $this->reportSections());
+        }
+
+        $this->exportHistory[] = ['filename' => $this->exportFilename, 'meta' => now()->format('d M, H:i')];
+        $this->exportJustCompleted = true;
+
+        return $response;
     }
 }; ?>
 
@@ -188,9 +257,19 @@ new #[Layout('layouts.agency')] class extends Component
             <h1 class="font-display font-extrabold text-2xl text-gray-900">{{ __('Reports') }}</h1>
             <p class="text-gray-500 text-sm mt-1">{{ __('Monthly resolution performance for :agency.', ['agency' => auth()->user()->agency->name]) }}</p>
         </div>
-        <div class="flex gap-2 flex-shrink-0">
-            <button wire:click="exportPdf" class="border border-gray-300 hover:bg-gray-50 text-gray-700 font-bold text-xs px-3.5 py-2 rounded-lg">📄 {{ __('Export PDF') }}</button>
-            <button wire:click="exportExcel" class="border border-gray-300 hover:bg-gray-50 text-gray-700 font-bold text-xs px-3.5 py-2 rounded-lg">📊 {{ __('Export Excel') }}</button>
+        <div class="flex-shrink-0">
+            <x-export-modal
+                :export-open="$exportOpen"
+                :export-just-completed="$exportJustCompleted"
+                :export-format="$exportFormat"
+                :export-sections="$exportSections"
+                :export-history="$exportHistory"
+                :export-filters-label="$this->exportFiltersLabel"
+                :export-filename="$this->exportFilename"
+                :sections="$this->exportSectionList"
+                :prepared-by="auth()->user()->name.' ('.auth()->user()->agency->name.')'"
+                :intro-text="__('Export your agency performance report using the filters currently selected.')"
+            />
         </div>
     </div>
 

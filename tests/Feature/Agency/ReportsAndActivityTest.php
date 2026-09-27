@@ -30,19 +30,20 @@ class ReportsAndActivityTest extends TestCase
         $this->assertSame(1, $totalResolved);
     }
 
-    public function test_activity_log_only_shows_actions_on_the_staff_members_own_agency_inquiries(): void
+    public function test_activity_log_only_shows_actions_taken_by_the_staff_members_own_agency(): void
     {
         $agencyA = Agency::factory()->create();
         $agencyB = Agency::factory()->create();
-        $staff = User::factory()->agencyStaff()->create(['agency_id' => $agencyA->id]);
+        $myStaff = User::factory()->agencyStaff()->create(['agency_id' => $agencyA->id]);
+        $otherStaff = User::factory()->agencyStaff()->create(['agency_id' => $agencyB->id]);
 
         $mine = Inquiry::factory()->create(['agency_id' => $agencyA->id, 'title' => 'Mine']);
         $theirs = Inquiry::factory()->create(['agency_id' => $agencyB->id, 'title' => 'Theirs']);
 
-        InquiryActivityLog::create(['inquiry_id' => $mine->id, 'user_id' => $staff->id, 'action' => 'investigation_updated', 'notes' => 'Progress on mine.']);
-        InquiryActivityLog::create(['inquiry_id' => $theirs->id, 'user_id' => $staff->id, 'action' => 'investigation_updated', 'notes' => 'Progress on theirs.']);
+        InquiryActivityLog::create(['inquiry_id' => $mine->id, 'user_id' => $myStaff->id, 'action' => 'investigation_updated', 'notes' => 'Progress on mine.']);
+        InquiryActivityLog::create(['inquiry_id' => $theirs->id, 'user_id' => $otherStaff->id, 'action' => 'investigation_updated', 'notes' => 'Progress on theirs.']);
 
-        Volt::actingAs($staff)
+        Volt::actingAs($myStaff)
             ->test('agency.activity.index')
             ->assertSee('Mine')
             ->assertDontSee('Theirs');
