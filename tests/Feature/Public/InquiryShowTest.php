@@ -5,7 +5,6 @@ namespace Tests\Feature\Public;
 use App\Enums\InquiryStatus;
 use App\Enums\UserRole;
 use App\Models\Inquiry;
-use App\Models\InquiryActivityLog;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Volt\Volt;
@@ -36,22 +35,35 @@ class InquiryShowTest extends TestCase
             ->assertForbidden();
     }
 
-    public function test_activity_log_tab_shows_the_inquirys_history(): void
+    public function test_status_history_shows_submitted_as_always_done(): void
     {
         $owner = User::factory()->create(['role' => UserRole::Public]);
-        $inquiry = Inquiry::factory()->create(['submitted_by' => $owner->id]);
+        $inquiry = Inquiry::factory()->create(['submitted_by' => $owner->id, 'status' => InquiryStatus::Submitted]);
 
-        InquiryActivityLog::create([
-            'inquiry_id' => $inquiry->id,
-            'user_id' => $owner->id,
-            'action' => 'submitted',
-            'to_status' => InquiryStatus::Submitted->value,
-            'notes' => 'Inquiry submitted by public user.',
+        Volt::actingAs($owner)
+            ->test('public.inquiries.show', ['inquiry' => $inquiry])
+            ->assertSee('Status History')
+            ->assertSee('Inquiry received')
+            ->assertSee('Awaiting review assignment');
+    }
+
+    public function test_status_history_shows_the_assigned_agency_and_final_outcome(): void
+    {
+        $owner = User::factory()->create(['role' => UserRole::Public]);
+        $agency = \App\Models\Agency::factory()->create(['name' => 'Ministry of Test']);
+        $inquiry = Inquiry::factory()->create([
+            'submitted_by' => $owner->id,
+            'status' => InquiryStatus::VerifiedTrue,
+            'agency_id' => $agency->id,
+            'reviewed_at' => now()->subDays(2),
+            'resolved_at' => now(),
+            'resolution_notes' => 'Matches the official statement.',
         ]);
 
         Volt::actingAs($owner)
             ->test('public.inquiries.show', ['inquiry' => $inquiry])
-            ->call('setTab', 'activity')
-            ->assertSee('Inquiry submitted by public user.');
+            ->assertSee('Assigned to Ministry of Test for review')
+            ->assertSee('Confirmed accurate')
+            ->assertSee('Matches the official statement.');
     }
 }

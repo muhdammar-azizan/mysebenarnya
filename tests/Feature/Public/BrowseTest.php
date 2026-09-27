@@ -37,4 +37,20 @@ class BrowseTest extends TestCase
             ->test('public.browse.show', ['inquiry' => $inquiry])
             ->assertDontSee('Secret Submitter Name');
     }
+
+    public function test_browse_detail_shows_an_untabbed_status_history(): void
+    {
+        $viewer = User::factory()->create(['role' => UserRole::Public]);
+        $agency = \App\Models\Agency::factory()->create(['name' => 'Ministry of Test']);
+        $inquiry = Inquiry::factory()->create([
+            'status' => InquiryStatus::UnderInvestigation,
+            'agency_id' => $agency->id,
+            'reviewed_at' => now(),
+        ]);
+
+        Volt::actingAs($viewer)
+            ->test('public.browse.show', ['inquiry' => $inquiry])
+            ->assertSee('Status History')
+            ->assertSee('Assigned to Ministry of Test for review');
+    }
 }

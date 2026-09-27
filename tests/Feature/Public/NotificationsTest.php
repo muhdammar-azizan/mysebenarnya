@@ -71,4 +71,14 @@ class NotificationsTest extends TestCase
 
         $this->assertCount(1, $component->get('rows'));
     }
+
+    public function test_topbar_bell_links_directly_to_the_notifications_page_without_a_preview_dropdown(): void
+    {
+        $user = User::factory()->create(['role' => UserRole::Public]);
+
+        Volt::actingAs($user)
+            ->test('public.topbar-widgets')
+            ->assertSeeHtml(route('notifications.index'))
+            ->assertDontSee('Mark all as read');
+    }
 }

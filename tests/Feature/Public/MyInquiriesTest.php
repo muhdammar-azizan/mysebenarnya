@@ -57,4 +57,28 @@ class MyInquiriesTest extends TestCase
             ->assertSee('Vaccine rumor')
             ->assertDontSee('Election claim');
     }
+
+    public function test_clicking_a_row_opens_a_quick_view_panel_with_a_view_full_details_link(): void
+    {
+        $me = User::factory()->create(['role' => UserRole::Public]);
+        $inquiry = Inquiry::factory()->create(['submitted_by' => $me->id, 'title' => 'Panel target', 'description' => 'Full description text.']);
+
+        Volt::actingAs($me)
+            ->test('public.inquiries.index')
+            ->call('viewPanel', $inquiry->id)
+            ->assertSee('Full description text.')
+            ->assertSee(__('View Full Details'));
+    }
+
+    public function test_panel_cannot_be_opened_for_someone_elses_inquiry(): void
+    {
+        $me = User::factory()->create(['role' => UserRole::Public]);
+        $someoneElse = User::factory()->create(['role' => UserRole::Public]);
+        $theirs = Inquiry::factory()->create(['submitted_by' => $someoneElse->id, 'title' => 'Not mine at all']);
+
+        Volt::actingAs($me)
+            ->test('public.inquiries.index')
+            ->call('viewPanel', $theirs->id)
+            ->assertDontSee('Not mine at all');
+    }
 }

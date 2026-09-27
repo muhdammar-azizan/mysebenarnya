@@ -61,4 +61,30 @@ class DashboardTest extends TestCase
             ->call('setStatusFilter', InquiryStatus::VerifiedTrue->value)
             ->assertSet('status', InquiryStatus::VerifiedTrue->value);
     }
+
+    public function test_clicking_a_card_opens_a_quick_view_panel_instead_of_navigating(): void
+    {
+        $viewer = User::factory()->create(['role' => UserRole::Public]);
+        $inquiry = Inquiry::factory()->create(['title' => 'Quick view target', 'description' => 'A description worth seeing.']);
+
+        Volt::actingAs($viewer)
+            ->test('public.dashboard')
+            ->call('viewPanel', $inquiry->id)
+            ->assertSee('A description worth seeing.')
+            ->set('panelTab', 'activity')
+            ->assertSee('Inquiry received');
+    }
+
+    public function test_panel_can_be_closed(): void
+    {
+        $viewer = User::factory()->create(['role' => UserRole::Public]);
+        $inquiry = Inquiry::factory()->create();
+
+        Volt::actingAs($viewer)
+            ->test('public.dashboard')
+            ->call('viewPanel', $inquiry->id)
+            ->assertSet('panelInquiryId', $inquiry->id)
+            ->call('closePanel')
+            ->assertSet('panelInquiryId', null);
+    }
 }
