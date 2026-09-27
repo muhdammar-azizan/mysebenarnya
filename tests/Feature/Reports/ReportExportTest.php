@@ -55,7 +55,7 @@ class ReportExportTest extends TestCase
         $staff = User::factory()->mcmcStaff()->create();
         Agency::factory()->create();
 
-        Volt::actingAs($staff)->test('mcmc.reports.index')->set('tab', 'agencies')
+        Volt::actingAs($staff)->test('mcmc.reports.index')->set('tab', 'agency')
             ->call('exportAgenciesPdf')->assertFileDownloaded();
     }
 
@@ -64,7 +64,7 @@ class ReportExportTest extends TestCase
         $staff = User::factory()->mcmcStaff()->create();
         Agency::factory()->create();
 
-        Volt::actingAs($staff)->test('mcmc.reports.index')->set('tab', 'agencies')
+        Volt::actingAs($staff)->test('mcmc.reports.index')->set('tab', 'agency')
             ->call('exportAgenciesExcel')->assertFileDownloaded();
     }
 
@@ -72,7 +72,7 @@ class ReportExportTest extends TestCase
     {
         $staff = User::factory()->mcmcStaff()->create();
 
-        Volt::actingAs($staff)->test('mcmc.reports.index')->set('tab', 'users')
+        Volt::actingAs($staff)->test('mcmc.reports.index')->set('tab', 'user')
             ->call('exportUsersPdf')->assertFileDownloaded();
     }
 
@@ -80,7 +80,7 @@ class ReportExportTest extends TestCase
     {
         $staff = User::factory()->mcmcStaff()->create();
 
-        Volt::actingAs($staff)->test('mcmc.reports.index')->set('tab', 'users')
+        Volt::actingAs($staff)->test('mcmc.reports.index')->set('tab', 'user')
             ->call('exportUsersExcel')->assertFileDownloaded();
     }
 

@@ -47,4 +47,18 @@ class RegisteredUsersTest extends TestCase
             ->call('openPanel', $publicUser->id)
             ->assertSee('+60 12-000 0000');
     }
+
+    public function test_date_range_filter_narrows_the_list_for_report_drilldowns(): void
+    {
+        $staff = User::factory()->mcmcStaff()->create();
+        $inRange = User::factory()->create(['role' => UserRole::Public, 'name' => 'In Range User', 'created_at' => now()->subDays(10)]);
+        $outOfRange = User::factory()->create(['role' => UserRole::Public, 'name' => 'Out Of Range User', 'created_at' => now()->subMonths(3)]);
+
+        Volt::actingAs($staff)
+            ->test('mcmc.users.index')
+            ->set('dateFrom', now()->subDays(15)->format('Y-m-d'))
+            ->set('dateTo', now()->format('Y-m-d'))
+            ->assertSee('In Range User')
+            ->assertDontSee('Out Of Range User');
+    }
 }

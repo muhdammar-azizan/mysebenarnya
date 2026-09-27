@@ -6,7 +6,10 @@ use App\Enums\InquiryStatus;
 use App\Enums\UserRole;
 use App\Models\Agency;
 use App\Models\Inquiry;
+use App\Models\InquiryActivityLog;
 use App\Models\User;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Volt\Component;
@@ -15,8 +18,29 @@ new #[Layout('layouts.mcmc')] class extends Component
 {
     use GeneratesReports;
 
+    /**
+     * An agency whose average resolution time exceeds this is flagged in the
+     * "Needs Attention" banner. There is no configurable SLA yet, so this is
+     * a fixed, reasonable constant rather than an invented number.
+     */
+    protected const SLOW_THRESHOLD_DAYS = 5.0;
+
+    protected const CATEGORY_COLORS = [
+        'Health & Medical Claims' => '#C41230',
+        'Financial Scams & Banking' => '#1D5FBF',
+        'Electoral & Political Content' => '#7B4FBF',
+        'Consumer Rights & Pricing' => '#C4670A',
+        'Criminal & Fraud Referrals' => '#8A8F98',
+        'Disaster & Emergency Aid' => '#1D7A3E',
+        'Technology & Digital Safety' => '#0F9B8E',
+        'Other' => '#4B4F58',
+    ];
+
     #[Url]
-    public string $tab = 'inquiries';
+    public string $tab = 'user';
+
+    #[Url]
+    public string $dateRange = '6m';
 
     #[Url]
     public string $dateFrom = '';
@@ -25,27 +49,18 @@ new #[Layout('layouts.mcmc')] class extends Component
     public string $dateTo = '';
 
     #[Url]
+    public string $userTypeFilter = 'all';
+
+    #[Url]
+    public string $inquiryCategoryFilter = 'All';
+
+    #[Url]
     public string $agencyFilter = 'All';
 
-    #[Url]
-    public string $categoryFilter = 'All';
-
-    #[Url]
-    public string $userTypeFilter = 'public';
-
-    #[Url]
-    public string $userAgencyFilter = 'All';
-
-    public function clearDateFilter(): void
+    public function clearCustomDates(): void
     {
         $this->dateFrom = '';
         $this->dateTo = '';
-    }
-
-    public function clearAgencyFilters(): void
-    {
-        $this->agencyFilter = 'All';
-        $this->categoryFilter = 'All';
     }
 
     public function getAgencyOptionsProperty()
@@ -58,212 +73,312 @@ new #[Layout('layouts.mcmc')] class extends Component
         return InquiryCategory::cases();
     }
 
-    public function getUserTypeOptionsProperty(): array
+    protected function rangeDates(): array
     {
-        return [
-            'public' => 'Public User',
-            'mcmc_staff' => 'MCMC Staff',
-            'agency_staff' => 'Agency Staff',
-        ];
-    }
-
-    protected function userTypeFilterRole(): UserRole
-    {
-        return match ($this->userTypeFilter) {
-            'mcmc_staff' => UserRole::McmcStaff,
-            'agency_staff' => UserRole::AgencyStaff,
-            default => UserRole::Public,
+        return match ($this->dateRange) {
+            'month' => [now()->startOfMonth(), now()->endOfMonth()],
+            '3m' => [now()->subMonths(2)->startOfMonth(), now()->endOfMonth()],
+            'year' => [now()->startOfYear(), now()->endOfMonth()],
+            'custom' => [
+                $this->dateFrom ? Carbon::parse($this->dateFrom)->startOfDay() : now()->subMonths(5)->startOfMonth(),
+                $this->dateTo ? Carbon::parse($this->dateTo)->endOfDay() : now()->endOfMonth(),
+            ],
+            default => [now()->subMonths(5)->startOfMonth(), now()->endOfMonth()],
         };
     }
 
-    protected function monthlySeries(\Closure $queryFactory, string $column = 'created_at'): array
+    protected function monthlyBuckets(): Collection
     {
-        $months = collect(range(5, 0))->map(fn ($i) => now()->subMonths($i)->startOfMonth());
+        [$start, $end] = $this->rangeDates();
 
-        return $months->map(function ($month) use ($queryFactory, $column) {
-            $count = $queryFactory()->whereBetween($column, [$month, $month->copy()->endOfMonth()])->count();
+        $buckets = collect();
+        $cursor = $start->copy()->startOfMonth();
+        $endMonth = $end->copy()->startOfMonth();
 
-            return ['label' => $month->format('M Y'), 'count' => $count];
-        })->all();
-    }
+        while ($cursor->lte($endMonth)) {
+            $buckets->push([
+                'start' => $cursor->copy()->startOfMonth(),
+                'end' => $cursor->copy()->endOfMonth(),
+                'label' => $cursor->format('M Y'),
+            ]);
+            $cursor->addMonth();
+        }
 
-    protected function inquiriesInRange()
-    {
-        return Inquiry::query()
-            ->when($this->dateFrom, fn ($q) => $q->whereDate('created_at', '>=', $this->dateFrom))
-            ->when($this->dateTo, fn ($q) => $q->whereDate('created_at', '<=', $this->dateTo));
+        return $buckets;
     }
 
     protected function periodLabel(): string
     {
-        if ($this->dateFrom || $this->dateTo) {
-            return ($this->dateFrom ?: 'earliest').' to '.($this->dateTo ?: 'now');
-        }
-
-        return 'All records';
+        return match ($this->dateRange) {
+            'month' => __('This Month (:month)', ['month' => now()->format('M Y')]),
+            '3m' => __('Last 3 Months'),
+            'year' => __('This Year (:year)', ['year' => now()->year]),
+            'custom' => __('Custom Range (:from to :to)', ['from' => $this->dateFrom ?: 'earliest', 'to' => $this->dateTo ?: 'now']),
+            default => __('Last 6 Months'),
+        };
     }
 
-    public function getInquiryTrendProperty(): array
+    protected function userTypeFilterRole(): ?UserRole
     {
-        return $this->monthlySeries(fn () => Inquiry::query());
+        return match ($this->userTypeFilter) {
+            'public' => UserRole::Public,
+            'mcmc_staff' => UserRole::McmcStaff,
+            'agency_staff' => UserRole::AgencyStaff,
+            default => null,
+        };
     }
 
-    public function getStatusBreakdownProperty(): array
+    public function getUserTypeOptionsProperty(): array
     {
-        return collect(InquiryStatus::cases())->map(fn ($case) => [
-            'label' => $case->value,
-            'displayLabel' => $case->label(),
-            'count' => (clone $this->inquiriesInRange())->where('status', $case)->count(),
-        ])->all();
+        return [
+            'all' => __('All User Types'),
+            'public' => __('Public Users'),
+            'mcmc_staff' => __('MCMC Staff'),
+            'agency_staff' => __('Agency Staff'),
+        ];
     }
 
-    public function getCategoryBreakdownProperty()
+    public function getUserDrilldownEnabledProperty(): bool
     {
-        return (clone $this->inquiriesInRange())
-            ->selectRaw('category, count(*) as total')
-            ->groupBy('category')
-            ->orderByDesc('total')
-            ->get();
+        return in_array($this->userTypeFilter, ['all', 'public'], true);
     }
 
-    public function getAgencyPerformanceProperty()
+    public function getUserStatCardsProperty(): array
     {
-        $agencyIds = Agency::query()
-            ->when($this->agencyFilter !== 'All', fn ($q) => $q->where('id', $this->agencyFilter))
-            ->orderBy('name')
-            ->pluck('id');
+        [$start, $end] = $this->rangeDates();
 
-        return $agencyIds->map(function ($agencyId) {
-            $agency = Agency::find($agencyId);
-            $base = (clone $this->inquiriesInRange())
-                ->where('agency_id', $agencyId)
-                ->when($this->categoryFilter !== 'All', fn ($q) => $q->where('category', $this->categoryFilter));
-
-            $total = (clone $base)->count();
-            $resolved = (clone $base)->whereIn('status', [InquiryStatus::VerifiedTrue, InquiryStatus::IdentifiedFake])->count();
-            $pending = (clone $base)->where('status', InquiryStatus::UnderInvestigation)->count();
-            $delayed = (clone $base)->where('status', InquiryStatus::UnderInvestigation)
-                ->where('reviewed_at', '<=', now()->subDays(7))
-                ->count();
-
-            $avgResolutionDays = (clone $base)
-                ->whereIn('status', [InquiryStatus::VerifiedTrue, InquiryStatus::IdentifiedFake])
-                ->whereNotNull('resolved_at')
-                ->whereNotNull('reviewed_at')
-                ->get()
-                ->avg(fn ($i) => $i->reviewed_at->diffInDays($i->resolved_at));
-
-            $agency->inquiries_count = $total;
-            $agency->resolved_count = $resolved;
-            $agency->pending_count = $pending;
-            $agency->delayed_count = $delayed;
-            $agency->avg_resolution_days = $avgResolutionDays ? round($avgResolutionDays, 1) : null;
-
-            return $agency;
-        })->sortByDesc('inquiries_count')->values();
-    }
-
-    public function getAgencyDistributionChartProperty(): array
-    {
-        return $this->agencyPerformance->map(fn ($a) => ['label' => $a->name, 'value' => $a->inquiries_count])->all();
-    }
-
-    public function getAgencyResolutionChartProperty(): array
-    {
-        return $this->agencyPerformance->map(function ($a) {
-            $rate = $a->inquiries_count > 0 ? round(($a->resolved_count / $a->inquiries_count) * 100) : 0;
-
-            return ['label' => $a->name, 'value' => $rate];
-        })->all();
-    }
-
-    protected function agencyPeriodLabel(): string
-    {
-        $parts = [$this->periodLabel()];
-
-        if ($this->agencyFilter !== 'All') {
-            $parts[] = 'Agency: '.(Agency::find($this->agencyFilter)?->name ?? '—');
-        }
-
-        if ($this->categoryFilter !== 'All') {
-            $parts[] = 'Category: '.$this->categoryFilter;
-        }
-
-        return implode(' · ', $parts);
+        return [
+            ['label' => __('Total Registered Users'), 'value' => User::where('role', UserRole::Public)->count()],
+            ['label' => __('New Users in Period'), 'value' => User::where('role', UserRole::Public)->whereBetween('created_at', [$start, $end])->count()],
+            ['label' => __('Verified Email Users'), 'value' => User::where('role', UserRole::Public)->whereNotNull('email_verified_at')->count()],
+            ['label' => __('Active (Last 30 Days)'), 'value' => User::where('role', UserRole::Public)->where('last_active_at', '>=', now()->subDays(30))->count()],
+        ];
     }
 
     public function getUserTrendProperty(): array
     {
-        return $this->monthlySeries(fn () => User::where('role', $this->userTypeFilterRole()));
+        $role = $this->userTypeFilterRole();
+
+        return $this->monthlyBuckets()->map(function ($b) use ($role) {
+            $count = User::query()
+                ->when($role, fn ($q) => $q->where('role', $role))
+                ->whereBetween('created_at', [$b['start'], $b['end']])
+                ->count();
+
+            return [...$b, 'count' => $count];
+        })->all();
     }
 
-    protected function usersInRange()
+    public function getUserTableProperty(): array
     {
-        return User::query()
-            ->when($this->dateFrom, fn ($q) => $q->whereDate('created_at', '>=', $this->dateFrom))
-            ->when($this->dateTo, fn ($q) => $q->whereDate('created_at', '<=', $this->dateTo));
+        $role = $this->userTypeFilterRole();
+
+        return $this->monthlyBuckets()->map(function ($b) use ($role) {
+            $new = User::query()->when($role, fn ($q) => $q->where('role', $role))->whereBetween('created_at', [$b['start'], $b['end']])->count();
+            $cumulative = User::query()->when($role, fn ($q) => $q->where('role', $role))->where('created_at', '<=', $b['end'])->count();
+
+            return [...$b, 'new' => $new, 'cumulative' => $cumulative];
+        })->all();
     }
 
-    public function getUserStatsProperty(): array
+    public function getInquiryStatCardsProperty(): array
     {
+        [$start, $end] = $this->rangeDates();
+        $base = fn () => Inquiry::whereBetween('created_at', [$start, $end]);
+
         return [
-            'total' => (clone $this->usersInRange())->where('role', UserRole::Public)->count(),
-            'verified' => (clone $this->usersInRange())->where('role', UserRole::Public)->whereNotNull('email_verified_at')->count(),
-            'mcmc' => (clone $this->usersInRange())->where('role', UserRole::McmcStaff)->count(),
-            'agency' => (clone $this->usersInRange())->where('role', UserRole::AgencyStaff)->count(),
+            ['label' => __('Total Inquiries'), 'value' => $base()->count()],
+            ['label' => __('Verified as True'), 'value' => $base()->where('status', InquiryStatus::VerifiedTrue)->count()],
+            ['label' => __('Identified as Fake'), 'value' => $base()->where('status', InquiryStatus::IdentifiedFake)->count()],
+            ['label' => __('Pending / Under Investigation'), 'value' => $base()->whereIn('status', [InquiryStatus::Submitted, InquiryStatus::UnderInvestigation])->count()],
         ];
     }
 
-    public function getUsersByAgencyProperty()
+    public function getInquiryStackedBarsProperty(): array
     {
-        return Agency::query()
-            ->when($this->userAgencyFilter !== 'All', fn ($q) => $q->where('id', $this->userAgencyFilter))
-            ->withCount(['users' => function ($q) {
-                $q->when($this->dateFrom, fn ($qq) => $qq->whereDate('created_at', '>=', $this->dateFrom))
-                    ->when($this->dateTo, fn ($qq) => $qq->whereDate('created_at', '<=', $this->dateTo));
-            }])
-            ->orderByDesc('users_count')
-            ->get();
+        $buckets = $this->monthlyBuckets()->map(function ($b) {
+            $counts = [
+                'sub' => Inquiry::whereBetween('created_at', [$b['start'], $b['end']])->where('status', InquiryStatus::Submitted)->count(),
+                'ui' => Inquiry::whereBetween('created_at', [$b['start'], $b['end']])->where('status', InquiryStatus::UnderInvestigation)->count(),
+                'tru' => Inquiry::whereBetween('created_at', [$b['start'], $b['end']])->where('status', InquiryStatus::VerifiedTrue)->count(),
+                'fake' => Inquiry::whereBetween('created_at', [$b['start'], $b['end']])->where('status', InquiryStatus::IdentifiedFake)->count(),
+            ];
+
+            return [...$b, ...$counts, 'total' => array_sum($counts)];
+        });
+
+        $maxTotal = max(1, $buckets->max('total'));
+
+        return $buckets->map(function ($b) use ($maxTotal) {
+            $totalHeight = $b['total'] > 0 ? max(6, round(($b['total'] / $maxTotal) * 140)) : 0;
+            $scale = $b['total'] > 0 ? $totalHeight / $b['total'] : 0;
+
+            return [
+                ...$b,
+                'totalHeight' => $totalHeight,
+                'subH' => round($b['sub'] * $scale),
+                'uiH' => round($b['ui'] * $scale),
+                'trueH' => round($b['tru'] * $scale),
+                'fakeH' => round($b['fake'] * $scale),
+            ];
+        })->all();
     }
 
-    protected function userGrowthPeriodLabel(): string
+    public function getCategoryDonutProperty(): array
     {
-        $parts = [$this->periodLabel()];
+        [$start, $end] = $this->rangeDates();
 
-        if ($this->userTypeFilter !== 'public') {
-            $parts[] = 'User Type: '.$this->userTypeOptions[$this->userTypeFilter];
+        $counts = Inquiry::whereBetween('created_at', [$start, $end])
+            ->selectRaw('category, count(*) as total')
+            ->groupBy('category')
+            ->pluck('total', 'category');
+
+        $grandTotal = max(1, $counts->sum());
+
+        return collect(InquiryCategory::cases())
+            ->map(fn ($case) => [
+                'label' => $case->value,
+                'count' => $counts[$case->value] ?? 0,
+                'pct' => (int) round((($counts[$case->value] ?? 0) / $grandTotal) * 100),
+                'color' => self::CATEGORY_COLORS[$case->value] ?? '#8A8F98',
+            ])
+            ->filter(fn ($c) => $c['count'] > 0)
+            ->sortByDesc('count')
+            ->values()
+            ->all();
+    }
+
+    public function getDonutGradientProperty(): string
+    {
+        $slices = $this->categoryDonut;
+        $cursor = 0;
+        $parts = [];
+
+        foreach ($slices as $slice) {
+            $from = $cursor;
+            $cursor += $slice['pct'];
+            $parts[] = "{$slice['color']} {$from}% {$cursor}%";
         }
 
-        if ($this->userAgencyFilter !== 'All') {
-            $parts[] = 'Agency: '.(Agency::find($this->userAgencyFilter)?->name ?? '—');
+        if (empty($parts)) {
+            return '#F0F1F3';
         }
 
-        return implode(' · ', $parts);
+        return 'conic-gradient('.implode(', ', $parts).')';
+    }
+
+    public function getInquiryTableProperty(): array
+    {
+        return $this->monthlyBuckets()->map(function ($b) {
+            $base = fn () => Inquiry::whereBetween('created_at', [$b['start'], $b['end']]);
+
+            return [
+                ...$b,
+                'total' => $base()->count(),
+                'verified' => $base()->where('status', InquiryStatus::VerifiedTrue)->count(),
+                'fake' => $base()->where('status', InquiryStatus::IdentifiedFake)->count(),
+            ];
+        })->all();
+    }
+
+    protected function agencyRejectionRate(Agency $agency): ?int
+    {
+        $rejected = InquiryActivityLog::where('action', 'jurisdiction_rejected')->whereHas('user', fn ($q) => $q->where('agency_id', $agency->id))->count();
+        $accepted = InquiryActivityLog::where('action', 'jurisdiction_accepted')->whereHas('user', fn ($q) => $q->where('agency_id', $agency->id))->count();
+        $decided = $rejected + $accepted;
+
+        return $decided > 0 ? (int) round(($rejected / $decided) * 100) : null;
+    }
+
+    public function getAgencyPerformanceProperty()
+    {
+        return Agency::query()
+            ->when($this->agencyFilter !== 'All', fn ($q) => $q->where('id', $this->agencyFilter))
+            ->orderBy('name')
+            ->get()
+            ->map(function ($agency) {
+                $assigned = Inquiry::where('agency_id', $agency->id)->count();
+                $resolved = Inquiry::where('agency_id', $agency->id)->whereIn('status', [InquiryStatus::VerifiedTrue, InquiryStatus::IdentifiedFake])->count();
+                $pending = Inquiry::where('agency_id', $agency->id)->where('status', InquiryStatus::UnderInvestigation)->count();
+
+                $avgDays = Inquiry::where('agency_id', $agency->id)
+                    ->whereIn('status', [InquiryStatus::VerifiedTrue, InquiryStatus::IdentifiedFake])
+                    ->whereNotNull('resolved_at')
+                    ->whereNotNull('reviewed_at')
+                    ->get()
+                    ->avg(fn ($i) => $i->reviewed_at->diffInDays($i->resolved_at));
+
+                $agency->assigned_count = $assigned;
+                $agency->resolved_count = $resolved;
+                $agency->pending_count = $pending;
+                $agency->avg_resolution_days = $avgDays ? round($avgDays, 1) : null;
+                $agency->rejection_rate = $this->agencyRejectionRate($agency);
+
+                return $agency;
+            });
+    }
+
+    public function getFastestAgencyProperty()
+    {
+        return $this->agencyPerformance->filter(fn ($a) => $a->avg_resolution_days !== null)->sortBy('avg_resolution_days')->first();
+    }
+
+    public function getSlowestAgencyProperty()
+    {
+        $slowest = $this->agencyPerformance->filter(fn ($a) => $a->avg_resolution_days !== null)->sortByDesc('avg_resolution_days')->first();
+
+        return ($slowest && $slowest->avg_resolution_days > self::SLOW_THRESHOLD_DAYS) ? $slowest : null;
+    }
+
+    public function getResolutionBarsProperty(): array
+    {
+        $timed = $this->agencyPerformance->filter(fn ($a) => $a->avg_resolution_days !== null);
+        $max = max(1, $timed->max('avg_resolution_days') ?? 1);
+
+        return $timed->map(fn ($a) => [
+            'name' => $a->name,
+            'avgTime' => $a->avg_resolution_days.' '.__('days'),
+            'barWidth' => round(($a->avg_resolution_days / $max) * 100).'%',
+        ])->all();
+    }
+
+    public function getAgencyStatCardsProperty(): array
+    {
+        $timed = $this->agencyPerformance->filter(fn ($a) => $a->avg_resolution_days !== null);
+        $ratedAgencies = $this->agencyPerformance->filter(fn ($a) => $a->rejection_rate !== null);
+
+        return [
+            ['label' => __('Agencies in Report'), 'value' => $this->agencyPerformance->count()],
+            ['label' => __('Total Resolved'), 'value' => $this->agencyPerformance->sum('resolved_count')],
+            ['label' => __('Avg. Resolution Time'), 'value' => $timed->isNotEmpty() ? round($timed->avg('avg_resolution_days'), 1).' '.__('days') : '—'],
+            ['label' => __('Avg. Rejection Rate'), 'value' => $ratedAgencies->isNotEmpty() ? round($ratedAgencies->avg('rejection_rate')).'%' : '—'],
+        ];
+    }
+
+    public function exportMethodSuffix(): string
+    {
+        return match ($this->tab) {
+            'agency' => 'Agencies',
+            'user' => 'Users',
+            default => 'Inquiries',
+        };
     }
 
     protected function inquiryOverviewSections(): array
     {
         return [[
-            'name' => 'Inquiry Overview',
-            'kpis' => [
-                ['label' => 'Total Inquiries', 'value' => (clone $this->inquiriesInRange())->count()],
-            ],
+            'name' => 'Inquiry Reports',
+            'kpis' => $this->inquiryStatCards,
             'tables' => [
                 [
-                    'heading' => 'By Status',
-                    'columns' => ['Status', 'Count'],
-                    'rows' => collect($this->statusBreakdown)->map(fn ($r) => [$r['displayLabel'], $r['count']])->all(),
+                    'heading' => 'Monthly Status Breakdown',
+                    'columns' => ['Month', 'Total Received', 'Verified True', 'Identified Fake'],
+                    'rows' => collect($this->inquiryTable)->map(fn ($r) => [$r['label'], $r['total'], $r['verified'], $r['fake']])->all(),
                 ],
                 [
-                    'heading' => 'By Category',
-                    'columns' => ['Category', 'Count'],
-                    'rows' => $this->categoryBreakdown->map(fn ($r) => [$r->category?->value, $r->total])->all(),
-                ],
-                [
-                    'heading' => 'Monthly Trend',
-                    'columns' => ['Month', 'Inquiries'],
-                    'rows' => collect($this->inquiryTrend)->map(fn ($r) => [$r['label'], $r['count']])->all(),
-                    'chart' => collect($this->inquiryTrend)->map(fn ($r) => ['label' => $r['label'], 'value' => $r['count']])->all(),
+                    'heading' => 'Category Distribution',
+                    'columns' => ['Category', 'Share of Inquiries (%)'],
+                    'rows' => collect($this->categoryDonut)->map(fn ($c) => [$c['label'], $c['pct']])->all(),
                 ],
             ],
         ]];
@@ -271,55 +386,49 @@ new #[Layout('layouts.mcmc')] class extends Component
 
     public function exportInquiriesPdf()
     {
-        return $this->downloadPdf('SEBENARNYA_Inquiry-Overview', 'Inquiry Overview Report', $this->periodLabel(), $this->inquiryOverviewSections());
+        return $this->downloadPdf('SEBENARNYA_Inquiry-Reports', 'Inquiry Reports', $this->periodLabel(), $this->inquiryOverviewSections());
     }
 
     public function exportInquiriesExcel()
     {
         $sections = $this->inquiryOverviewSections()[0]['tables'];
 
-        return $this->downloadExcel('SEBENARNYA_Inquiry-Overview', [
-            ['title' => 'By Status', 'headings' => $sections[0]['columns'], 'rows' => $sections[0]['rows']],
-            ['title' => 'By Category', 'headings' => $sections[1]['columns'], 'rows' => $sections[1]['rows']],
-            ['title' => 'Monthly Trend', 'headings' => $sections[2]['columns'], 'rows' => $sections[2]['rows']],
+        return $this->downloadExcel('SEBENARNYA_Inquiry-Reports', [
+            ['title' => 'Monthly Status Breakdown', 'headings' => $sections[0]['columns'], 'rows' => $sections[0]['rows']],
+            ['title' => 'Category Distribution', 'headings' => $sections[1]['columns'], 'rows' => $sections[1]['rows']],
         ]);
     }
 
     protected function agencyPerformanceRows(): array
     {
-        return $this->agencyPerformance->map(function ($agency) {
-            $rate = $agency->inquiries_count > 0 ? round(($agency->resolved_count / $agency->inquiries_count) * 100) : 0;
-
-            return [
-                $agency->name,
-                $agency->inquiries_count,
-                $agency->resolved_count,
-                $rate.'%',
-                $agency->pending_count,
-                $agency->delayed_count,
-                $agency->avg_resolution_days !== null ? $agency->avg_resolution_days.' days' : '—',
-            ];
-        })->all();
+        return $this->agencyPerformance->map(fn ($a) => [
+            $a->name,
+            $a->assigned_count,
+            $a->resolved_count,
+            $a->pending_count,
+            $a->avg_resolution_days !== null ? $a->avg_resolution_days.' days' : '—',
+            $a->rejection_rate !== null ? $a->rejection_rate.'%' : '—',
+        ])->all();
     }
 
     protected function agencyPerformanceColumns(): array
     {
-        return ['Agency', 'Assigned', 'Resolved', 'Resolution Rate', 'Pending', 'Delayed (7d+)', 'Avg. Resolution Time'];
+        return ['Agency', 'Assigned', 'Resolved', 'Pending', 'Avg. Resolution Time', 'Rejection Rate'];
     }
 
     public function exportAgenciesPdf()
     {
         $sections = [[
-            'name' => 'Agency Performance',
+            'name' => 'Agency Performance Reports',
+            'kpis' => $this->agencyStatCards,
             'tables' => [[
-                'heading' => 'Inquiries Assigned per Agency',
+                'heading' => 'Agency Performance Summary',
                 'columns' => $this->agencyPerformanceColumns(),
                 'rows' => $this->agencyPerformanceRows(),
-                'chart' => $this->agencyDistributionChart,
             ]],
         ]];
 
-        return $this->downloadPdf('SEBENARNYA_Agency-Performance', 'Agency Performance Report', $this->agencyPeriodLabel(), $sections);
+        return $this->downloadPdf('SEBENARNYA_Agency-Performance', 'Agency Performance Reports', $this->periodLabel(), $sections);
     }
 
     public function exportAgenciesExcel()
@@ -332,33 +441,13 @@ new #[Layout('layouts.mcmc')] class extends Component
     protected function userGrowthSections(): array
     {
         return [[
-            'name' => 'User Growth',
-            'kpis' => [
-                ['label' => 'Total Public Users', 'value' => $this->userStats['total']],
-                ['label' => 'Verified', 'value' => $this->userStats['verified']],
-                ['label' => 'MCMC Staff', 'value' => $this->userStats['mcmc']],
-                ['label' => 'Agency Staff', 'value' => $this->userStats['agency']],
-            ],
+            'name' => 'User Reports',
+            'kpis' => $this->userStatCards,
             'tables' => [
                 [
                     'heading' => 'Monthly Registrations — '.$this->userTypeOptions[$this->userTypeFilter],
-                    'columns' => ['Month', 'New Registrations'],
-                    'rows' => collect($this->userTrend)->map(fn ($r) => [$r['label'], $r['count']])->all(),
-                    'chart' => collect($this->userTrend)->map(fn ($r) => ['label' => $r['label'], 'value' => $r['count']])->all(),
-                ],
-                [
-                    'heading' => 'By User Type',
-                    'columns' => ['Type', 'Count'],
-                    'rows' => [
-                        ['Public User', $this->userStats['total']],
-                        ['MCMC Staff', $this->userStats['mcmc']],
-                        ['Agency Staff', $this->userStats['agency']],
-                    ],
-                ],
-                [
-                    'heading' => 'Users by Agency',
-                    'columns' => ['Agency', 'Staff Count'],
-                    'rows' => $this->usersByAgency->map(fn ($a) => [$a->name, $a->users_count])->all(),
+                    'columns' => ['Month', 'New Registrations', 'Cumulative Users'],
+                    'rows' => collect($this->userTable)->map(fn ($r) => [$r['label'], $r['new'], $r['cumulative']])->all(),
                 ],
             ],
         ]];
@@ -366,17 +455,15 @@ new #[Layout('layouts.mcmc')] class extends Component
 
     public function exportUsersPdf()
     {
-        return $this->downloadPdf('SEBENARNYA_User-Growth', 'User Growth Report', $this->userGrowthPeriodLabel(), $this->userGrowthSections());
+        return $this->downloadPdf('SEBENARNYA_User-Reports', 'User Reports', $this->periodLabel(), $this->userGrowthSections());
     }
 
     public function exportUsersExcel()
     {
         $tables = $this->userGrowthSections()[0]['tables'];
 
-        return $this->downloadExcel('SEBENARNYA_User-Growth', [
+        return $this->downloadExcel('SEBENARNYA_User-Reports', [
             ['title' => 'Monthly Registrations', 'headings' => $tables[0]['columns'], 'rows' => $tables[0]['rows']],
-            ['title' => 'By User Type', 'headings' => $tables[1]['columns'], 'rows' => $tables[1]['rows']],
-            ['title' => 'Users by Agency', 'headings' => $tables[2]['columns'], 'rows' => $tables[2]['rows']],
         ]);
     }
 }; ?>
@@ -385,195 +472,69 @@ new #[Layout('layouts.mcmc')] class extends Component
     <div class="flex items-start justify-between gap-4 mb-1">
         <h1 class="font-display font-extrabold text-2xl text-gray-900">{{ __('Reports & Analytics') }}</h1>
         <div class="flex gap-2 flex-shrink-0">
-            <button wire:click="export{{ str($tab)->studly() }}Pdf" class="border border-gray-300 hover:bg-gray-50 text-gray-700 font-bold text-xs px-3.5 py-2 rounded-lg">📄 {{ __('Export PDF') }}</button>
-            <button wire:click="export{{ str($tab)->studly() }}Excel" class="border border-gray-300 hover:bg-gray-50 text-gray-700 font-bold text-xs px-3.5 py-2 rounded-lg">📊 {{ __('Export Excel') }}</button>
+            <button wire:click="export{{ $this->exportMethodSuffix() }}Pdf" class="border border-gray-300 hover:bg-gray-50 text-gray-700 font-bold text-xs px-3.5 py-2 rounded-lg">📄 {{ __('Export PDF') }}</button>
+            <button wire:click="export{{ $this->exportMethodSuffix() }}Excel" class="border border-gray-300 hover:bg-gray-50 text-gray-700 font-bold text-xs px-3.5 py-2 rounded-lg">📊 {{ __('Export Excel') }}</button>
         </div>
     </div>
-    <p class="text-gray-500 text-sm mb-6">{{ __('Insights on inquiry trends, agency performance, and user growth.') }}</p>
+    <p class="text-gray-500 text-sm mb-6">{{ __('Generate insights on user activity, inquiry trends, and agency performance.') }}</p>
 
     <div class="flex border-b border-gray-100 mb-6">
-        <button wire:click="$set('tab', 'inquiries')" class="px-5 py-3 text-sm font-bold {{ $tab === 'inquiries' ? 'text-brand border-b-2 border-brand' : 'text-gray-400' }}">{{ __('Inquiry Overview') }}</button>
-        <button wire:click="$set('tab', 'agencies')" class="px-5 py-3 text-sm font-bold {{ $tab === 'agencies' ? 'text-brand border-b-2 border-brand' : 'text-gray-400' }}">{{ __('Agency Performance') }}</button>
-        <button wire:click="$set('tab', 'users')" class="px-5 py-3 text-sm font-bold {{ $tab === 'users' ? 'text-brand border-b-2 border-brand' : 'text-gray-400' }}">{{ __('User Growth') }}</button>
+        <button wire:click="$set('tab', 'user')" class="px-5 py-3 text-sm font-bold {{ $tab === 'user' ? 'text-brand border-b-2 border-brand' : 'text-gray-400' }}">{{ __('User Reports') }}</button>
+        <button wire:click="$set('tab', 'inquiry')" class="px-5 py-3 text-sm font-bold {{ $tab === 'inquiry' ? 'text-brand border-b-2 border-brand' : 'text-gray-400' }}">{{ __('Inquiry Reports') }}</button>
+        <button wire:click="$set('tab', 'agency')" class="px-5 py-3 text-sm font-bold {{ $tab === 'agency' ? 'text-brand border-b-2 border-brand' : 'text-gray-400' }}">{{ __('Agency Performance Reports') }}</button>
     </div>
 
     <div class="flex flex-wrap items-center gap-2 mb-6">
-        <span class="text-xs font-semibold text-gray-500">{{ __('Filter totals & tables by date') }}:</span>
-        <label class="text-xs text-gray-500">{{ __('From') }}</label>
-        <input type="date" wire:model.live="dateFrom" class="rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand" />
-        <label class="text-xs text-gray-500">{{ __('To') }}</label>
-        <input type="date" wire:model.live="dateTo" class="rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand" />
-        @if ($dateFrom || $dateTo)
-            <button wire:click="clearDateFilter" class="text-xs font-semibold text-brand">{{ __('Clear') }}</button>
+        <select wire:model.live="dateRange" class="rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
+            <option value="month">{{ __('This Month') }}</option>
+            <option value="3m">{{ __('Last 3 Months') }}</option>
+            <option value="6m">{{ __('Last 6 Months') }}</option>
+            <option value="year">{{ __('This Year') }}</option>
+            <option value="custom">{{ __('Custom Range') }}</option>
+        </select>
+
+        @if ($dateRange === 'custom')
+            <label class="text-xs text-gray-500">{{ __('From') }}</label>
+            <input type="date" wire:model.live="dateFrom" class="rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand" />
+            <label class="text-xs text-gray-500">{{ __('To') }}</label>
+            <input type="date" wire:model.live="dateTo" class="rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand" />
         @endif
-        <span class="text-[11px] text-gray-400">{{ __('(Monthly trend charts always show the rolling last 6 months.)') }}</span>
-    </div>
 
-    @if ($tab === 'inquiries')
-        <div class="bg-white border border-gray-100 rounded-2xl p-6 mb-6">
-            <div class="font-bold text-gray-900 mb-4">{{ __('Monthly Inquiry Trend') }}</div>
-            <div class="flex items-end gap-4 h-32">
-                @php $max = max(1, collect($this->inquiryTrend)->max('count')); @endphp
-                @foreach ($this->inquiryTrend as $point)
-                    <div class="flex-1 flex flex-col items-center gap-1.5">
-                        <div class="text-xs font-bold text-gray-500">{{ $point['count'] }}</div>
-                        <div class="w-full bg-brand rounded-t" style="height: {{ max(4, ($point['count'] / $max) * 90) }}px"></div>
-                        <div class="text-[11px] text-gray-400 font-semibold">{{ $point['label'] }}</div>
-                    </div>
+        @if ($tab === 'user')
+            <select wire:model.live="userTypeFilter" class="rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
+                @foreach ($this->userTypeOptions as $value => $label)
+                    <option value="{{ $value }}">{{ $label }}</option>
                 @endforeach
-            </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-6">
-            <div class="bg-white border border-gray-100 rounded-2xl p-6">
-                <div class="font-bold text-gray-900 mb-4">{{ __('By Status') }}</div>
-                <div class="flex flex-col gap-3">
-                    @foreach ($this->statusBreakdown as $row)
-                        <div class="flex items-center justify-between text-sm">
-                            <x-inquiry-status-badge :status="$row['label']" />
-                            <span class="font-bold text-gray-700">{{ $row['count'] }}</span>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-            <div class="bg-white border border-gray-100 rounded-2xl p-6">
-                <div class="font-bold text-gray-900 mb-4">{{ __('By Category') }}</div>
-                <div class="flex flex-col gap-3">
-                    @foreach ($this->categoryBreakdown as $row)
-                        <div class="flex items-center justify-between text-sm">
-                            <span class="text-gray-600">{{ $row->category?->value }}</span>
-                            <span class="font-bold text-gray-700">{{ $row->total }}</span>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-        </div>
-    @elseif ($tab === 'agencies')
-        <div class="flex flex-wrap items-center gap-2 mb-6">
-            <span class="text-xs font-semibold text-gray-500">{{ __('Filter by') }}:</span>
+            </select>
+        @elseif ($tab === 'inquiry')
+            <select wire:model.live="inquiryCategoryFilter" class="rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
+                <option value="All">{{ __('All Categories') }}</option>
+                @foreach ($this->categoryOptions as $case)
+                    <option value="{{ $case->value }}">{{ $case->value }}</option>
+                @endforeach
+            </select>
+        @else
             <select wire:model.live="agencyFilter" class="rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
                 <option value="All">{{ __('All Agencies') }}</option>
                 @foreach ($this->agencyOptions as $a)
                     <option value="{{ $a->id }}">{{ $a->name }}</option>
                 @endforeach
             </select>
-            <select wire:model.live="categoryFilter" class="rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
-                <option value="All">{{ __('All Categories') }}</option>
-                @foreach ($this->categoryOptions as $case)
-                    <option value="{{ $case->value }}">{{ $case->value }}</option>
-                @endforeach
-            </select>
-            @if ($agencyFilter !== 'All' || $categoryFilter !== 'All')
-                <button wire:click="clearAgencyFilters" class="text-xs font-semibold text-brand">{{ __('Clear') }}</button>
-            @endif
-        </div>
+        @endif
+    </div>
 
-        <div class="grid grid-cols-2 gap-6 mb-6">
-            <div class="bg-white border border-gray-100 rounded-2xl p-6">
-                <div class="font-bold text-gray-900 mb-4">{{ __('Inquiries Assigned per Agency') }}</div>
-                <div class="flex items-end gap-3 h-32 overflow-x-auto">
-                    @php $max = max(1, collect($this->agencyDistributionChart)->max('value')); @endphp
-                    @forelse ($this->agencyDistributionChart as $point)
-                        <div class="flex-1 min-w-[48px] flex flex-col items-center gap-1.5">
-                            <div class="text-xs font-bold text-gray-500">{{ $point['value'] }}</div>
-                            <div class="w-full bg-brand rounded-t" style="height: {{ max(4, ($point['value'] / $max) * 90) }}px"></div>
-                            <div class="text-[10px] text-gray-400 font-semibold text-center leading-tight">{{ $point['label'] }}</div>
-                        </div>
-                    @empty
-                        <p class="text-sm text-gray-400">{{ __('No data for the selected filters.') }}</p>
-                    @endforelse
-                </div>
-            </div>
-            <div class="bg-white border border-gray-100 rounded-2xl p-6">
-                <div class="font-bold text-gray-900 mb-4">{{ __('Resolution Rate per Agency') }}</div>
-                <div class="flex items-end gap-3 h-32 overflow-x-auto">
-                    @php $maxRate = max(1, collect($this->agencyResolutionChart)->max('value')); @endphp
-                    @forelse ($this->agencyResolutionChart as $point)
-                        <div class="flex-1 min-w-[48px] flex flex-col items-center gap-1.5">
-                            <div class="text-xs font-bold text-gray-500">{{ $point['value'] }}%</div>
-                            <div class="w-full bg-brand rounded-t" style="height: {{ max(4, ($point['value'] / $maxRate) * 90) }}px"></div>
-                            <div class="text-[10px] text-gray-400 font-semibold text-center leading-tight">{{ $point['label'] }}</div>
-                        </div>
-                    @empty
-                        <p class="text-sm text-gray-400">{{ __('No data for the selected filters.') }}</p>
-                    @endforelse
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white border border-gray-100 rounded-2xl overflow-hidden">
-            <table class="w-full text-sm">
-                <thead>
-                    <tr class="bg-gray-50 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">
-                        <th class="px-5 py-3">{{ __('Agency') }}</th>
-                        <th class="px-5 py-3">{{ __('Assigned') }}</th>
-                        <th class="px-5 py-3">{{ __('Resolved') }}</th>
-                        <th class="px-5 py-3">{{ __('Resolution Rate') }}</th>
-                        <th class="px-5 py-3">{{ __('Pending') }}</th>
-                        <th class="px-5 py-3">{{ __('Delayed (7d+)') }}</th>
-                        <th class="px-5 py-3">{{ __('Avg. Resolution Time') }}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse ($this->agencyPerformance as $agency)
-                        @php $rate = $agency->inquiries_count > 0 ? round(($agency->resolved_count / $agency->inquiries_count) * 100) : 0; @endphp
-                        <tr class="border-t border-gray-50">
-                            <td class="px-5 py-3.5 font-semibold text-gray-900">{{ $agency->name }}</td>
-                            <td class="px-5 py-3.5 text-gray-600">{{ $agency->inquiries_count }}</td>
-                            <td class="px-5 py-3.5 text-gray-600">{{ $agency->resolved_count }}</td>
-                            <td class="px-5 py-3.5">
-                                <span class="font-bold {{ $rate >= 70 ? 'text-green-600' : ($rate >= 40 ? 'text-amber-600' : 'text-brand') }}">{{ $rate }}%</span>
-                            </td>
-                            <td class="px-5 py-3.5 text-gray-600">{{ $agency->pending_count }}</td>
-                            <td class="px-5 py-3.5">
-                                @if ($agency->delayed_count > 0)
-                                    <span class="font-bold text-brand">{{ $agency->delayed_count }}</span>
-                                @else
-                                    <span class="text-gray-400">0</span>
-                                @endif
-                            </td>
-                            <td class="px-5 py-3.5 text-gray-600 whitespace-nowrap">{{ $agency->avg_resolution_days !== null ? $agency->avg_resolution_days.' '.__('days') : '—' }}</td>
-                        </tr>
-                    @empty
-                        <tr><td colspan="7" class="px-5 py-10 text-center text-gray-400">{{ __('No agencies match the selected filters.') }}</td></tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-    @else
+    @if ($tab === 'user')
         <div class="grid grid-cols-4 gap-4 mb-6">
-            <div class="bg-gray-50 border border-gray-100 rounded-xl p-5">
-                <div class="text-xs font-semibold text-gray-500 mb-1">{{ __('Total Public Users') }}</div>
-                <div class="text-3xl font-extrabold text-gray-900">{{ $this->userStats['total'] }}</div>
-            </div>
-            <div class="bg-green-50 border border-green-100 rounded-xl p-5">
-                <div class="text-xs font-semibold text-green-700 mb-1">{{ __('Verified') }}</div>
-                <div class="text-3xl font-extrabold text-green-700">{{ $this->userStats['verified'] }}</div>
-            </div>
-            <div class="bg-gray-50 border border-gray-100 rounded-xl p-5">
-                <div class="text-xs font-semibold text-gray-500 mb-1">{{ __('MCMC Staff') }}</div>
-                <div class="text-3xl font-extrabold text-gray-900">{{ $this->userStats['mcmc'] }}</div>
-            </div>
-            <div class="bg-gray-50 border border-gray-100 rounded-xl p-5">
-                <div class="text-xs font-semibold text-gray-500 mb-1">{{ __('Agency Staff') }}</div>
-                <div class="text-3xl font-extrabold text-gray-900">{{ $this->userStats['agency'] }}</div>
-            </div>
+            @foreach ($this->userStatCards as $card)
+                <div class="bg-white border border-gray-100 rounded-xl p-4 shadow-sm">
+                    <div class="text-xs font-semibold text-gray-500 mb-2">{{ $card['label'] }}</div>
+                    <div class="font-display font-extrabold text-2xl text-gray-900">{{ number_format($card['value']) }}</div>
+                </div>
+            @endforeach
         </div>
 
         <div class="bg-white border border-gray-100 rounded-2xl p-6 mb-6">
-            <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
-                <div class="font-bold text-gray-900">{{ __('Monthly Registrations') }} — {{ $this->userTypeOptions[$userTypeFilter] }}</div>
-                <div class="flex items-center gap-2">
-                    <select wire:model.live="userTypeFilter" class="rounded-lg border-gray-300 text-xs focus:border-brand focus:ring-brand">
-                        @foreach ($this->userTypeOptions as $value => $label)
-                            <option value="{{ $value }}">{{ $label }}</option>
-                        @endforeach
-                    </select>
-                    @if ($userTypeFilter !== 'public')
-                        <button wire:click="$set('userTypeFilter', 'public')" class="text-xs font-semibold text-brand">{{ __('Reset') }}</button>
-                    @endif
-                </div>
-            </div>
+            <div class="font-bold text-gray-900 mb-4">{{ __('User Registrations Over Time') }}</div>
             <div class="flex items-end gap-4 h-32">
                 @php $max = max(1, collect($this->userTrend)->max('count')); @endphp
                 @foreach ($this->userTrend as $point)
@@ -586,31 +547,157 @@ new #[Layout('layouts.mcmc')] class extends Component
             </div>
         </div>
 
-        <div class="bg-white border border-gray-100 rounded-2xl p-6">
-            <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
-                <div class="font-bold text-gray-900">{{ __('Users by Agency') }}</div>
-                <div class="flex items-center gap-2">
-                    <select wire:model.live="userAgencyFilter" class="rounded-lg border-gray-300 text-xs focus:border-brand focus:ring-brand">
-                        <option value="All">{{ __('All Agencies') }}</option>
-                        @foreach ($this->agencyOptions as $a)
-                            <option value="{{ $a->id }}">{{ $a->name }}</option>
-                        @endforeach
-                    </select>
-                    @if ($userAgencyFilter !== 'All')
-                        <button wire:click="$set('userAgencyFilter', 'All')" class="text-xs font-semibold text-brand">{{ __('Reset') }}</button>
-                    @endif
+        <div class="bg-white border border-gray-100 rounded-2xl overflow-hidden">
+            <div class="flex items-center justify-between px-5 py-3 border-b border-gray-100">
+                <div class="grid grid-cols-3 gap-2 text-xs font-bold text-gray-500 uppercase tracking-wide flex-1">
+                    <div>{{ __('Month') }}</div><div>{{ __('New Registrations') }}</div><div>{{ __('Total Cumulative Users') }}</div>
+                </div>
+                @if ($this->userDrilldownEnabled)
+                    <a href="{{ route('mcmc.users.index', ['dateFrom' => $this->rangeDates()[0]->format('Y-m-d'), 'dateTo' => $this->rangeDates()[1]->format('Y-m-d')]) }}" wire:navigate
+                        class="border border-gray-300 hover:bg-gray-50 text-gray-700 font-semibold text-xs px-3.5 py-2 rounded-lg whitespace-nowrap">{{ __('View User List →') }}</a>
+                @endif
+            </div>
+            @foreach ($this->userTable as $row)
+                @if ($this->userDrilldownEnabled)
+                    <a href="{{ route('mcmc.users.index', ['dateFrom' => $row['start']->format('Y-m-d'), 'dateTo' => $row['end']->format('Y-m-d')]) }}" wire:navigate
+                        class="grid grid-cols-3 gap-2 px-5 py-3 text-sm border-b border-gray-50 last:border-0 hover:bg-gray-50">
+                        <div class="font-semibold text-gray-900">{{ $row['label'] }}</div><div class="text-gray-600">{{ $row['new'] }}</div><div class="text-gray-600">{{ $row['cumulative'] }}</div>
+                    </a>
+                @else
+                    <div class="grid grid-cols-3 gap-2 px-5 py-3 text-sm border-b border-gray-50 last:border-0">
+                        <div class="font-semibold text-gray-900">{{ $row['label'] }}</div><div class="text-gray-600">{{ $row['new'] }}</div><div class="text-gray-600">{{ $row['cumulative'] }}</div>
+                    </div>
+                @endif
+            @endforeach
+        </div>
+    @elseif ($tab === 'inquiry')
+        <div class="grid grid-cols-4 gap-4 mb-6">
+            @foreach ($this->inquiryStatCards as $card)
+                <div class="bg-white border border-gray-100 rounded-xl p-4 shadow-sm">
+                    <div class="text-xs font-semibold text-gray-500 mb-2">{{ $card['label'] }}</div>
+                    <div class="font-display font-extrabold text-2xl text-gray-900">{{ number_format($card['value']) }}</div>
+                </div>
+            @endforeach
+        </div>
+
+        <div class="grid grid-cols-[1.6fr_1fr] gap-4 mb-6 items-stretch">
+            <div class="bg-white border border-gray-100 rounded-2xl p-6">
+                <div class="font-bold text-gray-900 mb-4">{{ __('Monthly Inquiry Statistics') }}</div>
+                <div class="flex items-end justify-center gap-5" style="height: 150px;">
+                    @foreach ($this->inquiryStackedBars as $m)
+                        <div class="w-11 flex flex-col items-center gap-1.5 h-full justify-end">
+                            <div class="w-full max-w-[30px] flex flex-col-reverse rounded-t overflow-hidden" style="height: {{ $m['totalHeight'] }}px;" title="{{ $m['label'] }}: Submitted {{ $m['sub'] }}, Under Investigation {{ $m['ui'] }}, Verified True {{ $m['tru'] }}, Identified Fake {{ $m['fake'] }}">
+                                <div style="height: {{ $m['subH'] }}px; background: #8A8F98;"></div>
+                                <div style="height: {{ $m['uiH'] }}px; background: #C4670A;"></div>
+                                <div style="height: {{ $m['trueH'] }}px; background: #1D7A3E;"></div>
+                                <div style="height: {{ $m['fakeH'] }}px; background: #C41230;"></div>
+                            </div>
+                            <div class="text-[11px] text-gray-400">{{ $m['label'] }}</div>
+                        </div>
+                    @endforeach
+                </div>
+                <div class="flex gap-4 mt-3.5 text-[11px] text-gray-600 flex-wrap justify-center">
+                    <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-sm" style="background:#8A8F98;"></div>{{ __('Submitted') }}</div>
+                    <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-sm" style="background:#C4670A;"></div>{{ __('Under Investigation') }}</div>
+                    <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-sm" style="background:#1D7A3E;"></div>{{ __('Verified True') }}</div>
+                    <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-sm" style="background:#C41230;"></div>{{ __('Identified Fake') }}</div>
                 </div>
             </div>
+
+            <div class="bg-white border border-gray-100 rounded-2xl p-6">
+                <div class="font-bold text-gray-900 mb-4">{{ __('Inquiries by Category') }}</div>
+                <div class="w-[150px] h-[150px] rounded-full mx-auto mb-4" style="background: {{ $this->donutGradient }};"></div>
+                <div class="flex flex-col gap-1.5">
+                    @forelse ($this->categoryDonut as $c)
+                        <div class="flex items-center justify-between text-xs text-gray-600">
+                            <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-sm flex-shrink-0" style="background: {{ $c['color'] }};"></div>{{ $c['label'] }}</div>
+                            <div class="font-semibold">{{ $c['pct'] }}%</div>
+                        </div>
+                    @empty
+                        <p class="text-xs text-gray-400">{{ __('No inquiries in this period.') }}</p>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white border border-gray-100 rounded-2xl overflow-hidden">
+            <div class="grid grid-cols-4 gap-2 px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wide border-b border-gray-100">
+                <div>{{ __('Month') }}</div><div>{{ __('Total Received') }}</div><div>{{ __('Verified True') }}</div><div>{{ __('Identified Fake') }}</div>
+            </div>
+            @foreach ($this->inquiryTable as $row)
+                <a href="{{ route('mcmc.inquiries.index', array_filter(['dateFrom' => $row['start']->format('Y-m-d'), 'dateTo' => $row['end']->format('Y-m-d'), 'category' => $inquiryCategoryFilter !== 'All' ? $inquiryCategoryFilter : null])) }}" wire:navigate
+                    class="grid grid-cols-4 gap-2 px-5 py-3 text-sm border-b border-gray-50 last:border-0 hover:bg-gray-50">
+                    <div class="font-semibold text-gray-900">{{ $row['label'] }}</div><div class="text-gray-600">{{ $row['total'] }}</div><div class="text-green-700">{{ $row['verified'] }}</div><div class="text-brand">{{ $row['fake'] }}</div>
+                </a>
+            @endforeach
+        </div>
+    @else
+        <div class="grid grid-cols-4 gap-4 mb-6">
+            @foreach ($this->agencyStatCards as $card)
+                <div class="bg-white border border-gray-100 rounded-xl p-4 shadow-sm">
+                    <div class="text-xs font-semibold text-gray-500 mb-2">{{ $card['label'] }}</div>
+                    <div class="font-display font-extrabold text-2xl text-gray-900">{{ $card['value'] }}</div>
+                </div>
+            @endforeach
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 mb-6">
+            @if ($this->fastestAgency)
+                <div class="bg-green-50 border border-green-200 rounded-xl px-5 py-4 text-sm text-green-800">
+                    <strong>{{ __('Fastest:') }}</strong> {{ $this->fastestAgency->name }} — {{ $this->fastestAgency->avg_resolution_days }} {{ __('days avg') }}
+                </div>
+            @endif
+            @if ($this->slowestAgency)
+                <div class="bg-amber-50 border border-amber-200 rounded-xl px-5 py-4 text-sm text-amber-800">
+                    <strong>{{ __('Needs Attention:') }}</strong> {{ $this->slowestAgency->name }} — {{ $this->slowestAgency->avg_resolution_days }} {{ __('days avg, above target threshold') }}
+                </div>
+            @endif
+        </div>
+
+        <div class="bg-white border border-gray-100 rounded-2xl p-6 mb-6">
+            <div class="font-bold text-gray-900 mb-4">{{ __('Resolution Time by Agency') }}</div>
             <div class="flex flex-col gap-3">
-                @forelse ($this->usersByAgency as $a)
-                    <div class="flex items-center justify-between text-sm">
-                        <span class="text-gray-600">{{ $a->name }}</span>
-                        <span class="font-bold text-gray-700">{{ $a->users_count }}</span>
+                @forelse ($this->resolutionBars as $bar)
+                    <div class="flex items-center gap-3">
+                        <div class="w-44 flex-shrink-0 text-xs text-gray-600">{{ $bar['name'] }}</div>
+                        <div class="flex-1 bg-gray-100 rounded h-4 relative">
+                            <div class="h-full bg-brand rounded" style="width: {{ $bar['barWidth'] }};"></div>
+                        </div>
+                        <div class="w-16 flex-shrink-0 text-xs font-semibold text-right">{{ $bar['avgTime'] }}</div>
                     </div>
                 @empty
-                    <p class="text-sm text-gray-400">{{ __('No agency staff registered for the selected filter.') }}</p>
+                    <p class="text-sm text-gray-400">{{ __('No resolved inquiries yet to measure resolution time.') }}</p>
                 @endforelse
             </div>
+        </div>
+
+        <div class="bg-white border border-gray-100 rounded-2xl overflow-hidden">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="bg-gray-50 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">
+                        <th class="px-5 py-3">{{ __('Agency Name') }}</th>
+                        <th class="px-5 py-3">{{ __('Assigned') }}</th>
+                        <th class="px-5 py-3">{{ __('Resolved') }}</th>
+                        <th class="px-5 py-3">{{ __('Pending') }}</th>
+                        <th class="px-5 py-3">{{ __('Avg. Resolution') }}</th>
+                        <th class="px-5 py-3">{{ __('Rejection Rate') }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($this->agencyPerformance as $agency)
+                        <tr class="border-t border-gray-50">
+                            <td class="px-5 py-3.5 font-semibold text-gray-900">{{ $agency->name }}</td>
+                            <td class="px-5 py-3.5 text-gray-600">{{ $agency->assigned_count }}</td>
+                            <td class="px-5 py-3.5 text-gray-600">{{ $agency->resolved_count }}</td>
+                            <td class="px-5 py-3.5 text-gray-600">{{ $agency->pending_count }}</td>
+                            <td class="px-5 py-3.5 text-gray-600 whitespace-nowrap">{{ $agency->avg_resolution_days !== null ? $agency->avg_resolution_days.' '.__('days') : '—' }}</td>
+                            <td class="px-5 py-3.5 text-gray-600">{{ $agency->rejection_rate !== null ? $agency->rejection_rate.'%' : '—' }}</td>
+                        </tr>
+                    @empty
+                        <tr><td colspan="6" class="px-5 py-10 text-center text-gray-400">{{ __('No agencies match the selected filter.') }}</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
     @endif
 </div>

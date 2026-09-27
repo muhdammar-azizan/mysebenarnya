@@ -18,6 +18,12 @@ new #[Layout('layouts.mcmc')] class extends Component
     #[Url]
     public string $status = 'All';
 
+    #[Url]
+    public string $dateFrom = '';
+
+    #[Url]
+    public string $dateTo = '';
+
     public ?int $panelUserId = null;
 
     public string $panelTab = 'profile';
@@ -45,6 +51,8 @@ new #[Layout('layouts.mcmc')] class extends Component
             ->when($this->search, fn ($q) => $q->where(fn ($qq) => $qq->where('name', 'like', '%'.$this->search.'%')->orWhere('email', 'like', '%'.$this->search.'%')))
             ->when($this->status === 'Verified', fn ($q) => $q->whereNotNull('email_verified_at'))
             ->when($this->status === 'Unverified', fn ($q) => $q->whereNull('email_verified_at'))
+            ->when($this->dateFrom, fn ($q) => $q->whereDate('created_at', '>=', $this->dateFrom))
+            ->when($this->dateTo, fn ($q) => $q->whereDate('created_at', '<=', $this->dateTo))
             ->latest()
             ->paginate(10);
     }
