@@ -110,12 +110,12 @@ class ReportExportTest extends TestCase
         $agencyB = Agency::factory()->create();
         $staffA = User::factory()->agencyStaff()->create(['agency_id' => $agencyA->id]);
 
-        Inquiry::factory()->create(['agency_id' => $agencyA->id, 'status' => InquiryStatus::VerifiedTrue]);
-        Inquiry::factory()->create(['agency_id' => $agencyB->id, 'status' => InquiryStatus::VerifiedTrue]);
-        Inquiry::factory()->create(['agency_id' => $agencyB->id, 'status' => InquiryStatus::VerifiedTrue]);
+        Inquiry::factory()->create(['agency_id' => $agencyA->id, 'status' => InquiryStatus::VerifiedTrue, 'resolved_at' => now()]);
+        Inquiry::factory()->create(['agency_id' => $agencyB->id, 'status' => InquiryStatus::VerifiedTrue, 'resolved_at' => now()]);
+        Inquiry::factory()->create(['agency_id' => $agencyB->id, 'status' => InquiryStatus::VerifiedTrue, 'resolved_at' => now()]);
 
-        $summary = Volt::actingAs($staffA)->test('agency.reports.index')->instance()->summary;
+        $totalResolved = Volt::actingAs($staffA)->test('agency.reports.index')->get('totalResolved');
 
-        $this->assertSame(1, $summary['verified']);
+        $this->assertSame(1, $totalResolved);
     }
 }

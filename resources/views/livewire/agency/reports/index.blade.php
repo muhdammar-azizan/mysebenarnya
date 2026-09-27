@@ -3,6 +3,7 @@
 use App\Concerns\GeneratesReports;
 use App\Enums\InquiryStatus;
 use App\Models\Inquiry;
+use App\Models\InquiryActivityLog;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
@@ -13,71 +14,126 @@ new #[Layout('layouts.agency')] class extends Component
     use GeneratesReports;
 
     #[Url]
-    public string $dateFrom = '';
+    public string $selectedMonth = '';
 
-    #[Url]
-    public string $dateTo = '';
-
-    public function clearDateFilter(): void
+    protected function agencyId(): int
     {
-        $this->dateFrom = '';
-        $this->dateTo = '';
+        return Auth::user()->agency_id;
     }
 
-    protected function inquiriesInRange()
+    protected function rangeStart()
     {
-        return Inquiry::where('agency_id', Auth::user()->agency_id)
-            ->when($this->dateFrom, fn ($q) => $q->whereDate('created_at', '>=', $this->dateFrom))
-            ->when($this->dateTo, fn ($q) => $q->whereDate('created_at', '<=', $this->dateTo));
+        return now()->subMonths(5)->startOfMonth();
     }
 
-    protected function periodLabel(): string
+    protected function rangeEnd()
     {
-        if ($this->dateFrom || $this->dateTo) {
-            return ($this->dateFrom ?: 'earliest').' to '.($this->dateTo ?: 'now');
+        return now()->endOfMonth();
+    }
+
+    public function selectMonth(string $key): void
+    {
+        $this->selectedMonth = $this->selectedMonth === $key ? '' : $key;
+    }
+
+    public function getMonthlyBucketsProperty(): array
+    {
+        return collect(range(5, 0))->map(function ($i) {
+            $month = now()->subMonths($i)->startOfMonth();
+            $start = $month->copy()->startOfMonth();
+            $end = $month->copy()->endOfMonth();
+
+            $count = Inquiry::where('agency_id', $this->agencyId())
+                ->whereIn('status', [InquiryStatus::VerifiedTrue, InquiryStatus::IdentifiedFake])
+                ->whereBetween('resolved_at', [$start, $end])
+                ->count();
+
+            return [
+                'key' => $month->format('Y-m'),
+                'label' => $month->format('M'),
+                'start' => $start,
+                'end' => $end,
+                'count' => $count,
+            ];
+        })->all();
+    }
+
+    public function getTotalResolvedProperty(): int
+    {
+        return array_sum(array_column($this->monthlyBuckets, 'count'));
+    }
+
+    public function getAvgResolutionDaysProperty(): ?float
+    {
+        $resolved = Inquiry::where('agency_id', $this->agencyId())
+            ->whereIn('status', [InquiryStatus::VerifiedTrue, InquiryStatus::IdentifiedFake])
+            ->whereBetween('resolved_at', [$this->rangeStart(), $this->rangeEnd()])
+            ->whereNotNull('reviewed_at')
+            ->get();
+
+        return $resolved->isNotEmpty()
+            ? round($resolved->avg(fn ($i) => $i->reviewed_at->diffInDays($i->resolved_at)), 1)
+            : null;
+    }
+
+    public function getAccuracyRateProperty(): ?int
+    {
+        $accepted = InquiryActivityLog::where('action', 'jurisdiction_accepted')
+            ->whereHas('user', fn ($q) => $q->where('agency_id', $this->agencyId()))
+            ->count();
+
+        $rejected = InquiryActivityLog::where('action', 'jurisdiction_rejected')
+            ->whereHas('user', fn ($q) => $q->where('agency_id', $this->agencyId()))
+            ->count();
+
+        $decided = $accepted + $rejected;
+
+        return $decided > 0 ? (int) round(($accepted / $decided) * 100) : null;
+    }
+
+    public function getSelectedMonthLabelProperty(): ?string
+    {
+        $bucket = collect($this->monthlyBuckets)->firstWhere('key', $this->selectedMonth);
+
+        return $bucket ? $bucket['start']->format('F Y') : null;
+    }
+
+    public function getSelectedMonthInquiriesProperty()
+    {
+        $bucket = collect($this->monthlyBuckets)->firstWhere('key', $this->selectedMonth);
+
+        if (! $bucket) {
+            return collect();
         }
 
-        return 'All records';
-    }
-
-    public function getSummaryProperty(): array
-    {
-        $base = $this->inquiriesInRange();
-
-        $avgResolutionDays = (clone $base)
+        return Inquiry::where('agency_id', $this->agencyId())
             ->whereIn('status', [InquiryStatus::VerifiedTrue, InquiryStatus::IdentifiedFake])
-            ->whereNotNull('resolved_at')
-            ->whereNotNull('reviewed_at')
-            ->get()
-            ->avg(fn ($i) => $i->reviewed_at->diffInDays($i->resolved_at));
-
-        return [
-            'total' => (clone $base)->count(),
-            'verified' => (clone $base)->where('status', InquiryStatus::VerifiedTrue)->count(),
-            'fake' => (clone $base)->where('status', InquiryStatus::IdentifiedFake)->count(),
-            'rejected' => (clone $base)->where('status', InquiryStatus::Rejected)->count(),
-            'pending' => (clone $base)->where('status', InquiryStatus::UnderInvestigation)->count(),
-            'delayed' => (clone $base)->where('status', InquiryStatus::UnderInvestigation)->where('reviewed_at', '<=', now()->subDays(7))->count(),
-            'avg_resolution_days' => $avgResolutionDays ? round($avgResolutionDays, 1) : null,
-        ];
+            ->whereBetween('resolved_at', [$bucket['start'], $bucket['end']])
+            ->latest('resolved_at')
+            ->get();
     }
 
     public function getCategoryBreakdownProperty()
     {
-        return (clone $this->inquiriesInRange())
+        $rows = Inquiry::where('agency_id', $this->agencyId())
+            ->whereBetween('created_at', [$this->rangeStart(), $this->rangeEnd()])
             ->selectRaw('category, count(*) as total')
             ->groupBy('category')
             ->orderByDesc('total')
             ->get();
+
+        $max = max(1, $rows->max('total') ?? 1);
+
+        return $rows->map(fn ($r) => [
+            'label' => $r->category?->value,
+            'count' => $r->total,
+            'pct' => (int) round(($r->total / $max) * 100),
+        ]);
     }
 
-    public function getResolvedRecordsProperty()
+    protected function periodLabel(): string
     {
-        return (clone $this->inquiriesInRange())
-            ->whereIn('status', [InquiryStatus::VerifiedTrue, InquiryStatus::IdentifiedFake])
-            ->latest('resolved_at')
-            ->limit(10)
-            ->get();
+        return __('Last 6 Months (:from to :to)', ['from' => $this->rangeStart()->format('M Y'), 'to' => $this->rangeEnd()->format('M Y')]);
     }
 
     protected function reportSections(): array
@@ -85,24 +141,26 @@ new #[Layout('layouts.agency')] class extends Component
         return [[
             'name' => Auth::user()->agency->name.' — Performance Report',
             'kpis' => [
-                ['label' => 'Case Records', 'value' => $this->summary['total']],
-                ['label' => 'Verified as True', 'value' => $this->summary['verified']],
-                ['label' => 'Identified as Fake', 'value' => $this->summary['fake']],
-                ['label' => 'Rejected by Us', 'value' => $this->summary['rejected']],
-                ['label' => 'Pending', 'value' => $this->summary['pending']],
-                ['label' => 'Delayed (7d+)', 'value' => $this->summary['delayed']],
-                ['label' => 'Avg. Resolution Time', 'value' => $this->summary['avg_resolution_days'] !== null ? $this->summary['avg_resolution_days'].' days' : '—'],
+                ['label' => 'Total Resolved (6mo)', 'value' => $this->totalResolved],
+                ['label' => 'Avg. Resolution Time', 'value' => $this->avgResolutionDays !== null ? $this->avgResolutionDays.' days' : '—'],
+                ['label' => 'Accuracy Rate', 'value' => $this->accuracyRate !== null ? $this->accuracyRate.'%' : '—'],
+                ['label' => 'Months Covered', 'value' => count($this->monthlyBuckets)],
             ],
             'tables' => [
                 [
-                    'heading' => 'Category Breakdown',
-                    'columns' => ['Category', 'Count'],
-                    'rows' => $this->categoryBreakdown->map(fn ($r) => [$r->category?->value, $r->total])->all(),
+                    'heading' => 'Monthly Resolution Trend',
+                    'columns' => ['Month', 'Resolved', 'Verified True', 'Identified Fake'],
+                    'rows' => collect($this->monthlyBuckets)->map(function ($b) {
+                        $verified = Inquiry::where('agency_id', $this->agencyId())->where('status', InquiryStatus::VerifiedTrue)->whereBetween('resolved_at', [$b['start'], $b['end']])->count();
+                        $fake = Inquiry::where('agency_id', $this->agencyId())->where('status', InquiryStatus::IdentifiedFake)->whereBetween('resolved_at', [$b['start'], $b['end']])->count();
+
+                        return [$b['start']->format('M Y'), $b['count'], $verified, $fake];
+                    })->all(),
                 ],
                 [
-                    'heading' => 'Recently Resolved',
-                    'columns' => ['Title', 'Status', 'Resolved On'],
-                    'rows' => $this->resolvedRecords->map(fn ($i) => [$i->title, $i->status->label(), $i->resolved_at?->format('d M Y')])->all(),
+                    'heading' => 'Breakdown by Category',
+                    'columns' => ['Category', 'Count'],
+                    'rows' => $this->categoryBreakdown->map(fn ($r) => [$r['label'], $r['count']])->all(),
                 ],
             ],
         ]];
@@ -118,92 +176,91 @@ new #[Layout('layouts.agency')] class extends Component
         $tables = $this->reportSections()[0]['tables'];
 
         return $this->downloadExcel('SEBENARNYA_'.str(Auth::user()->agency->code)->slug().'-Report', [
-            ['title' => 'Category Breakdown', 'headings' => $tables[0]['columns'], 'rows' => $tables[0]['rows']],
-            ['title' => 'Recently Resolved', 'headings' => $tables[1]['columns'], 'rows' => $tables[1]['rows']],
+            ['title' => 'Monthly Resolution Trend', 'headings' => $tables[0]['columns'], 'rows' => $tables[0]['rows']],
+            ['title' => 'Breakdown by Category', 'headings' => $tables[1]['columns'], 'rows' => $tables[1]['rows']],
         ]);
     }
 }; ?>
 
 <div>
     <div class="flex items-start justify-between gap-4 mb-1">
-        <h1 class="font-display font-extrabold text-2xl text-gray-900">{{ __('Reports') }}</h1>
+        <div>
+            <h1 class="font-display font-extrabold text-2xl text-gray-900">{{ __('Reports') }}</h1>
+            <p class="text-gray-500 text-sm mt-1">{{ __('Monthly resolution performance for :agency.', ['agency' => auth()->user()->agency->name]) }}</p>
+        </div>
         <div class="flex gap-2 flex-shrink-0">
             <button wire:click="exportPdf" class="border border-gray-300 hover:bg-gray-50 text-gray-700 font-bold text-xs px-3.5 py-2 rounded-lg">📄 {{ __('Export PDF') }}</button>
             <button wire:click="exportExcel" class="border border-gray-300 hover:bg-gray-50 text-gray-700 font-bold text-xs px-3.5 py-2 rounded-lg">📊 {{ __('Export Excel') }}</button>
         </div>
     </div>
-    <p class="text-gray-500 text-sm mb-4">{{ __("Your agency's performance summary.") }}</p>
 
-    <div class="flex flex-wrap items-center gap-2 mb-6">
-        <span class="text-xs font-semibold text-gray-500">{{ __('Filter by date') }}:</span>
-        <label class="text-xs text-gray-500">{{ __('From') }}</label>
-        <input type="date" wire:model.live="dateFrom" class="rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand" />
-        <label class="text-xs text-gray-500">{{ __('To') }}</label>
-        <input type="date" wire:model.live="dateTo" class="rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand" />
-        @if ($dateFrom || $dateTo)
-            <button wire:click="clearDateFilter" class="text-xs font-semibold text-brand">{{ __('Clear') }}</button>
-        @endif
-    </div>
-
-    <div class="grid grid-cols-4 gap-4 mb-4">
-        <div class="bg-gray-50 border border-gray-100 rounded-xl p-5">
-            <div class="text-xs font-semibold text-gray-500 mb-1">{{ __('Case Records') }}</div>
-            <div class="text-3xl font-extrabold text-gray-900">{{ $this->summary['total'] }}</div>
+    <div class="grid grid-cols-3 gap-4 my-6">
+        <div class="bg-blue-50 border border-blue-100 rounded-xl p-5">
+            <div class="text-xs font-semibold text-gray-500 mb-1">{{ __('Total Resolved (6mo)') }}</div>
+            <div class="text-3xl font-extrabold text-blue-700">{{ $this->totalResolved }}</div>
         </div>
         <div class="bg-green-50 border border-green-100 rounded-xl p-5">
-            <div class="text-xs font-semibold text-green-700 mb-1">{{ __('Verified as True') }}</div>
-            <div class="text-3xl font-extrabold text-green-700">{{ $this->summary['verified'] }}</div>
-        </div>
-        <div class="bg-brand-light border border-red-100 rounded-xl p-5">
-            <div class="text-xs font-semibold text-brand mb-1">{{ __('Identified as Fake') }}</div>
-            <div class="text-3xl font-extrabold text-brand">{{ $this->summary['fake'] }}</div>
-        </div>
-        <div class="bg-gray-50 border border-gray-100 rounded-xl p-5">
-            <div class="text-xs font-semibold text-gray-500 mb-1">{{ __('Rejected by Us') }}</div>
-            <div class="text-3xl font-extrabold text-gray-700">{{ $this->summary['rejected'] }}</div>
-        </div>
-    </div>
-
-    <div class="grid grid-cols-3 gap-4 mb-7">
-        <div class="bg-gray-50 border border-gray-100 rounded-xl p-5">
-            <div class="text-xs font-semibold text-gray-500 mb-1">{{ __('Pending') }}</div>
-            <div class="text-3xl font-extrabold text-gray-900">{{ $this->summary['pending'] }}</div>
+            <div class="text-xs font-semibold text-gray-500 mb-1">{{ __('Avg. Resolution Time') }}</div>
+            <div class="text-3xl font-extrabold text-green-700">{{ $this->avgResolutionDays !== null ? $this->avgResolutionDays.' '.__('days') : '—' }}</div>
         </div>
         <div class="bg-amber-50 border border-amber-100 rounded-xl p-5">
-            <div class="text-xs font-semibold text-amber-700 mb-1">{{ __('Delayed (7d+)') }}</div>
-            <div class="text-3xl font-extrabold text-amber-700">{{ $this->summary['delayed'] }}</div>
-        </div>
-        <div class="bg-gray-50 border border-gray-100 rounded-xl p-5">
-            <div class="text-xs font-semibold text-gray-500 mb-1">{{ __('Avg. Resolution Time') }}</div>
-            <div class="text-3xl font-extrabold text-gray-900">{{ $this->summary['avg_resolution_days'] !== null ? $this->summary['avg_resolution_days'].' '.__('days') : '—' }}</div>
+            <div class="text-xs font-semibold text-gray-500 mb-1">{{ __('Accuracy Rate') }}</div>
+            <div class="text-3xl font-extrabold text-amber-700">{{ $this->accuracyRate !== null ? $this->accuracyRate.'%' : '—' }}</div>
         </div>
     </div>
 
-    <div class="grid grid-cols-2 gap-6">
-        <div class="bg-white border border-gray-100 rounded-2xl p-6">
-            <div class="font-bold text-gray-900 mb-4">{{ __('Category Breakdown') }}</div>
-            <div class="flex flex-col gap-3">
-                @foreach ($this->categoryBreakdown as $row)
-                    <div class="flex items-center justify-between text-sm">
-                        <span class="text-gray-600">{{ $row->category?->value }}</span>
-                        <span class="font-bold text-gray-700">{{ $row->total }}</span>
-                    </div>
-                @endforeach
-            </div>
+    <div class="bg-white border border-gray-100 rounded-2xl p-6 mb-6">
+        <div class="font-bold text-gray-900 mb-4">{{ __('Monthly Resolution Trend') }}</div>
+        <div class="flex items-end justify-center gap-5" style="height: 150px;">
+            @php $max = max(1, collect($this->monthlyBuckets)->max('count')); @endphp
+            @foreach ($this->monthlyBuckets as $bucket)
+                <button type="button" wire:click="selectMonth('{{ $bucket['key'] }}')" class="w-11 flex flex-col items-center gap-1.5 h-full justify-end">
+                    <div class="text-xs font-bold {{ $this->selectedMonth === $bucket['key'] ? 'text-brand' : 'text-gray-500' }}">{{ $bucket['count'] }}</div>
+                    <div class="w-full max-w-[34px] rounded-t transition-transform {{ $this->selectedMonth === $bucket['key'] ? 'bg-brand' : 'bg-brand/60 hover:bg-brand' }}" style="height: {{ max(4, ($bucket['count'] / $max) * 100) }}px"></div>
+                    <div class="text-xs {{ $this->selectedMonth === $bucket['key'] ? 'font-bold text-brand' : 'text-gray-400' }}">{{ $bucket['label'] }}</div>
+                </button>
+            @endforeach
         </div>
+    </div>
 
-        <div class="bg-white border border-gray-100 rounded-2xl p-6">
-            <div class="font-bold text-gray-900 mb-4">{{ __('Recently Resolved') }}</div>
-            <div class="flex flex-col gap-3">
-                @forelse ($this->resolvedRecords as $inquiry)
-                    <div class="flex items-center justify-between gap-3 pb-3 border-b border-gray-50 last:border-0 last:pb-0">
-                        <span class="text-sm font-semibold text-gray-900 truncate">{{ $inquiry->title }}</span>
+    @if ($this->selectedMonth && $this->selectedMonthLabel)
+        <div class="bg-white border border-gray-100 rounded-2xl p-6 mb-6">
+            <div class="flex items-center justify-between mb-4">
+                <div class="font-bold text-gray-900">{{ __('Resolved in :month', ['month' => $this->selectedMonthLabel]) }}</div>
+                <button wire:click="selectMonth('{{ $this->selectedMonth }}')" class="text-xs font-semibold text-gray-400 hover:text-brand">{{ __('Close ✕') }}</button>
+            </div>
+            <div class="flex flex-col gap-2 max-h-72 overflow-y-auto">
+                @forelse ($this->selectedMonthInquiries as $inquiry)
+                    <a href="{{ route('agency.inquiries.show', $inquiry) }}" wire:navigate class="flex items-center justify-between gap-3 px-3.5 py-3 border border-gray-100 rounded-lg hover:bg-gray-50 hover:border-red-100">
+                        <div class="min-w-0">
+                            <div class="text-sm font-semibold text-gray-900 truncate">{{ $inquiry->title }}</div>
+                            <div class="text-xs text-gray-400 mt-0.5">{{ $inquiry->category?->value }} &middot; {{ $inquiry->resolved_at?->format('d M Y') }}</div>
+                        </div>
                         <x-inquiry-status-badge :status="$inquiry->status" />
-                    </div>
+                    </a>
                 @empty
-                    <p class="text-sm text-gray-400">{{ __('No resolved records yet.') }}</p>
+                    <p class="text-sm text-gray-400">{{ __('No cases resolved this month.') }}</p>
                 @endforelse
             </div>
+        </div>
+    @endif
+
+    <div class="bg-white border border-gray-100 rounded-2xl p-6">
+        <div class="font-bold text-gray-900 mb-4">{{ __('Breakdown by Category') }}</div>
+        <div class="flex flex-col gap-3">
+            @forelse ($this->categoryBreakdown as $row)
+                <div>
+                    <div class="flex items-center justify-between text-sm mb-1.5">
+                        <span class="font-semibold text-gray-700">{{ $row['label'] }}</span>
+                        <span class="text-gray-500">{{ $row['count'] }} {{ __('cases') }}</span>
+                    </div>
+                    <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div class="bg-brand h-full rounded-full" style="width: {{ $row['pct'] }}%"></div>
+                    </div>
+                </div>
+            @empty
+                <p class="text-sm text-gray-400">{{ __('No records in the last 6 months.') }}</p>
+            @endforelse
         </div>
     </div>
 </div>

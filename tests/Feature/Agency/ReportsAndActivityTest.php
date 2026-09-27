@@ -21,13 +21,13 @@ class ReportsAndActivityTest extends TestCase
         $agencyB = Agency::factory()->create();
         $staff = User::factory()->agencyStaff()->create(['agency_id' => $agencyA->id]);
 
-        Inquiry::factory()->create(['agency_id' => $agencyA->id, 'status' => InquiryStatus::VerifiedTrue]);
-        Inquiry::factory()->create(['agency_id' => $agencyB->id, 'status' => InquiryStatus::VerifiedTrue]);
-        Inquiry::factory()->create(['agency_id' => $agencyB->id, 'status' => InquiryStatus::VerifiedTrue]);
+        Inquiry::factory()->create(['agency_id' => $agencyA->id, 'status' => InquiryStatus::VerifiedTrue, 'resolved_at' => now()]);
+        Inquiry::factory()->create(['agency_id' => $agencyB->id, 'status' => InquiryStatus::VerifiedTrue, 'resolved_at' => now()]);
+        Inquiry::factory()->create(['agency_id' => $agencyB->id, 'status' => InquiryStatus::VerifiedTrue, 'resolved_at' => now()]);
 
-        $summary = Volt::actingAs($staff)->test('agency.reports.index')->instance()->summary;
+        $totalResolved = Volt::actingAs($staff)->test('agency.reports.index')->get('totalResolved');
 
-        $this->assertSame(1, $summary['verified']);
+        $this->assertSame(1, $totalResolved);
     }
 
     public function test_activity_log_only_shows_actions_on_the_staff_members_own_agency_inquiries(): void
