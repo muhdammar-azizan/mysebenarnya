@@ -33,7 +33,14 @@ class User extends Authenticatable implements MustVerifyEmail
         'phone',
         'profile_photo_path',
         'must_change_password',
+        'notification_preferences',
     ];
+
+    /**
+     * Notification preference keys that default to enabled when a staff
+     * member has never saved their Notification Preferences tab.
+     */
+    public const NOTIFICATION_PREFERENCE_KEYS = ['newInquiry', 'agencyRejects', 'agencyResolves', 'newAgency'];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -59,7 +66,18 @@ class User extends Authenticatable implements MustVerifyEmail
             'agency_role' => AgencyStaffRole::class,
             'must_change_password' => 'boolean',
             'last_active_at' => 'datetime',
+            'notification_preferences' => 'array',
         ];
+    }
+
+    /**
+     * Whether this user wants in-app notifications for the given preference
+     * key. Unset keys default to true so existing staff keep receiving
+     * notifications until they explicitly opt out.
+     */
+    public function wantsNotification(string $key): bool
+    {
+        return (bool) ($this->notification_preferences[$key] ?? true);
     }
 
     public function agency(): BelongsTo

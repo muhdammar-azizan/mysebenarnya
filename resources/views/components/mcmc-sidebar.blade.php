@@ -31,4 +31,19 @@
             </a>
         @endforeach
     </div>
+
+    <div class="px-2.5 mt-2 pt-2 border-t border-gray-100 flex flex-col gap-0.5">
+        <a href="{{ route('mcmc.settings.index') }}" wire:navigate
+            class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-semibold {{ request()->routeIs('mcmc.settings.index') ? 'bg-brand text-white' : 'text-gray-600 hover:bg-gray-100' }}">
+            <span class="w-1.5 h-1.5 rounded-sm {{ request()->routeIs('mcmc.settings.index') ? 'bg-white' : 'bg-gray-400' }}"></span>
+            <span class="flex-1">{{ __('Settings') }}</span>
+        </a>
+        <a href="{{ route('mcmc.recent-actions.index') }}" wire:navigate
+            class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-semibold {{ request()->routeIs('mcmc.recent-actions.index') ? 'bg-brand text-white' : 'text-gray-600 hover:bg-gray-100' }}">
+            <span class="w-1.5 h-1.5 rounded-sm {{ request()->routeIs('mcmc.recent-actions.index') ? 'bg-white' : 'bg-gray-400' }}"></span>
+            <span class="flex-1">{{ __('My Recent Actions') }}</span>
+        </a>
+    </div>
+
+    <livewire:mcmc.monthly-target-widget />
 </nav>

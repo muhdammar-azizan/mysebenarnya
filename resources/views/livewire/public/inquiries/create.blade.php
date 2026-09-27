@@ -2,9 +2,12 @@
 
 use App\Enums\InquiryCategory;
 use App\Enums\InquiryStatus;
+use App\Enums\UserRole;
 use App\Models\Inquiry;
 use App\Models\InquiryActivityLog;
 use App\Models\InquiryEvidence;
+use App\Models\User;
+use App\Notifications\NewInquirySubmitted;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Validate;
@@ -80,6 +83,14 @@ new #[Layout('layouts.public')] class extends Component
                 'to_status' => InquiryStatus::Submitted->value,
                 'notes' => 'Inquiry submitted by public user.',
             ]);
+
+            User::where('role', UserRole::McmcStaff)
+                ->get()
+                ->each(function (User $staff) use ($inquiry) {
+                    if ($staff->wantsNotification('newInquiry')) {
+                        $staff->notify(new NewInquirySubmitted($inquiry));
+                    }
+                });
         } catch (\Throwable $e) {
             report($e);
 

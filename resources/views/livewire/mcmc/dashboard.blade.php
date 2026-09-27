@@ -9,7 +9,6 @@ use App\Models\Agency;
 use App\Models\ClarificationConsult;
 use App\Models\ClarificationThread;
 use App\Models\Inquiry;
-use App\Models\InquiryActivityLog;
 use App\Models\ReportExport;
 use Illuminate\Support\Js;
 use Illuminate\Support\Str;
@@ -157,14 +156,6 @@ new #[Layout('layouts.mcmc')] class extends Component
         };
     }
 
-    public function getRecentActionsProperty()
-    {
-        return InquiryActivityLog::with(['inquiry', 'user'])
-            ->whereHas('user', fn ($q) => $q->where('role', 'mcmc_staff'))
-            ->latest()
-            ->limit(8)
-            ->get();
-    }
 }; ?>
 
 <div>
@@ -350,22 +341,5 @@ new #[Layout('layouts.mcmc')] class extends Component
                 @endforelse
             </tbody>
         </table>
-    </div>
-
-    <div class="bg-white border border-gray-100 rounded-2xl p-6 mt-6">
-        <div class="font-bold text-gray-900 mb-4">{{ __('Recent Actions') }}</div>
-        <div class="flex flex-col gap-4">
-            @forelse ($this->recentActions as $log)
-                <div class="flex items-center justify-between gap-3 pb-4 border-b border-gray-50 last:border-0 last:pb-0">
-                    <div class="min-w-0">
-                        <div class="text-sm font-semibold text-gray-900 truncate">{{ $log->inquiry?->title }}</div>
-                        <div class="text-xs text-gray-400 mt-0.5">{{ $log->user?->name }} &middot; {{ $log->created_at->diffForHumans() }}</div>
-                    </div>
-                    <span class="flex-shrink-0 px-2.5 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-600">{{ str($log->action)->headline() }}</span>
-                </div>
-            @empty
-                <p class="text-sm text-gray-400">{{ __('No recent actions yet.') }}</p>
-            @endforelse
-        </div>
     </div>
 </div>

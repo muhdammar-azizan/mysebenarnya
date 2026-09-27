@@ -75,7 +75,7 @@ new class extends Component
                 <div class="text-xs text-gray-500">{{ auth()->user()->email }}</div>
             </div>
             <div class="p-1.5">
-                <a href="{{ route('profile') }}" wire:navigate class="block px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-50">{{ __('Profile Settings') }}</a>
+                <a href="{{ route('mcmc.settings.index') }}" wire:navigate class="block px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-50">{{ __('Profile Settings') }}</a>
                 <button wire:click="logout" class="w-full text-left px-3 py-2 rounded-md text-sm font-medium text-brand hover:bg-brand-light">{{ __('Log Out') }}</button>
             </div>
         </div>

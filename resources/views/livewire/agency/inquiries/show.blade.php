@@ -191,7 +191,9 @@ new #[Layout('layouts.agency')] class extends Component
         ]);
 
         $this->inquiry->submitter?->notify(new InquiryStatusChanged($this->inquiry, InquiryStatus::UnderInvestigation->value, InquiryStatus::Rejected->value));
-        $this->inquiry->reviewer?->notify(new InquiryStatusChanged($this->inquiry, InquiryStatus::UnderInvestigation->value, InquiryStatus::Rejected->value));
+        if ($this->inquiry->reviewer?->wantsNotification('agencyRejects')) {
+            $this->inquiry->reviewer->notify(new InquiryStatusChanged($this->inquiry, InquiryStatus::UnderInvestigation->value, InquiryStatus::Rejected->value));
+        }
 
         $this->rejectModalOpen = false;
         session()->flash('status', __('Inquiry rejected and returned to MCMC for reassignment.'));
@@ -269,7 +271,9 @@ new #[Layout('layouts.agency')] class extends Component
         ]);
 
         $this->inquiry->submitter?->notify(new InquiryStatusChanged($this->inquiry, InquiryStatus::UnderInvestigation->value, $finalStatus->value));
-        $this->inquiry->reviewer?->notify(new InquiryStatusChanged($this->inquiry, InquiryStatus::UnderInvestigation->value, $finalStatus->value));
+        if ($this->inquiry->reviewer?->wantsNotification('agencyResolves')) {
+            $this->inquiry->reviewer->notify(new InquiryStatusChanged($this->inquiry, InquiryStatus::UnderInvestigation->value, $finalStatus->value));
+        }
 
         $this->finalizeModalOpen = false;
         session()->flash('status', __('Inquiry marked as :status.', ['status' => $finalStatus->label()]));

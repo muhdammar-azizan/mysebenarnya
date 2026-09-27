@@ -6,6 +6,8 @@ use App\Enums\UserRole;
 use App\Models\Agency;
 use App\Models\User;
 use App\Notifications\AgencyAccountProvisioned;
+use App\Notifications\NewAgencyRegistered;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -81,6 +83,15 @@ new #[Layout('layouts.mcmc')] class extends Component
         ]);
 
         $admin->notify(new AgencyAccountProvisioned($agency, $temporaryPassword));
+
+        User::where('role', UserRole::McmcStaff)
+            ->where('id', '!=', Auth::id())
+            ->get()
+            ->each(function (User $staff) use ($agency) {
+                if ($staff->wantsNotification('newAgency')) {
+                    $staff->notify(new NewAgencyRegistered($agency));
+                }
+            });
 
         $this->registered = true;
         $this->registeredAgencyName = $agency->name;

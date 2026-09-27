@@ -39,6 +39,8 @@ Route::middleware(['auth', 'verified', 'role:mcmc_staff'])->prefix('mcmc')->name
     Volt::route('users', 'mcmc.users.index')->name('users.index');
     Volt::route('reports', 'mcmc.reports.index')->name('reports.index');
     Volt::route('notifications', 'mcmc.notifications.index')->name('notifications.index');
+    Volt::route('settings', 'mcmc.settings.index')->name('settings.index');
+    Volt::route('recent-actions', 'mcmc.recent-actions.index')->name('recent-actions.index');
 });
 
 Route::middleware(['auth', 'verified', 'role:agency_staff'])->prefix('agency')->name('agency.')->group(function () {
