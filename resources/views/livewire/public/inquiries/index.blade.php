@@ -110,7 +110,7 @@ new #[Layout('layouts.public')] class extends Component
     <h1 class="font-display font-extrabold text-2xl text-gray-900">{{ __('My Inquiries') }}</h1>
     <p class="text-gray-500 text-sm mt-1 mb-6">{{ __('Track and manage your submitted inquiries.') }}</p>
 
-    <div class="grid grid-cols-4 gap-4 mb-7">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-7">
         <button wire:click="filterByStatus('All')" class="text-left bg-gray-50 border border-gray-100 rounded-xl p-4 hover:shadow-sm {{ $status === 'All' ? 'ring-2 ring-gray-300' : '' }}">
             <div class="text-xs font-semibold text-gray-500 mb-2">{{ __('Total Inquiries') }}</div>
             <div class="text-2xl font-extrabold text-gray-800">{{ $this->stats['total'] }}</div>
@@ -129,7 +129,7 @@ new #[Layout('layouts.public')] class extends Component
         </button>
     </div>
 
-    <div class="bg-white border border-gray-100 rounded-2xl p-6 mb-7 flex items-center justify-between flex-wrap gap-4">
+    <div class="bg-white border border-gray-100 rounded-2xl p-4 sm:p-6 mb-7 flex items-center justify-between flex-wrap gap-4">
         <div>
             <div class="font-bold text-gray-900">{{ __('Ready to verify something new?') }}</div>
             <div class="text-gray-500 text-sm mt-1">{{ __("Submit a news item you'd like us to investigate.") }}</div>
@@ -144,13 +144,13 @@ new #[Layout('layouts.public')] class extends Component
         <div class="p-5 border-b border-gray-100 flex flex-wrap gap-3">
             <input type="text" wire:model.live.debounce.400ms="search" placeholder="{{ __('Search by title...') }}"
                 class="flex-1 min-w-[200px] rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand" />
-            <select wire:model.live="status" class="rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
+            <select wire:model.live="status" class="w-full sm:w-auto rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
                 <option value="All">{{ __('All Statuses') }}</option>
                 @foreach (InquiryStatus::cases() as $case)
                     <option value="{{ $case->value }}">{{ $case->label() }}</option>
                 @endforeach
             </select>
-            <select wire:model.live="category" class="rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
+            <select wire:model.live="category" class="w-full sm:w-auto rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
                 <option value="All">{{ __('All Categories') }}</option>
                 @foreach ($this->categories as $case)
                     <option value="{{ $case->value }}">{{ $case->value }}</option>
@@ -158,7 +158,8 @@ new #[Layout('layouts.public')] class extends Component
             </select>
         </div>
 
-        <table class="w-full text-sm">
+        <div class="overflow-x-auto">
+        <table class="w-full min-w-[720px] text-sm">
             <thead>
                 <tr class="bg-gray-50 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">
                     <th class="px-5 py-3">{{ __('Title') }}</th>
@@ -188,6 +189,7 @@ new #[Layout('layouts.public')] class extends Component
                 @endforelse
             </tbody>
         </table>
+        </div>
 
         <div class="p-4 border-t border-gray-100">
             {{ $this->rows->links() }}
@@ -196,7 +198,7 @@ new #[Layout('layouts.public')] class extends Component
 
     @if ($this->panelInquiry)
         <div wire:click="closePanel" class="fixed inset-0 bg-black/35 z-40"></div>
-        <div class="fixed top-0 right-0 bottom-0 w-96 bg-white shadow-2xl z-50 flex flex-col">
+        <div class="fixed top-0 right-0 bottom-0 w-full sm:w-96 bg-white shadow-2xl z-50 flex flex-col">
             <div class="p-5 border-b border-gray-100 flex items-start justify-between gap-3">
                 <div class="font-display font-bold text-base text-gray-900">{{ $this->panelInquiry->title }}</div>
                 <button wire:click="closePanel" class="text-gray-400 hover:text-brand text-lg leading-none flex-shrink-0">✕</button>

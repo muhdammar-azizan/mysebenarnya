@@ -150,13 +150,13 @@ new #[Layout('layouts.public')] class extends Component
     <div class="flex flex-wrap gap-3 mb-6">
         <input type="text" wire:model.live.debounce.400ms="search" placeholder="{{ __('Search public inquiries...') }}"
             class="flex-1 min-w-[220px] rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand" />
-        <select wire:model.live="status" class="rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
+        <select wire:model.live="status" class="w-full sm:w-auto rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
             <option value="All">{{ __('All Statuses') }}</option>
             @foreach ($this->statuses as $case)
                 <option value="{{ $case->value }}">{{ $case->label() }}</option>
             @endforeach
         </select>
-        <select wire:model.live="category" class="rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
+        <select wire:model.live="category" class="w-full sm:w-auto rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
             <option value="All">{{ __('All Categories') }}</option>
             @foreach ($this->categories as $case)
                 <option value="{{ $case->value }}">{{ $case->value }}</option>
@@ -164,7 +164,7 @@ new #[Layout('layouts.public')] class extends Component
         </select>
     </div>
 
-    <div class="grid grid-cols-3 gap-4 mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mb-6">
         @forelse ($this->rows as $inquiry)
             <button type="button" wire:key="card-{{ $inquiry->id }}" wire:click="viewPanel({{ $inquiry->id }})"
                 class="block text-left bg-white border border-gray-100 rounded-xl p-4 hover:shadow-md transition-shadow">
@@ -186,7 +186,7 @@ new #[Layout('layouts.public')] class extends Component
 
     @if ($this->panelInquiry)
         <div wire:click="closePanel" class="fixed inset-0 bg-black/35 z-40"></div>
-        <div class="fixed top-0 right-0 bottom-0 w-96 bg-white shadow-2xl z-50 flex flex-col">
+        <div class="fixed top-0 right-0 bottom-0 w-full sm:w-96 bg-white shadow-2xl z-50 flex flex-col">
             <div class="p-5 border-b border-gray-100 flex items-start justify-between gap-3">
                 <div class="font-display font-bold text-base text-gray-900">{{ $this->panelInquiry->title }}</div>
                 <button wire:click="closePanel" class="text-gray-400 hover:text-brand text-lg leading-none flex-shrink-0">✕</button>
