@@ -10,6 +10,7 @@ use App\Models\InquiryActivityLog;
 use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Volt\Component;
@@ -139,6 +140,7 @@ new #[Layout('layouts.mcmc')] class extends Component
             'month' => [now()->startOfMonth(), now()->endOfMonth()],
             '3m' => [now()->subMonths(2)->startOfMonth(), now()->endOfMonth()],
             'year' => [now()->startOfYear(), now()->endOfMonth()],
+            'years' => [$this->firstDataYearStart(), now()->endOfYear()],
             'custom' => [
                 $this->dateFrom ? Carbon::parse($this->dateFrom)->startOfDay() : now()->subMonths(5)->startOfMonth(),
                 $this->dateTo ? Carbon::parse($this->dateTo)->endOfDay() : now()->endOfMonth(),
@@ -147,21 +149,40 @@ new #[Layout('layouts.mcmc')] class extends Component
         };
     }
 
+    /**
+     * Start of the earliest year that has any data, but never fewer than the
+     * last three calendar years so the yearly view always has a few bars.
+     */
+    protected function firstDataYearStart(): Carbon
+    {
+        $dates = array_filter([Inquiry::min('created_at'), User::min('created_at')]);
+        $earliest = $dates ? Carbon::parse(min($dates))->startOfYear() : now()->startOfYear();
+        $floor = now()->subYears(2)->startOfYear();
+
+        return $earliest->lt($floor) ? $earliest : $floor;
+    }
+
+    public function getPeriodUnitProperty(): string
+    {
+        return $this->dateRange === 'years' ? 'Year' : 'Month';
+    }
+
     protected function monthlyBuckets(): Collection
     {
         [$start, $end] = $this->rangeDates();
+        $yearly = $this->dateRange === 'years';
 
         $buckets = collect();
-        $cursor = $start->copy()->startOfMonth();
-        $endMonth = $end->copy()->startOfMonth();
+        $cursor = $yearly ? $start->copy()->startOfYear() : $start->copy()->startOfMonth();
+        $last = $yearly ? $end->copy()->startOfYear() : $end->copy()->startOfMonth();
 
-        while ($cursor->lte($endMonth)) {
+        while ($cursor->lte($last)) {
             $buckets->push([
-                'start' => $cursor->copy()->startOfMonth(),
-                'end' => $cursor->copy()->endOfMonth(),
-                'label' => $cursor->format('M Y'),
+                'start' => $yearly ? $cursor->copy()->startOfYear() : $cursor->copy()->startOfMonth(),
+                'end' => $yearly ? $cursor->copy()->endOfYear() : $cursor->copy()->endOfMonth(),
+                'label' => $yearly ? $cursor->format('Y') : $cursor->format('M Y'),
             ]);
-            $cursor->addMonth();
+            $yearly ? $cursor->addYear() : $cursor->addMonth();
         }
 
         return $buckets;
@@ -173,6 +194,7 @@ new #[Layout('layouts.mcmc')] class extends Component
             'month' => __('This Month (:month)', ['month' => now()->format('M Y')]),
             '3m' => __('Last 3 Months'),
             'year' => __('This Year (:year)', ['year' => now()->year]),
+            'years' => __('All Years (yearly totals)'),
             'custom' => __('Custom Range (:from to :to)', ['from' => $this->dateFrom ?: 'earliest', 'to' => $this->dateTo ?: 'now']),
             default => __('Last 6 Months'),
         };
@@ -200,30 +222,40 @@ new #[Layout('layouts.mcmc')] class extends Component
 
     public function getUserDrilldownEnabledProperty(): bool
     {
-        return in_array($this->userTypeFilter, ['all', 'public'], true);
+        return $this->agencyFilter === 'All' && in_array($this->userTypeFilter, ['all', 'public'], true);
+    }
+
+    /**
+     * Users matching the selected user type and, when an agency is chosen,
+     * only that agency's staff (only agency staff belong to an agency).
+     */
+    protected function userScope()
+    {
+        $role = $this->userTypeFilterRole();
+
+        return User::query()
+            ->when($this->agencyFilter !== 'All', fn ($q) => $q->where('agency_id', $this->agencyFilter))
+            ->when($this->agencyFilter === 'All' && $role, fn ($q) => $q->where('role', $role));
     }
 
     public function getUserStatCardsProperty(): array
     {
         [$start, $end] = $this->rangeDates();
+        $base = fn () => $this->agencyFilter !== 'All' ? $this->userScope() : User::where('role', UserRole::Public);
+        $forAgency = $this->agencyFilter !== 'All';
 
         return [
-            ['label' => __('Total Registered Users'), 'value' => User::where('role', UserRole::Public)->count()],
-            ['label' => __('New Users in Period'), 'value' => User::where('role', UserRole::Public)->whereBetween('created_at', [$start, $end])->count()],
-            ['label' => __('Verified Email Users'), 'value' => User::where('role', UserRole::Public)->whereNotNull('email_verified_at')->count()],
-            ['label' => __('Active (Last 30 Days)'), 'value' => User::where('role', UserRole::Public)->where('last_active_at', '>=', now()->subDays(30))->count()],
+            ['label' => $forAgency ? __('Total Agency Staff') : __('Total Registered Users'), 'value' => $base()->count()],
+            ['label' => $forAgency ? __('New Agency Staff in Period') : __('New Users in Period'), 'value' => $base()->whereBetween('created_at', [$start, $end])->count()],
+            ['label' => $forAgency ? __('Verified Email Staff') : __('Verified Email Users'), 'value' => $base()->whereNotNull('email_verified_at')->count()],
+            ['label' => __('Active (Last 30 Days)'), 'value' => $base()->where('last_active_at', '>=', now()->subDays(30))->count()],
         ];
     }
 
     public function getUserTrendProperty(): array
     {
-        $role = $this->userTypeFilterRole();
-
-        return $this->monthlyBuckets()->map(function ($b) use ($role) {
-            $count = User::query()
-                ->when($role, fn ($q) => $q->where('role', $role))
-                ->whereBetween('created_at', [$b['start'], $b['end']])
-                ->count();
+        return $this->monthlyBuckets()->map(function ($b) {
+            $count = $this->userScope()->whereBetween('created_at', [$b['start'], $b['end']])->count();
 
             return [...$b, 'count' => $count];
         })->all();
@@ -231,20 +263,24 @@ new #[Layout('layouts.mcmc')] class extends Component
 
     public function getUserTableProperty(): array
     {
-        $role = $this->userTypeFilterRole();
-
-        return $this->monthlyBuckets()->map(function ($b) use ($role) {
-            $new = User::query()->when($role, fn ($q) => $q->where('role', $role))->whereBetween('created_at', [$b['start'], $b['end']])->count();
-            $cumulative = User::query()->when($role, fn ($q) => $q->where('role', $role))->where('created_at', '<=', $b['end'])->count();
+        return $this->monthlyBuckets()->map(function ($b) {
+            $new = $this->userScope()->whereBetween('created_at', [$b['start'], $b['end']])->count();
+            $cumulative = $this->userScope()->where('created_at', '<=', $b['end'])->count();
 
             return [...$b, 'new' => $new, 'cumulative' => $cumulative];
         })->all();
     }
 
+    protected function inquiryBase(Carbon $start, Carbon $end)
+    {
+        return Inquiry::whereBetween('created_at', [$start, $end])
+            ->when($this->inquiryCategoryFilter !== 'All', fn ($q) => $q->where('category', $this->inquiryCategoryFilter));
+    }
+
     public function getInquiryStatCardsProperty(): array
     {
         [$start, $end] = $this->rangeDates();
-        $base = fn () => Inquiry::whereBetween('created_at', [$start, $end]);
+        $base = fn () => $this->inquiryBase($start, $end);
 
         return [
             ['label' => __('Total Inquiries'), 'value' => $base()->count()],
@@ -258,10 +294,10 @@ new #[Layout('layouts.mcmc')] class extends Component
     {
         $buckets = $this->monthlyBuckets()->map(function ($b) {
             $counts = [
-                'sub' => Inquiry::whereBetween('created_at', [$b['start'], $b['end']])->where('status', InquiryStatus::Submitted)->count(),
-                'ui' => Inquiry::whereBetween('created_at', [$b['start'], $b['end']])->where('status', InquiryStatus::UnderInvestigation)->count(),
-                'tru' => Inquiry::whereBetween('created_at', [$b['start'], $b['end']])->where('status', InquiryStatus::VerifiedTrue)->count(),
-                'fake' => Inquiry::whereBetween('created_at', [$b['start'], $b['end']])->where('status', InquiryStatus::IdentifiedFake)->count(),
+                'sub' => $this->inquiryBase($b['start'], $b['end'])->where('status', InquiryStatus::Submitted)->count(),
+                'ui' => $this->inquiryBase($b['start'], $b['end'])->where('status', InquiryStatus::UnderInvestigation)->count(),
+                'tru' => $this->inquiryBase($b['start'], $b['end'])->where('status', InquiryStatus::VerifiedTrue)->count(),
+                'fake' => $this->inquiryBase($b['start'], $b['end'])->where('status', InquiryStatus::IdentifiedFake)->count(),
             ];
 
             return [...$b, ...$counts, 'total' => array_sum($counts)];
@@ -330,7 +366,7 @@ new #[Layout('layouts.mcmc')] class extends Component
     public function getInquiryTableProperty(): array
     {
         return $this->monthlyBuckets()->map(function ($b) {
-            $base = fn () => Inquiry::whereBetween('created_at', [$b['start'], $b['end']]);
+            $base = fn () => $this->inquiryBase($b['start'], $b['end']);
 
             return [
                 ...$b,
@@ -341,10 +377,29 @@ new #[Layout('layouts.mcmc')] class extends Component
         })->all();
     }
 
+    /**
+     * Inquiries assigned to an agency within the selected period (by
+     * assignment date, falling back to submission date) and category.
+     */
+    protected function agencyInquiries(Agency $agency, ?Carbon $start = null, ?Carbon $end = null)
+    {
+        [$defaultStart, $defaultEnd] = $this->rangeDates();
+
+        return Inquiry::where('agency_id', $agency->id)
+            ->whereBetween(DB::raw('COALESCE(reviewed_at, created_at)'), [$start ?? $defaultStart, $end ?? $defaultEnd])
+            ->when($this->inquiryCategoryFilter !== 'All', fn ($q) => $q->where('category', $this->inquiryCategoryFilter));
+    }
+
     protected function agencyRejectionRate(Agency $agency): ?int
     {
-        $rejected = InquiryActivityLog::where('action', 'jurisdiction_rejected')->whereHas('user', fn ($q) => $q->where('agency_id', $agency->id))->count();
-        $accepted = InquiryActivityLog::where('action', 'jurisdiction_accepted')->whereHas('user', fn ($q) => $q->where('agency_id', $agency->id))->count();
+        [$start, $end] = $this->rangeDates();
+
+        $decisions = fn (string $action) => InquiryActivityLog::where('action', $action)
+            ->whereBetween('created_at', [$start, $end])
+            ->whereHas('user', fn ($q) => $q->where('agency_id', $agency->id));
+
+        $rejected = $decisions('jurisdiction_rejected')->count();
+        $accepted = $decisions('jurisdiction_accepted')->count();
         $decided = $rejected + $accepted;
 
         return $decided > 0 ? (int) round(($rejected / $decided) * 100) : null;
@@ -357,11 +412,11 @@ new #[Layout('layouts.mcmc')] class extends Component
             ->orderBy('name')
             ->get()
             ->map(function ($agency) {
-                $assigned = Inquiry::where('agency_id', $agency->id)->count();
-                $resolved = Inquiry::where('agency_id', $agency->id)->whereIn('status', [InquiryStatus::VerifiedTrue, InquiryStatus::IdentifiedFake])->count();
-                $pending = Inquiry::where('agency_id', $agency->id)->where('status', InquiryStatus::UnderInvestigation)->count();
+                $assigned = $this->agencyInquiries($agency)->count();
+                $resolved = $this->agencyInquiries($agency)->whereIn('status', [InquiryStatus::VerifiedTrue, InquiryStatus::IdentifiedFake])->count();
+                $pending = $this->agencyInquiries($agency)->where('status', InquiryStatus::UnderInvestigation)->count();
 
-                $avgDays = Inquiry::where('agency_id', $agency->id)
+                $avgDays = $this->agencyInquiries($agency)
                     ->whereIn('status', [InquiryStatus::VerifiedTrue, InquiryStatus::IdentifiedFake])
                     ->whereNotNull('resolved_at')
                     ->whereNotNull('reviewed_at')
@@ -376,6 +431,38 @@ new #[Layout('layouts.mcmc')] class extends Component
 
                 return $agency;
             });
+    }
+
+    /**
+     * Inquiries assigned per period, stacked by agency, to show how the
+     * workload is distributed over time.
+     */
+    public function getAssignmentTrendProperty(): array
+    {
+        $palette = ['#C41230', '#1D5FBF', '#7B4FBF', '#C4670A', '#1D7A3E', '#0F9B8E', '#8A8F98', '#4B4F58'];
+        $agencies = $this->agencyPerformance->values();
+
+        $legend = $agencies->map(fn ($a, $i) => ['name' => $a->name, 'color' => $palette[$i % count($palette)]])->all();
+
+        $buckets = $this->monthlyBuckets()->map(function ($b) use ($agencies, $palette) {
+            $segments = $agencies->map(fn ($a, $i) => [
+                'name' => $a->name,
+                'color' => $palette[$i % count($palette)],
+                'count' => $this->agencyInquiries($a, $b['start'], $b['end'])->count(),
+            ]);
+
+            return [...$b, 'segments' => $segments->all(), 'total' => $segments->sum('count')];
+        });
+
+        $max = max(1, $buckets->max('total'));
+
+        return [
+            'legend' => $legend,
+            'bars' => $buckets->map(fn ($b) => [
+                ...$b,
+                'height' => $b['total'] > 0 ? max(6, (int) round(($b['total'] / $max) * 140)) : 0,
+            ])->all(),
+        ];
     }
 
     public function getFastestAgencyProperty()
@@ -422,8 +509,8 @@ new #[Layout('layouts.mcmc')] class extends Component
             'kpis' => $this->inquiryStatCards,
             'tables' => [
                 [
-                    'heading' => 'Monthly Status Breakdown',
-                    'columns' => ['Month', 'Total Received', 'Verified True', 'Identified Fake'],
+                    'heading' => ($this->periodUnit === 'Year' ? 'Yearly' : 'Monthly').' Status Breakdown',
+                    'columns' => [$this->periodUnit, 'Total Received', 'Verified True', 'Identified Fake'],
                     'rows' => collect($this->inquiryTable)->map(fn ($r) => [$r['label'], $r['total'], $r['verified'], $r['fake']])->all(),
                 ],
                 [
@@ -454,14 +541,23 @@ new #[Layout('layouts.mcmc')] class extends Component
 
     protected function agencyPerformanceSection(): array
     {
+        $trend = $this->assignmentTrend;
+
         return [
             'name' => 'Agency Performance Reports',
             'kpis' => $this->agencyStatCards,
-            'tables' => [[
-                'heading' => 'Agency Performance Summary',
-                'columns' => $this->agencyPerformanceColumns(),
-                'rows' => $this->agencyPerformanceRows(),
-            ]],
+            'tables' => [
+                [
+                    'heading' => 'Agency Performance Summary',
+                    'columns' => $this->agencyPerformanceColumns(),
+                    'rows' => $this->agencyPerformanceRows(),
+                ],
+                [
+                    'heading' => ($this->periodUnit === 'Year' ? 'Yearly' : 'Monthly').' Assignments by Agency',
+                    'columns' => [$this->periodUnit, ...collect($trend['legend'])->pluck('name')->all()],
+                    'rows' => collect($trend['bars'])->map(fn ($b) => [$b['label'], ...collect($b['segments'])->pluck('count')->all()])->all(),
+                ],
+            ],
         ];
     }
 
@@ -472,8 +568,8 @@ new #[Layout('layouts.mcmc')] class extends Component
             'kpis' => $this->userStatCards,
             'tables' => [
                 [
-                    'heading' => 'Monthly Registrations — '.$this->userTypeOptions[$this->userTypeFilter],
-                    'columns' => ['Month', 'New Registrations', 'Cumulative Users'],
+                    'heading' => ($this->periodUnit === 'Year' ? 'Yearly' : 'Monthly').' Registrations — '.$this->userTypeOptions[$this->userTypeFilter],
+                    'columns' => [$this->periodUnit, 'New Registrations', 'Cumulative Users'],
                     'rows' => collect($this->userTable)->map(fn ($r) => [$r['label'], $r['new'], $r['cumulative']])->all(),
                 ],
             ],
@@ -534,7 +630,7 @@ new #[Layout('layouts.mcmc')] class extends Component
                 :sections="$this->exportSectionList"
                 :show-period="true"
                 period-property="dateRange"
-                :period-options="['month' => __('This Month'), '3m' => __('Last 3 Months'), '6m' => __('Last 6 Months'), 'year' => __('This Year')]"
+                :period-options="['month' => __('This Month'), '3m' => __('Last 3 Months'), '6m' => __('Last 6 Months'), 'year' => __('This Year'), 'years' => __('By Year (all years)')]"
                 :prepared-by="auth()->user()->name.' (MCMC Staff)'"
                 :intro-text="__('Export MCMC reports using the sections and period currently selected.')"
             />
@@ -554,6 +650,7 @@ new #[Layout('layouts.mcmc')] class extends Component
             <option value="3m">{{ __('Last 3 Months') }}</option>
             <option value="6m">{{ __('Last 6 Months') }}</option>
             <option value="year">{{ __('This Year') }}</option>
+            <option value="years">{{ __('By Year (all years)') }}</option>
             <option value="custom">{{ __('Custom Range') }}</option>
         </select>
 
@@ -570,14 +667,18 @@ new #[Layout('layouts.mcmc')] class extends Component
                     <option value="{{ $value }}">{{ $label }}</option>
                 @endforeach
             </select>
-        @elseif ($tab === 'inquiry')
+        @endif
+
+        @if ($tab !== 'user')
             <select wire:model.live="inquiryCategoryFilter" class="rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
                 <option value="All">{{ __('All Categories') }}</option>
                 @foreach ($this->categoryOptions as $case)
                     <option value="{{ $case->value }}">{{ $case->value }}</option>
                 @endforeach
             </select>
-        @else
+        @endif
+
+        @if ($tab !== 'inquiry')
             <select wire:model.live="agencyFilter" class="rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
                 <option value="All">{{ __('All Agencies') }}</option>
                 @foreach ($this->agencyOptions as $a)
@@ -614,7 +715,7 @@ new #[Layout('layouts.mcmc')] class extends Component
         <div class="bg-white border border-gray-100 rounded-2xl overflow-hidden">
             <div class="flex items-center justify-between px-5 py-3 border-b border-gray-100">
                 <div class="grid grid-cols-3 gap-2 text-xs font-bold text-gray-500 uppercase tracking-wide flex-1">
-                    <div>{{ __('Month') }}</div><div>{{ __('New Registrations') }}</div><div>{{ __('Total Cumulative Users') }}</div>
+                    <div>{{ $this->periodUnit === 'Year' ? __('Year') : __('Month') }}</div><div>{{ __('New Registrations') }}</div><div>{{ __('Total Cumulative Users') }}</div>
                 </div>
                 @if ($this->userDrilldownEnabled)
                     <a href="{{ route('mcmc.users.index', ['dateFrom' => $this->rangeDates()[0]->format('Y-m-d'), 'dateTo' => $this->rangeDates()[1]->format('Y-m-d')]) }}" wire:navigate
@@ -646,7 +747,7 @@ new #[Layout('layouts.mcmc')] class extends Component
 
         <div class="grid grid-cols-[1.6fr_1fr] gap-4 mb-6 items-stretch">
             <div class="bg-white border border-gray-100 rounded-2xl p-6">
-                <div class="font-bold text-gray-900 mb-4">{{ __('Monthly Inquiry Statistics') }}</div>
+                <div class="font-bold text-gray-900 mb-4">{{ $this->periodUnit === 'Year' ? __('Yearly Inquiry Statistics') : __('Monthly Inquiry Statistics') }}</div>
                 <div class="flex items-end justify-center gap-5" style="height: 150px;">
                     @foreach ($this->inquiryStackedBars as $m)
                         <div class="w-11 flex flex-col items-center gap-1.5 h-full justify-end">
@@ -686,7 +787,7 @@ new #[Layout('layouts.mcmc')] class extends Component
 
         <div class="bg-white border border-gray-100 rounded-2xl overflow-hidden">
             <div class="grid grid-cols-4 gap-2 px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wide border-b border-gray-100">
-                <div>{{ __('Month') }}</div><div>{{ __('Total Received') }}</div><div>{{ __('Verified True') }}</div><div>{{ __('Identified Fake') }}</div>
+                <div>{{ $this->periodUnit === 'Year' ? __('Year') : __('Month') }}</div><div>{{ __('Total Received') }}</div><div>{{ __('Verified True') }}</div><div>{{ __('Identified Fake') }}</div>
             </div>
             @foreach ($this->inquiryTable as $row)
                 <a href="{{ route('mcmc.inquiries.index', array_filter(['dateFrom' => $row['start']->format('Y-m-d'), 'dateTo' => $row['end']->format('Y-m-d'), 'category' => $inquiryCategoryFilter !== 'All' ? $inquiryCategoryFilter : null])) }}" wire:navigate
@@ -716,6 +817,32 @@ new #[Layout('layouts.mcmc')] class extends Component
                     <strong>{{ __('Needs Attention:') }}</strong> {{ $this->slowestAgency->name }} — {{ $this->slowestAgency->avg_resolution_days }} {{ __('days avg, above target threshold') }}
                 </div>
             @endif
+        </div>
+
+        @php $trend = $this->assignmentTrend; @endphp
+        <div class="bg-white border border-gray-100 rounded-2xl p-6 mb-6">
+            <div class="font-bold text-gray-900 mb-4">{{ $this->periodUnit === 'Year' ? __('Yearly Inquiry Assignment Trend') : __('Monthly Inquiry Assignment Trend') }}</div>
+            <div class="flex items-end justify-center gap-5" style="height: 160px;">
+                @foreach ($trend['bars'] as $bar)
+                    <div class="w-12 flex flex-col items-center gap-1.5 h-full justify-end">
+                        <div class="text-[11px] font-bold text-gray-500">{{ $bar['total'] }}</div>
+                        <div class="w-full max-w-[32px] flex flex-col-reverse rounded-t overflow-hidden" style="height: {{ $bar['height'] }}px;"
+                            title="{{ $bar['label'] }}: {{ collect($bar['segments'])->where('count', '>', 0)->map(fn ($seg) => $seg['name'].' '.$seg['count'])->implode(', ') ?: __('none') }}">
+                            @foreach ($bar['segments'] as $seg)
+                                @if ($seg['count'] > 0)
+                                    <div style="flex: {{ $seg['count'] }} 1 0; background: {{ $seg['color'] }};"></div>
+                                @endif
+                            @endforeach
+                        </div>
+                        <div class="text-[11px] text-gray-400">{{ $bar['label'] }}</div>
+                    </div>
+                @endforeach
+            </div>
+            <div class="flex flex-wrap justify-center gap-x-4 gap-y-1.5 mt-4">
+                @foreach ($trend['legend'] as $item)
+                    <div class="flex items-center gap-1.5 text-[11px] text-gray-500"><span class="w-2.5 h-2.5 rounded-sm" style="background: {{ $item['color'] }};"></span>{{ $item['name'] }}</div>
+                @endforeach
+            </div>
         </div>
 
         <div class="bg-white border border-gray-100 rounded-2xl p-6 mb-6">

@@ -140,6 +140,82 @@ class ReportsTest extends TestCase
         $this->assertSame(67, $row->rejection_rate);
     }
 
+    public function test_agency_performance_respects_the_selected_period(): void
+    {
+        $staff = User::factory()->mcmcStaff()->create();
+        $agency = Agency::factory()->create(['name' => 'Period Agency']);
+        Inquiry::factory()->create(['agency_id' => $agency->id, 'created_at' => now()->subMonths(4), 'reviewed_at' => now()->subMonths(4)]);
+        Inquiry::factory()->create(['agency_id' => $agency->id, 'created_at' => now(), 'reviewed_at' => now()]);
+
+        $component = Volt::actingAs($staff)->test('mcmc.reports.index')->set('tab', 'agency');
+
+        $this->assertSame(2, $component->set('dateRange', '6m')->get('agencyPerformance')->first()->assigned_count);
+        $this->assertSame(1, $component->set('dateRange', 'month')->get('agencyPerformance')->first()->assigned_count);
+    }
+
+    public function test_agency_performance_can_be_filtered_by_category(): void
+    {
+        $staff = User::factory()->mcmcStaff()->create();
+        $agency = Agency::factory()->create(['name' => 'Category Agency']);
+        Inquiry::factory()->create(['agency_id' => $agency->id, 'category' => \App\Enums\InquiryCategory::HealthMedical]);
+        Inquiry::factory()->create(['agency_id' => $agency->id, 'category' => \App\Enums\InquiryCategory::FinancialScams]);
+
+        $component = Volt::actingAs($staff)->test('mcmc.reports.index')->set('tab', 'agency')
+            ->set('inquiryCategoryFilter', \App\Enums\InquiryCategory::HealthMedical->value);
+
+        $this->assertSame(1, $component->get('agencyPerformance')->first()->assigned_count);
+    }
+
+    public function test_assignment_trend_stacks_assignments_per_agency(): void
+    {
+        $staff = User::factory()->mcmcStaff()->create();
+        $agency = Agency::factory()->create(['name' => 'Trend Agency']);
+        Inquiry::factory()->count(3)->create(['agency_id' => $agency->id]);
+
+        $trend = Volt::actingAs($staff)->test('mcmc.reports.index')->set('tab', 'agency')->get('assignmentTrend');
+
+        $this->assertSame('Trend Agency', $trend['legend'][0]['name']);
+        $this->assertSame(3, collect($trend['bars'])->last()['total']);
+    }
+
+    public function test_user_report_can_be_filtered_by_agency(): void
+    {
+        $staff = User::factory()->mcmcStaff()->create();
+        $agency = Agency::factory()->create();
+        User::factory()->agencyStaff()->count(2)->create(['agency_id' => $agency->id]);
+        User::factory()->count(3)->create();
+
+        $component = Volt::actingAs($staff)->test('mcmc.reports.index')->set('agencyFilter', (string) $agency->id);
+
+        $this->assertSame(2, $component->get('userStatCards')[0]['value']);
+    }
+
+    public function test_inquiry_report_applies_the_category_filter(): void
+    {
+        $staff = User::factory()->mcmcStaff()->create();
+        Inquiry::factory()->create(['category' => \App\Enums\InquiryCategory::HealthMedical]);
+        Inquiry::factory()->count(2)->create(['category' => \App\Enums\InquiryCategory::FinancialScams]);
+
+        $component = Volt::actingAs($staff)->test('mcmc.reports.index')->set('tab', 'inquiry')
+            ->set('inquiryCategoryFilter', \App\Enums\InquiryCategory::FinancialScams->value);
+
+        $this->assertSame(2, $component->get('inquiryStatCards')[0]['value']);
+    }
+
+    public function test_yearly_view_groups_data_by_year(): void
+    {
+        $staff = User::factory()->mcmcStaff()->create();
+        Inquiry::factory()->create(['reference_no' => 'INQ-OLD-00001', 'created_at' => now()->subYears(1)]);
+        Inquiry::factory()->create(['reference_no' => 'INQ-NEW-00001', 'created_at' => now()]);
+
+        $component = Volt::actingAs($staff)->test('mcmc.reports.index')->set('tab', 'inquiry')->set('dateRange', 'years');
+        $rows = $component->get('inquiryTable');
+
+        $this->assertSame((string) now()->year, collect($rows)->last()['label']);
+        $this->assertSame(1, collect($rows)->last()['total']);
+        $this->assertGreaterThanOrEqual(3, count($rows));
+    }
+
     public function test_public_user_cannot_access_reports(): void
     {
         $user = User::factory()->create(['role' => \App\Enums\UserRole::Public]);
