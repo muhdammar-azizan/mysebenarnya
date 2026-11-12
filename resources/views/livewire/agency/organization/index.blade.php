@@ -150,6 +150,7 @@ new #[Layout('layouts.agency')] class extends Component
         $staff = User::create([
             'name' => $validated['inviteName'],
             'email' => $validated['inviteEmail'],
+            'username' => User::generateUsername($this->agency->code.'.'.Str::before($validated['inviteName'], ' ')),
             'password' => Hash::make($temporaryPassword),
             'role' => UserRole::AgencyStaff,
             'agency_id' => $this->agency->id,

@@ -26,6 +26,7 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $fillable = [
         'name',
         'email',
+        'username',
         'password',
         'role',
         'agency_id',
@@ -118,5 +119,23 @@ class User extends Authenticatable implements MustVerifyEmail
     public function isAgencyReviewer(): bool
     {
         return $this->isAgencyStaff() && $this->agency_role === AgencyStaffRole::Reviewer;
+    }
+
+    /**
+     * Build a unique, lowercase username (letters, digits and dots) from a
+     * base string, adding a numeric suffix when the name is already taken.
+     */
+    public static function generateUsername(string $base): string
+    {
+        $base = strtolower(preg_replace('/[^a-z0-9.]+/i', '.', trim($base)));
+        $base = trim(preg_replace('/\.+/', '.', $base), '.') ?: 'staff';
+
+        $username = $base;
+        $i = 1;
+        while (static::where('username', $username)->exists()) {
+            $username = $base.(++$i);
+        }
+
+        return $username;
     }
 }

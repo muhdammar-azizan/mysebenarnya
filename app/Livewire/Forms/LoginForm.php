@@ -15,7 +15,11 @@ class LoginForm extends Form
     #[Validate('required|string|in:public,mcmc_staff,agency_staff')]
     public string $role = 'public';
 
-    #[Validate('required|string|email')]
+    /**
+     * Login identifier: an email for public users, a username for MCMC and
+     * agency staff. Kept as `email` so existing bindings keep working.
+     */
+    #[Validate('required|string')]
     public string $email = '';
 
     #[Validate('required|string')]
@@ -33,7 +37,19 @@ class LoginForm extends Form
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only(['email', 'password']), $this->remember)) {
+        $isStaff = in_array($this->role, ['mcmc_staff', 'agency_staff'], true);
+
+        if (! $isStaff && ! filter_var($this->email, FILTER_VALIDATE_EMAIL)) {
+            throw ValidationException::withMessages([
+                'form.email' => 'Please enter a valid email address.',
+            ]);
+        }
+
+        $credentials = $isStaff
+            ? ['username' => $this->email, 'password' => $this->password]
+            : ['email' => $this->email, 'password' => $this->password];
+
+        if (! Auth::attempt($credentials, $this->remember)) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([

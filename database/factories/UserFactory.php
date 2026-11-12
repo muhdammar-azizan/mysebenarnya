@@ -53,6 +53,7 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'role' => UserRole::McmcStaff,
+            'username' => fake()->unique()->userName(),
         ]);
     }
 
@@ -63,6 +64,7 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'role' => UserRole::AgencyStaff,
+            'username' => fake()->unique()->userName(),
         ]);
     }
 }

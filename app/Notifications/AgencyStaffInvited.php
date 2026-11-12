@@ -28,6 +28,7 @@ class AgencyStaffInvited extends Notification
             ->subject('You have been added to '.$this->agency->name.' on SEBENARNYA.MY')
             ->greeting('Welcome, '.$notifiable->name)
             ->line($this->invitedBy.' has added you as a staff member of '.$this->agency->name.' on SEBENARNYA.MY.')
+            ->line('Your username: '.$notifiable->username)
             ->line('Your login email: '.$notifiable->email)
             ->line('Your temporary password: '.$this->temporaryPassword)
             ->line('For security, you will be required to set a new password the first time you log in.')

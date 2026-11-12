@@ -54,6 +54,56 @@ class AuthenticationTest extends TestCase
         $this->assertGuest();
     }
 
+    public function test_mcmc_staff_can_log_in_with_username(): void
+    {
+        $user = User::factory()->mcmcStaff()->create(['username' => 'mcmc.tester']);
+
+        Volt::test('pages.auth.login')
+            ->set('form.role', 'mcmc_staff')
+            ->set('form.email', 'mcmc.tester')
+            ->set('form.password', 'password')
+            ->call('login')
+            ->assertHasNoErrors();
+
+        $this->assertAuthenticatedAs($user);
+    }
+
+    public function test_agency_staff_can_not_log_in_with_email(): void
+    {
+        $user = User::factory()->agencyStaff()->create(['username' => 'ag.tester']);
+
+        Volt::test('pages.auth.login')
+            ->set('form.role', 'agency_staff')
+            ->set('form.email', $user->email)
+            ->set('form.password', 'password')
+            ->call('login')
+            ->assertHasErrors();
+
+        $this->assertGuest();
+    }
+
+    public function test_public_user_must_use_a_valid_email_to_log_in(): void
+    {
+        User::factory()->create();
+
+        Volt::test('pages.auth.login')
+            ->set('form.email', 'not-an-email')
+            ->set('form.password', 'password')
+            ->call('login')
+            ->assertHasErrors('form.email');
+
+        $this->assertGuest();
+    }
+
+    public function test_generated_usernames_are_unique(): void
+    {
+        $first = User::generateUsername('MOH.Admin');
+        User::factory()->mcmcStaff()->create(['username' => $first]);
+
+        $this->assertSame('moh.admin', $first);
+        $this->assertSame('moh.admin2', User::generateUsername('MOH.Admin'));
+    }
+
     public function test_navigation_menu_can_be_rendered(): void
     {
         // Default factory role is `public`, which renders the public

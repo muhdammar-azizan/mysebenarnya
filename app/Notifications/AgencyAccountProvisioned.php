@@ -27,6 +27,7 @@ class AgencyAccountProvisioned extends Notification
             ->subject('Your SEBENARNYA.MY agency account')
             ->greeting('Welcome, '.$notifiable->name)
             ->line('MCMC has registered '.$this->agency->name.' as a verification agency on SEBENARNYA.MY.')
+            ->line('Your username: '.$notifiable->username)
             ->line('Your login email: '.$notifiable->email)
             ->line('Your temporary password: '.$this->temporaryPassword)
             ->line('For security, you will be required to set a new password the first time you log in.')

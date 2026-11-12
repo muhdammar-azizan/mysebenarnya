@@ -33,13 +33,13 @@ new #[Layout('layouts.auth')] class extends Component
             'mcmc_staff' => [
                 'heading' => 'MCMC Staff Login',
                 'subtitle' => 'Sign in to triage, assign, and manage inquiries.',
-                'emailPlaceholder' => 'Staff Email',
+                'emailPlaceholder' => 'Staff Username',
                 'submitLabel' => 'Login as MCMC Staff',
             ],
             'agency_staff' => [
                 'heading' => 'Agency Partner Login',
                 'subtitle' => 'Sign in to review and investigate assigned inquiries.',
-                'emailPlaceholder' => 'Agency Email',
+                'emailPlaceholder' => 'Agency Username',
                 'submitLabel' => 'Login as Agency Staff',
             ],
             default => [
@@ -123,7 +123,7 @@ new #[Layout('layouts.auth')] class extends Component
                 <form wire:submit="login" class="flex flex-col gap-4">
                     <div>
                         <input
-                            type="email"
+                            type="{{ $form->role === 'public' ? 'email' : 'text' }}"
                             wire:model="form.email"
                             placeholder="{{ $this->copy['emailPlaceholder'] }}"
                             autofocus

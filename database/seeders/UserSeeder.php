@@ -20,6 +20,7 @@ class UserSeeder extends Seeder
         User::create([
             'name' => 'Ahmad Faiz (MCMC)',
             'email' => 'mcmc.admin@sebenarnya.my',
+            'username' => 'mcmc.admin',
             'password' => Hash::make('password'),
             'role' => UserRole::McmcStaff,
             'email_verified_at' => now(),
@@ -28,6 +29,7 @@ class UserSeeder extends Seeder
         User::create([
             'name' => 'Siti Nurhaliza (MCMC)',
             'email' => 'mcmc.staff@sebenarnya.my',
+            'username' => 'mcmc.staff',
             'password' => Hash::make('password'),
             'role' => UserRole::McmcStaff,
             'email_verified_at' => now(),
@@ -36,6 +38,7 @@ class UserSeeder extends Seeder
         User::create([
             'name' => 'Dr. Kamal Hassan',
             'email' => 'agency.moh@sebenarnya.my',
+            'username' => 'moh.admin',
             'password' => Hash::make('password'),
             'role' => UserRole::AgencyStaff,
             'agency_id' => $moh->id,
@@ -47,6 +50,7 @@ class UserSeeder extends Seeder
         User::create([
             'name' => 'Farah Diyana',
             'email' => 'agency.moh.reviewer@sebenarnya.my',
+            'username' => 'moh.reviewer',
             'password' => Hash::make('password'),
             'role' => UserRole::AgencyStaff,
             'agency_id' => $moh->id,
@@ -58,6 +62,7 @@ class UserSeeder extends Seeder
         User::create([
             'name' => 'Lim Wei Ling',
             'email' => 'agency.bnm@sebenarnya.my',
+            'username' => 'bnm.admin',
             'password' => Hash::make('password'),
             'role' => UserRole::AgencyStaff,
             'agency_id' => $bnm->id,
@@ -69,6 +74,7 @@ class UserSeeder extends Seeder
         User::create([
             'name' => 'Nurul Izzah',
             'email' => 'agency.spr@sebenarnya.my',
+            'username' => 'spr.admin',
             'password' => Hash::make('password'),
             'role' => UserRole::AgencyStaff,
             'agency_id' => $spr->id,

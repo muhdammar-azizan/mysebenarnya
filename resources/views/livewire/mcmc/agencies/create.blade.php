@@ -75,6 +75,7 @@ new #[Layout('layouts.mcmc')] class extends Component
         $admin = User::create([
             'name' => $validated['contactName'],
             'email' => $validated['contactEmail'],
+            'username' => User::generateUsername($agency->code.'.admin'),
             'password' => Hash::make($temporaryPassword),
             'role' => UserRole::AgencyStaff,
             'agency_id' => $agency->id,
@@ -114,7 +115,7 @@ new #[Layout('layouts.mcmc')] class extends Component
         <form wire:submit="register" class="bg-white border border-gray-100 rounded-2xl p-7 max-w-xl space-y-5">
             <div class="flex gap-2.5 bg-blue-50 border border-blue-100 rounded-lg px-4 py-3 text-xs text-blue-800">
                 <span>ℹ️</span>
-                <span>{{ __('A temporary password will be generated and emailed to the contact above. The agency will be required to change it on first login.') }}</span>
+                <span>{{ __('A unique username and temporary password will be generated and emailed to the contact above. The agency will be required to change it on first login.') }}</span>
             </div>
 
             <div>
