@@ -182,13 +182,13 @@ new #[Layout('layouts.mcmc')] class extends Component
 
     <div class="flex flex-wrap items-center gap-3 my-5">
         <input type="text" wire:model.live.debounce.400ms="search" placeholder="{{ __('Search by title...') }}" class="flex-1 max-w-xs rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand" />
-        <select wire:model.live="category" class="rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
+        <select wire:model.live="category" class="w-full sm:w-auto rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
             <option value="All">{{ __('All Categories') }}</option>
             @foreach ($this->categories as $case)
                 <option value="{{ $case->value }}">{{ $case->value }}</option>
             @endforeach
         </select>
-        <select wire:model.live="status" class="rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
+        <select wire:model.live="status" class="w-full sm:w-auto rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
             <option value="All">{{ __('All Statuses') }}</option>
             <option value="Awaiting Review">{{ __('Awaiting Review') }}</option>
             <option value="Needs Reassignment">{{ __('Needs Reassignment') }}</option>
@@ -198,7 +198,7 @@ new #[Layout('layouts.mcmc')] class extends Component
             <option value="Verified True">{{ __('Verified True') }}</option>
             <option value="Identified Fake">{{ __('Identified Fake') }}</option>
         </select>
-        <select wire:model.live="agency" class="rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
+        <select wire:model.live="agency" class="w-full sm:w-auto rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
             <option value="All">{{ __('All Agencies') }}</option>
             @foreach ($this->agencies as $agencyOption)
                 <option value="{{ $agencyOption->id }}">{{ $agencyOption->name }}</option>
@@ -211,7 +211,8 @@ new #[Layout('layouts.mcmc')] class extends Component
         </div>
     </div>
 
-    <div class="bg-white border border-gray-100 rounded-2xl overflow-hidden">
+    <div class="bg-white border border-gray-100 rounded-2xl overflow-x-auto">
+      <div class="min-w-[640px]">
         <div class="grid grid-cols-[2.4fr_1.3fr_1.5fr] gap-4 px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wide border-b border-gray-100">
             <div>{{ __('Title') }}</div><div>{{ __('Category') }}</div><div>{{ __('Status') }}</div>
         </div>
@@ -237,13 +238,14 @@ new #[Layout('layouts.mcmc')] class extends Component
         @empty
             <div class="px-5 py-10 text-center text-gray-400">{{ __('No inquiries match your filters.') }}</div>
         @endforelse
+      </div>
     </div>
 
     <div class="mt-4">{{ $this->rows->links() }}</div>
 
     @if ($this->panelInquiry)
         <div wire:click="closePanel" class="fixed inset-0 bg-black/35 z-40"></div>
-        <div class="fixed top-0 right-0 bottom-0 w-96 bg-white shadow-2xl z-50 flex flex-col">
+        <div class="fixed top-0 right-0 bottom-0 w-full sm:w-96 bg-white shadow-2xl z-50 flex flex-col">
             <div class="p-5 border-b border-gray-100 flex items-start justify-between gap-3">
                 <div class="font-display font-bold text-base text-gray-900">{{ $this->panelInquiry->title }}</div>
                 <button wire:click="closePanel" class="text-gray-400 hover:text-brand text-lg leading-none flex-shrink-0">✕</button>

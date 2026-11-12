@@ -282,13 +282,13 @@ new #[Layout('layouts.mcmc')] class extends Component
             <div class="flex flex-wrap gap-3 mb-5">
                 <input type="text" wire:model.live.debounce.400ms="search" placeholder="{{ __('Search by title...') }}"
                     class="flex-1 min-w-[200px] rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand" />
-                <select wire:model.live="category" class="rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
+                <select wire:model.live="category" class="w-full sm:w-auto rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
                     <option value="All">{{ __('All Categories') }}</option>
                     @foreach ($this->categories as $case)
                         <option value="{{ $case->value }}">{{ $case->value }}</option>
                     @endforeach
                 </select>
-                <select wire:model.live="dateRange" class="rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
+                <select wire:model.live="dateRange" class="w-full sm:w-auto rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
                     <option value="all">{{ __('All Time') }}</option>
                     <option value="7days">{{ __('Last 7 Days') }}</option>
                     <option value="30days">{{ __('Last 30 Days') }}</option>
@@ -308,7 +308,8 @@ new #[Layout('layouts.mcmc')] class extends Component
             @endif
 
             <div class="bg-white border border-gray-100 rounded-2xl overflow-hidden">
-                <table class="w-full text-sm">
+                <div class="overflow-x-auto">
+                <table class="w-full min-w-[720px] text-sm">
                     <thead>
                         <tr class="bg-gray-50 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">
                             <th class="px-5 py-3 w-8"><input type="checkbox" wire:click="toggleSelectAll" @checked(count($selectedIds) > 0 && count(array_diff($this->pendingRows->pluck('id')->all(), $selectedIds)) === 0)></th>
@@ -334,10 +335,12 @@ new #[Layout('layouts.mcmc')] class extends Component
                         @endforelse
                     </tbody>
                 </table>
+                </div>
             </div>
         @elseif ($tab === 'reassign')
             <div class="bg-white border border-gray-100 rounded-2xl overflow-hidden">
-                <table class="w-full text-sm">
+                <div class="overflow-x-auto">
+                <table class="w-full min-w-[720px] text-sm">
                     <thead>
                         <tr class="bg-gray-50 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">
                             <th class="px-5 py-3">{{ __('Title') }}</th>
@@ -364,6 +367,7 @@ new #[Layout('layouts.mcmc')] class extends Component
                         @endforelse
                     </tbody>
                 </table>
+                </div>
             </div>
         @elseif ($tab === 'reviewed')
             <div class="bg-white border border-gray-100 rounded-2xl overflow-hidden divide-y divide-gray-50">
@@ -381,7 +385,8 @@ new #[Layout('layouts.mcmc')] class extends Component
             </div>
         @else
             <div class="bg-white border border-gray-100 rounded-2xl overflow-hidden">
-                <table class="w-full text-sm">
+                <div class="overflow-x-auto">
+                <table class="w-full min-w-[720px] text-sm">
                     <thead>
                         <tr class="bg-gray-50 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">
                             <th class="px-5 py-3">{{ __('Title') }}</th>
@@ -408,6 +413,7 @@ new #[Layout('layouts.mcmc')] class extends Component
                         @endforelse
                     </tbody>
                 </table>
+                </div>
             </div>
         @endif
     @elseif ($screen === 'review')

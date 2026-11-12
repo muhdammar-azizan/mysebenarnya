@@ -167,7 +167,7 @@ new #[Layout('layouts.mcmc')] class extends Component
     <div class="flex flex-wrap gap-3 mb-6">
         <input type="text" wire:model.live.debounce.400ms="search" placeholder="{{ __('Search by name or email...') }}"
             class="flex-1 min-w-[220px] rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand" />
-        <select wire:model.live="status" class="rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
+        <select wire:model.live="status" class="w-full sm:w-auto rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
             <option value="All">{{ __('All') }}</option>
             <option value="Verified">{{ __('Verified') }}</option>
             <option value="Unverified">{{ __('Unverified') }}</option>
@@ -175,7 +175,8 @@ new #[Layout('layouts.mcmc')] class extends Component
     </div>
 
     <div class="bg-white border border-gray-100 rounded-2xl overflow-hidden">
-        <table class="w-full text-sm">
+        <div class="overflow-x-auto">
+        <table class="w-full min-w-[720px] text-sm">
             <thead>
                 <tr class="bg-gray-50 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">
                     <th class="px-5 py-3">{{ __('Name') }}</th>
@@ -203,12 +204,13 @@ new #[Layout('layouts.mcmc')] class extends Component
                 @endforelse
             </tbody>
         </table>
+        </div>
         <div class="p-4 border-t border-gray-100">{{ $this->rows->links() }}</div>
     </div>
 
     @if ($this->panelUser)
         <div wire:click="closePanel" class="fixed inset-0 bg-black/35 z-40"></div>
-        <div class="fixed top-0 right-0 bottom-0 w-96 bg-white shadow-2xl z-50 flex flex-col">
+        <div class="fixed top-0 right-0 bottom-0 w-full sm:w-96 bg-white shadow-2xl z-50 flex flex-col">
             <div class="p-5 border-b border-gray-100 flex items-start justify-between gap-3">
                 <div class="font-extrabold text-gray-900">{{ $this->panelUser->name }}</div>
                 <button wire:click="closePanel" class="text-gray-400 hover:text-brand text-lg leading-none">✕</button>

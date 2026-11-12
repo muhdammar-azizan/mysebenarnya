@@ -645,7 +645,7 @@ new #[Layout('layouts.mcmc')] class extends Component
     </div>
 
     <div class="flex flex-wrap items-center gap-2 mb-6">
-        <select wire:model.live="dateRange" class="rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
+        <select wire:model.live="dateRange" class="w-full sm:w-auto rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
             <option value="month">{{ __('This Month') }}</option>
             <option value="3m">{{ __('Last 3 Months') }}</option>
             <option value="6m">{{ __('Last 6 Months') }}</option>
@@ -662,7 +662,7 @@ new #[Layout('layouts.mcmc')] class extends Component
         @endif
 
         @if ($tab === 'user')
-            <select wire:model.live="userTypeFilter" class="rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
+            <select wire:model.live="userTypeFilter" class="w-full sm:w-auto rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
                 @foreach ($this->userTypeOptions as $value => $label)
                     <option value="{{ $value }}">{{ $label }}</option>
                 @endforeach
@@ -670,7 +670,7 @@ new #[Layout('layouts.mcmc')] class extends Component
         @endif
 
         @if ($tab !== 'user')
-            <select wire:model.live="inquiryCategoryFilter" class="rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
+            <select wire:model.live="inquiryCategoryFilter" class="w-full sm:w-auto rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
                 <option value="All">{{ __('All Categories') }}</option>
                 @foreach ($this->categoryOptions as $case)
                     <option value="{{ $case->value }}">{{ $case->value }}</option>
@@ -679,7 +679,7 @@ new #[Layout('layouts.mcmc')] class extends Component
         @endif
 
         @if ($tab !== 'inquiry')
-            <select wire:model.live="agencyFilter" class="rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
+            <select wire:model.live="agencyFilter" class="w-full sm:w-auto rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
                 <option value="All">{{ __('All Agencies') }}</option>
                 @foreach ($this->agencyOptions as $a)
                     <option value="{{ $a->id }}">{{ $a->name }}</option>
@@ -689,7 +689,7 @@ new #[Layout('layouts.mcmc')] class extends Component
     </div>
 
     @if ($tab === 'user')
-        <div class="grid grid-cols-4 gap-4 mb-6">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             @foreach ($this->userStatCards as $card)
                 <div class="bg-white border border-gray-100 rounded-xl p-4 shadow-sm">
                     <div class="text-xs font-semibold text-gray-500 mb-2">{{ $card['label'] }}</div>
@@ -736,7 +736,7 @@ new #[Layout('layouts.mcmc')] class extends Component
             @endforeach
         </div>
     @elseif ($tab === 'inquiry')
-        <div class="grid grid-cols-4 gap-4 mb-6">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             @foreach ($this->inquiryStatCards as $card)
                 <div class="bg-white border border-gray-100 rounded-xl p-4 shadow-sm">
                     <div class="text-xs font-semibold text-gray-500 mb-2">{{ $card['label'] }}</div>
@@ -745,7 +745,7 @@ new #[Layout('layouts.mcmc')] class extends Component
             @endforeach
         </div>
 
-        <div class="grid grid-cols-[1.6fr_1fr] gap-4 mb-6 items-stretch">
+        <div class="grid grid-cols-1 lg:grid-cols-[1.6fr_1fr] gap-4 mb-6 items-stretch">
             <div class="bg-white border border-gray-100 rounded-2xl p-6">
                 <div class="font-bold text-gray-900 mb-4">{{ $this->periodUnit === 'Year' ? __('Yearly Inquiry Statistics') : __('Monthly Inquiry Statistics') }}</div>
                 <div class="flex items-end justify-center gap-5" style="height: 150px;">
@@ -797,7 +797,7 @@ new #[Layout('layouts.mcmc')] class extends Component
             @endforeach
         </div>
     @else
-        <div class="grid grid-cols-4 gap-4 mb-6">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             @foreach ($this->agencyStatCards as $card)
                 <div class="bg-white border border-gray-100 rounded-xl p-4 shadow-sm">
                     <div class="text-xs font-semibold text-gray-500 mb-2">{{ $card['label'] }}</div>
@@ -806,7 +806,7 @@ new #[Layout('layouts.mcmc')] class extends Component
             @endforeach
         </div>
 
-        <div class="grid grid-cols-2 gap-4 mb-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
             @if ($this->fastestAgency)
                 <div class="bg-green-50 border border-green-200 rounded-xl px-5 py-4 text-sm text-green-800">
                     <strong>{{ __('Fastest:') }}</strong> {{ $this->fastestAgency->name }} — {{ $this->fastestAgency->avg_resolution_days }} {{ __('days avg') }}
@@ -863,7 +863,8 @@ new #[Layout('layouts.mcmc')] class extends Component
         </div>
 
         <div class="bg-white border border-gray-100 rounded-2xl overflow-hidden">
-            <table class="w-full text-sm">
+            <div class="overflow-x-auto">
+            <table class="w-full min-w-[720px] text-sm">
                 <thead>
                     <tr class="bg-gray-50 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">
                         <th class="px-5 py-3">{{ __('Agency Name') }}</th>
@@ -889,6 +890,7 @@ new #[Layout('layouts.mcmc')] class extends Component
                     @endforelse
                 </tbody>
             </table>
+            </div>
         </div>
     @endif
 </div>

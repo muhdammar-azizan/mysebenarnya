@@ -192,7 +192,7 @@ new #[Layout('layouts.mcmc')] class extends Component
         </a>
     </div>
 
-    <div class="grid grid-cols-[65fr_35fr] gap-4 mb-6 items-stretch">
+    <div class="grid grid-cols-1 lg:grid-cols-[65fr_35fr] gap-4 mb-6 items-stretch">
         <div class="bg-white border border-gray-100 rounded-lg p-5 flex flex-col"
             x-data="{
                 points: {{ Js::from($this->trend['points']) }},
@@ -280,7 +280,8 @@ new #[Layout('layouts.mcmc')] class extends Component
             <div class="font-bold text-gray-900">{{ __('Inquiries Awaiting Triage') }}</div>
             <a href="{{ route('mcmc.triage.index') }}" wire:navigate class="border border-gray-300 hover:bg-gray-50 hover:border-gray-400 text-gray-700 font-semibold text-xs px-3.5 py-2 rounded-lg">{{ __('View All Inquiries →') }}</a>
         </div>
-        <table class="w-full text-sm">
+        <div class="overflow-x-auto">
+        <table class="w-full min-w-[720px] text-sm">
             <thead>
                 <tr class="text-left text-[11.5px] font-bold text-gray-400 uppercase tracking-wide border-b border-gray-100">
                     <th class="px-5 py-3">{{ __('Title') }}</th>
@@ -309,6 +310,7 @@ new #[Layout('layouts.mcmc')] class extends Component
                 @endforelse
             </tbody>
         </table>
+        </div>
     </div>
 
     <div class="bg-white border border-gray-100 rounded-lg overflow-hidden">
@@ -316,7 +318,8 @@ new #[Layout('layouts.mcmc')] class extends Component
             <div class="font-bold text-gray-900">{{ __('Agency Performance Snapshot') }}</div>
             <a href="{{ route('mcmc.reports.index') }}" wire:navigate class="border border-gray-300 hover:bg-gray-50 hover:border-gray-400 text-gray-700 font-semibold text-xs px-3.5 py-2 rounded-lg">{{ __('View Full Reports →') }}</a>
         </div>
-        <table class="w-full text-sm">
+        <div class="overflow-x-auto">
+        <table class="w-full min-w-[720px] text-sm">
             <thead>
                 <tr class="text-left text-[11.5px] font-bold text-gray-400 uppercase tracking-wide border-b border-gray-100">
                     <th class="px-5 py-3">{{ __('Agency Name') }}</th>
@@ -342,5 +345,6 @@ new #[Layout('layouts.mcmc')] class extends Component
                 @endforelse
             </tbody>
         </table>
+        </div>
     </div>
 </div>

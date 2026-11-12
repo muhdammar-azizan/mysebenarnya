@@ -144,12 +144,12 @@ new #[Layout('layouts.mcmc')] class extends Component
 
     <div class="flex gap-3 my-5">
         <input type="text" wire:model.live="search" placeholder="{{ __('Search agencies...') }}" class="flex-1 max-w-xs rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand" />
-        <select wire:model.live="status" class="rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
+        <select wire:model.live="status" class="w-full sm:w-auto rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
             <option value="all">{{ __('All Status') }}</option>
             <option value="Active">{{ __('Active') }}</option>
             <option value="Suspended">{{ __('Suspended') }}</option>
         </select>
-        <select wire:model.live="specialization" class="rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
+        <select wire:model.live="specialization" class="w-full sm:w-auto rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
             <option value="all">{{ __('All Specializations') }}</option>
             @foreach ($this->specializations as $case)
                 <option value="{{ $case->value }}">{{ $case->value }}</option>
@@ -158,7 +158,8 @@ new #[Layout('layouts.mcmc')] class extends Component
     </div>
 
     <div class="bg-white border border-gray-100 rounded-2xl overflow-visible">
-        <table class="w-full text-sm">
+        <div class="overflow-x-auto">
+        <table class="w-full min-w-[720px] text-sm">
             <thead>
                 <tr class="bg-gray-50 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">
                     <th class="px-5 py-3">{{ __('Agency Name') }}</th>
@@ -211,11 +212,12 @@ new #[Layout('layouts.mcmc')] class extends Component
                 @endforelse
             </tbody>
         </table>
+        </div>
     </div>
 
     @if ($this->detailsAgency)
         <div class="fixed inset-0 bg-black/45 flex justify-end z-50" wire:click="closeDetails">
-            <div class="w-[420px] h-full bg-white p-7 overflow-auto shadow-2xl" wire:click.stop>
+            <div class="w-full max-w-[420px] h-full bg-white p-7 overflow-auto shadow-2xl" wire:click.stop>
                 <div class="font-display font-bold text-lg mb-4">{{ $this->detailsAgency->name }}</div>
                 <div class="flex flex-col gap-3.5 text-sm">
                     <div>
@@ -260,7 +262,7 @@ new #[Layout('layouts.mcmc')] class extends Component
 
     @if ($this->suspendAgency)
         <div class="fixed inset-0 bg-black/45 flex items-center justify-center z-[55]">
-            <div class="w-[420px] bg-white rounded-xl p-6 shadow-2xl">
+            <div class="w-full max-w-[420px] bg-white rounded-xl p-6 shadow-2xl">
                 <div class="font-display font-bold text-base mb-2.5">
                     {{ $this->suspendAgency->is_active ? __('Suspend :name?', ['name' => $this->suspendAgency->name]) : __('Reactivate :name?', ['name' => $this->suspendAgency->name]) }}
                 </div>

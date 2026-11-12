@@ -101,7 +101,7 @@ new class extends Component
 
     @if ($modalOpen)
         <div wire:click="closeModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div wire:click.stop class="w-[480px] bg-white rounded-2xl shadow-2xl overflow-hidden">
+            <div wire:click.stop class="w-full max-w-[480px] bg-white rounded-2xl shadow-2xl overflow-hidden">
                 <div class="px-6 py-5 border-b border-gray-100 flex items-start justify-between gap-3">
                     <div class="flex items-center gap-3">
                         <div class="w-9 h-9 rounded-lg bg-brand-light flex items-center justify-center flex-shrink-0">

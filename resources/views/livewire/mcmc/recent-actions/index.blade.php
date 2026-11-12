@@ -36,7 +36,8 @@ new #[Layout('layouts.mcmc')] class extends Component
     <p class="text-gray-500 text-sm mb-6">{{ __("A personal log of triage and assignment decisions you've made recently.") }}</p>
 
     <div class="bg-white border border-gray-100 rounded-lg overflow-hidden">
-        <table class="w-full text-sm">
+        <div class="overflow-x-auto">
+        <table class="w-full min-w-[720px] text-sm">
             <thead>
                 <tr class="text-left text-[11.5px] font-bold text-gray-400 uppercase tracking-wide border-b border-gray-100">
                     <th class="px-5 py-3">{{ __('Inquiry Title') }}</th>
@@ -59,6 +60,7 @@ new #[Layout('layouts.mcmc')] class extends Component
                 @endforelse
             </tbody>
         </table>
+        </div>
     </div>
 
     <div class="mt-4">{{ $this->rows->links() }}</div>

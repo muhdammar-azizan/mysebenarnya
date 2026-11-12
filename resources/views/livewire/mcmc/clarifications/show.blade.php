@@ -155,7 +155,7 @@ new #[Layout('layouts.mcmc')] class extends Component
             </span>
         </div>
 
-        <div class="mt-4 pt-4 border-t border-gray-100 grid grid-cols-3 gap-4 text-sm">
+        <div class="mt-4 pt-4 border-t border-gray-100 grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
             <div>
                 <div class="text-[11px] font-bold text-gray-400 uppercase">{{ __('Category') }}</div>
                 <div class="font-semibold text-gray-700">{{ $thread->inquiry->category?->value }}</div>
@@ -177,7 +177,7 @@ new #[Layout('layouts.mcmc')] class extends Component
         </div>
     </div>
 
-    <div class="grid grid-cols-[65fr_35fr] gap-4 items-start">
+    <div class="grid grid-cols-1 lg:grid-cols-[65fr_35fr] gap-4 items-start">
     <div class="bg-white border border-gray-100 rounded-2xl overflow-hidden">
         <div class="p-6 flex flex-col gap-4">
             @foreach ($thread->messages as $message)
