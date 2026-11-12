@@ -44,6 +44,12 @@
         @case('plus-circle')
             <circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/>
             @break
+        @case('chevron-left')
+            <path d="m15 18-6-6 6-6"/>
+            @break
+        @case('chevron-right')
+            <path d="m9 18 6-6-6-6"/>
+            @break
         @case('clock')
             <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
             @break

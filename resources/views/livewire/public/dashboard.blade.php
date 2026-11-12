@@ -99,10 +99,12 @@ new #[Layout('layouts.public')] class extends Component
 }; ?>
 
 <div
-    x-data="{ slide: 0, slides: 3, timer: null, start() { clearInterval(this.timer); this.timer = setInterval(() => this.slide = (this.slide + 1) % this.slides, 5000); }, jump() { this.$nextTick(() => document.getElementById('public-feed-anchor')?.scrollIntoView({ behavior: 'smooth' })); } }"
+    x-data="{ slide: 0, slides: 3, timer: null, touchX: null, prev() { this.slide = (this.slide + this.slides - 1) % this.slides; this.start(); }, next() { this.slide = (this.slide + 1) % this.slides; this.start(); }, start() { clearInterval(this.timer); this.timer = setInterval(() => this.slide = (this.slide + 1) % this.slides, 5000); }, jump() { this.$nextTick(() => document.getElementById('public-feed-anchor')?.scrollIntoView({ behavior: 'smooth' })); } }"
     x-init="start()"
 >
-    <div class="relative rounded-2xl overflow-hidden h-64 mb-8 bg-gray-900">
+    <div class="relative rounded-2xl overflow-hidden h-64 mb-8 bg-gray-900"
+        @touchstart="touchX = $event.touches[0].clientX"
+        @touchend="if (touchX !== null) { const d = $event.changedTouches[0].clientX - touchX; if (Math.abs(d) > 40) { d < 0 ? next() : prev(); } touchX = null; }">
         <img x-show="slide === 0" x-transition.opacity.duration.500ms src="{{ asset('images/banner-report.png') }}" alt="" class="absolute inset-0 w-full h-full object-cover object-right">
         <img x-show="slide === 1" x-transition.opacity.duration.500ms src="{{ asset('images/banner-verified.png') }}" alt="" class="absolute inset-0 w-full h-full object-cover object-center">
         <img x-show="slide === 2" x-transition.opacity.duration.500ms src="{{ asset('images/banner-browse.png') }}" alt="" class="absolute inset-0 w-full h-full object-cover object-center">
@@ -125,6 +127,15 @@ new #[Layout('layouts.public')] class extends Component
             <p class="text-white/85 text-sm max-w-md mb-4">{{ __('Explore inquiries submitted by the community and see what has been verified so far.') }}</p>
             <button type="button" @click="jump()" class="w-fit bg-brand hover:bg-brand-dark text-white font-bold text-sm px-5 py-2.5 rounded-lg">{{ __('Browse Below') }}</button>
         </div>
+
+        <button type="button" @click="prev()" aria-label="{{ __('Previous slide') }}"
+            class="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/35 hover:bg-black/55 text-white flex items-center justify-center z-10">
+            <x-icon name="chevron-left" class="w-5 h-5" />
+        </button>
+        <button type="button" @click="next()" aria-label="{{ __('Next slide') }}"
+            class="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/35 hover:bg-black/55 text-white flex items-center justify-center z-10">
+            <x-icon name="chevron-right" class="w-5 h-5" />
+        </button>
 
         <div class="absolute bottom-4 left-0 right-0 flex justify-center gap-1.5">
             <template x-for="i in 3">
