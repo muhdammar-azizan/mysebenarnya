@@ -40,10 +40,10 @@
                 <div class="flex-1 min-w-0 min-h-0 p-4 flex">
                     <main class="flex-1 bg-white rounded-2xl shadow-sm overflow-auto p-7 min-w-0">
                         @if (isset($header))
-                            <div class="mb-6">{{ $header }}</div>
+                            <div class="mb-6 max-w-[1280px] mx-auto w-full">{{ $header }}</div>
                         @endif
 
-                        {{ $slot }}
+                        <div class="max-w-[1280px] mx-auto w-full">{{ $slot }}</div>
                     </main>
                 </div>
             </div>

@@ -220,11 +220,12 @@ new #[Layout('layouts.mcmc')] class extends Component
                         @endforeach
                         <path d="{{ $this->trend['area'] }}" fill="#C41230" fill-opacity="0.08" stroke="none" />
                         <polyline points="{{ $this->trend['polyline'] }}" fill="none" stroke="#C41230" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" />
-                        @foreach ($this->trend['points'] as $p)
-                            <circle cx="{{ $p['x'] }}" cy="{{ $p['y'] }}" r="4" fill="#C41230" stroke="#fff" stroke-width="1.5" vector-effect="non-scaling-stroke" style="pointer-events:none;" />
-                        @endforeach
                         <rect x="0" y="0" width="300" height="110" fill="transparent" @mousemove="onMove" @mouseleave="onLeave" style="cursor:crosshair;" />
                     </svg>
+                    @foreach ($this->trend['points'] as $p)
+                        <span class="absolute w-2.5 h-2.5 rounded-full bg-brand border-2 border-white pointer-events-none"
+                            style="left:{{ ($p['x'] / 300) * 100 }}%; top:{{ ($p['y'] / 110) * 100 }}%; transform:translate(-50%,-50%);"></span>
+                    @endforeach
                     <div x-show="hover" x-cloak class="absolute bg-gray-900 text-white rounded-lg px-2.5 py-2 text-[11.5px] whitespace-nowrap pointer-events-none z-10"
                         :style="hover ? `left:${(hover.x/300)*100}%; top:${(hover.y/110)*100}%; transform:translate(-50%,-125%);` : ''">
                         <div class="font-bold mb-0.5" x-text="hover?.label"></div>
