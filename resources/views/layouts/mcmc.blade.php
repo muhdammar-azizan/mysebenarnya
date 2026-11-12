@@ -23,26 +23,29 @@
                     </span>
                 </a>
 
-                <form action="{{ route('mcmc.inquiries.index') }}" method="GET" class="flex-1 max-w-md">
-                    <input type="text" name="search" placeholder="{{ __('Search inquiries, agencies...') }}"
-                        class="w-full text-sm rounded-lg border-0 bg-white/95 focus:ring-2 focus:ring-white/50" />
-                </form>
-
                 <div class="flex-1"></div>
+
+                <form action="{{ route('mcmc.inquiries.index') }}" method="GET" class="relative w-64 flex-shrink-0">
+                    <x-icon name="search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    <input type="text" name="search" placeholder="{{ __('Search inquiries, agencies...') }}"
+                        class="w-full h-9 pl-9 pr-3 text-sm rounded-lg border-0 bg-white focus:ring-2 focus:ring-white/50" />
+                </form>
 
                 <livewire:mcmc.topbar-widgets />
             </header>
 
-            <div class="flex-1 flex gap-4 min-h-0 p-4">
+            <div class="flex-1 flex min-h-0">
                 <x-mcmc-sidebar />
 
-                <main class="flex-1 bg-white rounded-2xl shadow-sm overflow-auto p-7 min-w-0">
-                    @if (isset($header))
-                        <div class="mb-6">{{ $header }}</div>
-                    @endif
+                <div class="flex-1 min-w-0 min-h-0 p-4 flex">
+                    <main class="flex-1 bg-white rounded-2xl shadow-sm overflow-auto p-7 min-w-0">
+                        @if (isset($header))
+                            <div class="mb-6">{{ $header }}</div>
+                        @endif
 
-                    {{ $slot }}
-                </main>
+                        {{ $slot }}
+                    </main>
+                </div>
             </div>
         </div>
     </body>
