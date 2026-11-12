@@ -18,9 +18,7 @@
             <!-- Top bar -->
             <header class="h-16 flex-shrink-0 bg-brand shadow flex items-center gap-5 px-6 z-20">
                 <a href="{{ route('dashboard') }}" wire:navigate class="flex items-center gap-2 flex-shrink-0">
-                    <div class="w-9 h-9 rounded-lg bg-white border border-black/5 relative flex-shrink-0">
-                        <div class="absolute inset-[3px] rounded-full border-2 border-dashed border-brand"></div>
-                    </div>
+                    <x-brand-mark class="w-10 h-10 flex-shrink-0" />
                     <span class="font-display font-extrabold text-lg tracking-tight whitespace-nowrap">
                         <span class="text-gray-900">SE</span><span class="text-white">BENAR</span><span class="text-gray-900">NYA.MY</span>
                     </span>
