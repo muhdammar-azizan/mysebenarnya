@@ -102,12 +102,12 @@ new #[Layout('layouts.public')] class extends Component
     x-data="{ slide: 0, slides: 3, timer: null, touchX: null, prev() { this.slide = (this.slide + this.slides - 1) % this.slides; this.start(); }, next() { this.slide = (this.slide + 1) % this.slides; this.start(); }, start() { clearInterval(this.timer); this.timer = setInterval(() => this.slide = (this.slide + 1) % this.slides, 5000); }, jump() { this.$nextTick(() => document.getElementById('public-feed-anchor')?.scrollIntoView({ behavior: 'smooth' })); } }"
     x-init="start()"
 >
-    <div class="relative rounded-2xl overflow-hidden h-64 mb-8 bg-gray-900"
+    <div class="relative rounded-2xl overflow-hidden h-80 mb-8 bg-gray-900"
         @touchstart="touchX = $event.touches[0].clientX"
         @touchend="if (touchX !== null) { const d = $event.changedTouches[0].clientX - touchX; if (Math.abs(d) > 40) { d < 0 ? next() : prev(); } touchX = null; }">
-        <img x-show="slide === 0" x-transition.opacity.duration.500ms src="{{ asset('images/banner-report.png') }}" alt="" class="absolute inset-0 w-full h-full object-cover object-right">
-        <img x-show="slide === 1" x-transition.opacity.duration.500ms src="{{ asset('images/banner-verified.png') }}" alt="" class="absolute inset-0 w-full h-full object-cover object-center">
-        <img x-show="slide === 2" x-transition.opacity.duration.500ms src="{{ asset('images/banner-browse.png') }}" alt="" class="absolute inset-0 w-full h-full object-cover object-center">
+        <img x-show="slide === 0" x-transition.opacity.duration.500ms src="{{ asset('images/banner-report.png') }}" alt="" class="absolute inset-0 w-full h-full object-cover object-[75%_50%]">
+        <img x-show="slide === 1" x-transition.opacity.duration.500ms src="{{ asset('images/banner-verified.png') }}" alt="" class="absolute inset-0 w-full h-full object-cover object-[50%_20%]">
+        <img x-show="slide === 2" x-transition.opacity.duration.500ms src="{{ asset('images/banner-browse.png') }}" alt="" class="absolute inset-0 w-full h-full object-cover object-[50%_40%]">
 
         <div x-show="slide === 0" x-transition.opacity.duration.500ms class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent flex flex-col justify-center px-9">
             <span class="inline-block w-fit bg-white/15 text-white text-xs font-bold tracking-wide px-2.5 py-1 rounded-full mb-3">{{ __('REPORT MISINFORMATION') }}</span>
