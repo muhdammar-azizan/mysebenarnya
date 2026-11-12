@@ -332,7 +332,8 @@ new #[Layout('layouts.agency')] class extends Component
                 @endif
             </div>
 
-            <div class="bg-white border border-gray-100 rounded-2xl overflow-hidden">
+            <div class="bg-white border border-gray-100 rounded-2xl overflow-x-auto">
+              <div class="min-w-[560px]">
                 <div class="grid grid-cols-[1.4fr_1.6fr_90px_90px] gap-3 px-5 py-2.5 text-[11px] font-bold text-gray-400 uppercase tracking-wide bg-gray-50 border-b border-gray-100">
                     <div>{{ __('Staff Name') }}</div><div>{{ __('Email') }}</div><div>{{ __('Role') }}</div><div>{{ __('Status') }}</div>
                 </div>
@@ -344,6 +345,7 @@ new #[Layout('layouts.agency')] class extends Component
                         <div><span class="bg-green-100 text-green-700 text-[10.5px] font-bold px-2.5 py-0.5 rounded-full">{{ __('Active') }}</span></div>
                     </div>
                 @endforeach
+              </div>
             </div>
         </div>
     @endif

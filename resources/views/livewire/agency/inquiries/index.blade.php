@@ -132,7 +132,7 @@ new #[Layout('layouts.agency')] class extends Component
     <div class="flex flex-wrap gap-3 mb-6">
         <input type="text" wire:model.live.debounce.400ms="search" placeholder="{{ __('Search by title...') }}"
             class="flex-1 min-w-[200px] rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand" />
-        <select wire:model.live="status" class="rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
+        <select wire:model.live="status" class="w-full sm:w-auto rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
             <option value="All">{{ __('All Assigned') }}</option>
             <option value="awaiting">{{ __('Awaiting Jurisdiction Review') }}</option>
             <option value="{{ InquiryStatus::UnderInvestigation->value }}">{{ __('Under Investigation') }}</option>
@@ -141,7 +141,7 @@ new #[Layout('layouts.agency')] class extends Component
             <option value="{{ InquiryStatus::IdentifiedFake->value }}">{{ __('Identified as Fake') }}</option>
             <option value="{{ InquiryStatus::Rejected->value }}">{{ __('Rejected by us') }}</option>
         </select>
-        <select wire:model.live="category" class="rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
+        <select wire:model.live="category" class="w-full sm:w-auto rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
             <option value="All">{{ __('All Categories') }}</option>
             @foreach ($this->categories as $case)
                 <option value="{{ $case->value }}">{{ $case->value }}</option>
@@ -156,7 +156,8 @@ new #[Layout('layouts.agency')] class extends Component
     </div>
 
     <div class="bg-white border border-gray-100 rounded-2xl overflow-hidden">
-        <table class="w-full text-sm table-fixed">
+        <div class="overflow-x-auto">
+        <table class="w-full min-w-[760px] text-sm table-fixed">
             <thead>
                 <tr class="bg-gray-50 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">
                     <th class="px-5 py-3 w-[34%]">{{ __('Title') }}</th>
@@ -190,6 +191,7 @@ new #[Layout('layouts.agency')] class extends Component
                 @endforelse
             </tbody>
         </table>
+        </div>
         <div class="p-4 border-t border-gray-100">{{ $this->rows->links() }}</div>
     </div>
     @endif

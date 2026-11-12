@@ -356,7 +356,7 @@ new #[Layout('layouts.agency')] class extends Component
             <div class="bg-white border border-gray-100 rounded-2xl p-6 mt-6">
                 <div class="font-bold text-gray-900 mb-4">{{ __('Investigation') }}</div>
 
-                <div class="grid grid-cols-3 gap-3 mb-5">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
                     @foreach ([
                         'verified' => [__('Verified as True'), __('Confirmed as genuine, accurate news.'), 'border-green-500 bg-green-50'],
                         'fake' => [__('Identified as Fake'), __('Determined to be false or misleading information.'), 'border-brand bg-brand-light'],

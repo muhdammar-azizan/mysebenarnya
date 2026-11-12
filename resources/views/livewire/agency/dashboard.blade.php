@@ -250,7 +250,7 @@ new #[Layout('layouts.agency')] class extends Component
         </div>
     @endif
 
-    <div class="grid grid-cols-4 gap-4 mb-6">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <button type="button" wire:click="jumpToQuickFilter('all')" class="text-left bg-blue-50 border border-blue-100 rounded-xl p-5 hover:shadow-sm {{ $quickFilter === 'all' ? 'ring-2 ring-blue-300' : '' }}">
             <div class="text-xs font-semibold text-blue-700 mb-1">{{ __('Total Assigned') }}</div>
             <div class="text-3xl font-extrabold text-blue-700">{{ $this->stats['total'] }}</div>
@@ -274,7 +274,7 @@ new #[Layout('layouts.agency')] class extends Component
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 19V10M10 19V4M16 19v-7M22 19H2" stroke="#C41230" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             <div class="font-bold text-gray-900">{{ __('Performance Summary') }}</div>
         </div>
-        <div class="grid grid-cols-[150px_1fr] gap-8 items-center">
+        <div class="grid grid-cols-1 sm:grid-cols-[150px_1fr] gap-6 sm:gap-8 items-center">
             <div class="relative w-[150px] h-[150px] rounded-full flex-shrink-0" style="background: {{ $this->donutGradient }};">
                 <div class="absolute inset-0 m-auto w-[92px] h-[92px] rounded-full bg-white flex flex-col items-center justify-center">
                     <div class="font-display font-extrabold text-2xl text-gray-900 leading-none">{{ $this->breakdown['total_cases'] }}</div>
@@ -323,6 +323,7 @@ new #[Layout('layouts.agency')] class extends Component
             </div>
             <a href="{{ route('agency.inquiries.index', $this->viewFullListParams) }}" wire:navigate class="border border-gray-300 hover:bg-gray-50 text-gray-700 font-semibold text-xs px-3.5 py-2 rounded-lg whitespace-nowrap">{{ __('View Full List →') }}</a>
         </div>
+        <div class="overflow-x-auto"><div class="min-w-[820px]">
         <div class="grid grid-cols-[1.8fr_1fr_1fr_1.2fr_1.6fr_1fr] gap-2 px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wide border-b border-gray-100">
             <div>{{ __('Title') }}</div><div>{{ __('Category') }}</div><div>{{ __('Date Assigned') }}</div><div>{{ __('Status') }}</div><div>{{ __('Notes from MCMC') }}</div><div></div>
         </div>
@@ -341,11 +342,12 @@ new #[Layout('layouts.agency')] class extends Component
         @empty
             <div class="px-5 py-10 text-center text-gray-400 text-sm">{{ __('No inquiries in this category.') }}</div>
         @endforelse
+        </div></div>
     </div>
 
     @if ($this->panelInquiry)
         <div wire:click="closePanel" class="fixed inset-0 bg-black/35 z-40"></div>
-        <div class="fixed top-0 right-0 bottom-0 w-96 bg-white shadow-2xl z-50 flex flex-col">
+        <div class="fixed top-0 right-0 bottom-0 w-full sm:w-96 bg-white shadow-2xl z-50 flex flex-col">
             <div class="p-5 border-b border-gray-100 flex items-start justify-between gap-3">
                 <div class="font-display font-bold text-base text-gray-900">{{ $this->panelInquiry->title }}</div>
                 <button wire:click="closePanel" class="text-gray-400 hover:text-brand text-lg leading-none flex-shrink-0">✕</button>

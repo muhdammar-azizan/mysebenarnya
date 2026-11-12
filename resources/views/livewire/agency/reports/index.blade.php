@@ -252,7 +252,7 @@ new #[Layout('layouts.agency')] class extends Component
 }; ?>
 
 <div>
-    <div class="flex items-start justify-between gap-4 mb-1">
+    <div class="flex flex-wrap items-start justify-between gap-4 mb-1">
         <div>
             <h1 class="font-display font-extrabold text-2xl text-gray-900">{{ __('Reports') }}</h1>
             <p class="text-gray-500 text-sm mt-1">{{ __('Monthly resolution performance for :agency.', ['agency' => auth()->user()->agency->name]) }}</p>
@@ -273,7 +273,7 @@ new #[Layout('layouts.agency')] class extends Component
         </div>
     </div>
 
-    <div class="grid grid-cols-3 gap-4 my-6">
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 my-6">
         <div class="bg-blue-50 border border-blue-100 rounded-xl p-5">
             <div class="text-xs font-semibold text-gray-500 mb-1">{{ __('Total Resolved (6mo)') }}</div>
             <div class="text-3xl font-extrabold text-blue-700">{{ $this->totalResolved }}</div>
