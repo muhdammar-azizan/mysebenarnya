@@ -17,6 +17,38 @@ class SubmitInquiryTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_inquiry_without_any_evidence_is_rejected(): void
+    {
+        $user = User::factory()->create(['role' => UserRole::Public]);
+
+        Volt::actingAs($user)
+            ->test('public.inquiries.create')
+            ->set('title', 'Claim with nothing to back it up')
+            ->set('category', InquiryCategory::FinancialScams->value)
+            ->set('description', 'This is a sufficiently long description of the claim being reported.')
+            ->call('submit')
+            ->assertHasErrors('evidence')
+            ->assertNoRedirect();
+
+        $this->assertSame(0, Inquiry::count());
+    }
+
+    public function test_a_source_link_alone_counts_as_evidence(): void
+    {
+        $user = User::factory()->create(['role' => UserRole::Public]);
+
+        Volt::actingAs($user)
+            ->test('public.inquiries.create')
+            ->set('title', 'Claim backed by a link')
+            ->set('category', InquiryCategory::FinancialScams->value)
+            ->set('description', 'This is a sufficiently long description of the claim being reported.')
+            ->set('source_url', 'https://example.com/post')
+            ->call('submit')
+            ->assertHasNoErrors();
+
+        $this->assertSame(1, Inquiry::count());
+    }
+
     public function test_public_user_can_submit_an_inquiry(): void
     {
         Storage::fake('public');
@@ -92,6 +124,7 @@ class SubmitInquiryTest extends TestCase
             ->set('title', 'Fake claim about free money')
             ->set('category', 'Not A Real Category')
             ->set('description', 'This is a sufficiently long description of the claim being reported.')
+            ->set('source_url', 'https://example.com/post')
             ->call('submit')
             ->assertSee('Something went wrong while submitting your inquiry');
 

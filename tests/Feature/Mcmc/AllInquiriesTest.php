@@ -32,6 +32,36 @@ class AllInquiriesTest extends TestCase
             ->assertSee('A submitted one');
     }
 
+    public function test_agency_filter_narrows_results(): void
+    {
+        $staff = User::factory()->mcmcStaff()->create();
+        $moh = Agency::factory()->create();
+        $bnm = Agency::factory()->create();
+
+        Inquiry::factory()->create(['title' => 'Health one', 'agency_id' => $moh->id, 'status' => InquiryStatus::UnderInvestigation]);
+        Inquiry::factory()->create(['title' => 'Bank one', 'agency_id' => $bnm->id, 'status' => InquiryStatus::UnderInvestigation]);
+
+        Volt::actingAs($staff)
+            ->test('mcmc.inquiries.index')
+            ->set('agency', (string) $moh->id)
+            ->assertSee('Health one')
+            ->assertDontSee('Bank one');
+    }
+
+    public function test_date_range_filter_narrows_results(): void
+    {
+        $staff = User::factory()->mcmcStaff()->create();
+
+        Inquiry::factory()->create(['title' => 'Old one', 'created_at' => now()->subMonths(3)]);
+        Inquiry::factory()->create(['title' => 'Recent one', 'created_at' => now()]);
+
+        Volt::actingAs($staff)
+            ->test('mcmc.inquiries.index')
+            ->set('dateFrom', now()->subDays(7)->toDateString())
+            ->assertSee('Recent one')
+            ->assertDontSee('Old one');
+    }
+
     public function test_status_filter_narrows_results(): void
     {
         $staff = User::factory()->mcmcStaff()->create();

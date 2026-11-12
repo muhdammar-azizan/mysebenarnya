@@ -28,6 +28,7 @@ class NotificationPreferenceWiringTest extends TestCase
             ->set('title', 'A claim to verify')
             ->set('category', \App\Enums\InquiryCategory::HealthMedical->value)
             ->set('description', 'A description that is definitely long enough.')
+            ->set('source_url', 'https://example.com/post')
             ->call('submit');
 
         Notification::assertSentTo($wantsIt, \App\Notifications\NewInquirySubmitted::class);

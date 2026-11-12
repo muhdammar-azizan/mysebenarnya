@@ -4,6 +4,7 @@ use App\Concerns\GeneratesReports;
 use App\Enums\ClarificationStatus;
 use App\Enums\InquiryCategory;
 use App\Enums\InquiryStatus;
+use App\Models\Agency;
 use App\Models\Inquiry;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
@@ -23,6 +24,15 @@ new #[Layout('layouts.mcmc')] class extends Component
 
     #[Url]
     public string $status = 'All';
+
+    #[Url]
+    public string $agency = 'All';
+
+    #[Url]
+    public string $dateFrom = '';
+
+    #[Url]
+    public string $dateTo = '';
 
     public ?int $panelInquiryId = null;
 
@@ -50,6 +60,9 @@ new #[Layout('layouts.mcmc')] class extends Component
             ->where('status', '!=', InquiryStatus::Discarded)
             ->when($this->search, fn ($q) => $q->where('title', 'like', '%'.$this->search.'%'))
             ->when($this->category !== 'All', fn ($q) => $q->where('category', $this->category))
+            ->when($this->agency !== 'All', fn ($q) => $q->where('agency_id', $this->agency))
+            ->when($this->dateFrom, fn ($q) => $q->whereDate('created_at', '>=', $this->dateFrom))
+            ->when($this->dateTo, fn ($q) => $q->whereDate('created_at', '<=', $this->dateTo))
             ->when($this->status !== 'All', fn ($q) => match ($this->status) {
                 'Awaiting Review' => $q->where('status', InquiryStatus::Submitted),
                 'Needs Reassignment' => $q->where('status', InquiryStatus::Rejected),
@@ -68,6 +81,11 @@ new #[Layout('layouts.mcmc')] class extends Component
     public function getRowsProperty()
     {
         return $this->baseQuery()->with('agency')->latest()->paginate(12);
+    }
+
+    public function getAgenciesProperty()
+    {
+        return Agency::orderBy('name')->get(['id', 'name']);
     }
 
     public function getCategoriesProperty(): array
@@ -162,7 +180,7 @@ new #[Layout('layouts.mcmc')] class extends Component
         </button>
     </div>
 
-    <div class="flex gap-3 my-5">
+    <div class="flex flex-wrap items-center gap-3 my-5">
         <input type="text" wire:model.live.debounce.400ms="search" placeholder="{{ __('Search by title...') }}" class="flex-1 max-w-xs rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand" />
         <select wire:model.live="category" class="rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
             <option value="All">{{ __('All Categories') }}</option>
@@ -180,6 +198,17 @@ new #[Layout('layouts.mcmc')] class extends Component
             <option value="Verified True">{{ __('Verified True') }}</option>
             <option value="Identified Fake">{{ __('Identified Fake') }}</option>
         </select>
+        <select wire:model.live="agency" class="rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
+            <option value="All">{{ __('All Agencies') }}</option>
+            @foreach ($this->agencies as $agencyOption)
+                <option value="{{ $agencyOption->id }}">{{ $agencyOption->name }}</option>
+            @endforeach
+        </select>
+        <div class="flex items-center gap-2 text-sm text-gray-500">
+            <input type="date" wire:model.live="dateFrom" aria-label="{{ __('From date') }}" class="rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand" />
+            <span>{{ __('to') }}</span>
+            <input type="date" wire:model.live="dateTo" aria-label="{{ __('To date') }}" class="rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand" />
+        </div>
     </div>
 
     <div class="bg-white border border-gray-100 rounded-2xl overflow-hidden">

@@ -53,6 +53,12 @@ new #[Layout('layouts.public')] class extends Component
             'evidence.*' => 'file|max:10240|mimes:jpg,jpeg,png,pdf',
         ]);
 
+        if (count($this->evidence) === 0 && blank($this->source_url)) {
+            $this->addError('evidence', __('Supporting evidence is required. Upload a document or image, or add a source link.'));
+
+            return;
+        }
+
         try {
             $inquiry = Inquiry::create([
                 'submitted_by' => Auth::id(),
@@ -141,20 +147,21 @@ new #[Layout('layouts.public')] class extends Component
         </div>
 
         <div>
-            <label class="block text-sm font-bold text-gray-700 mb-1.5">{{ __('Source Link (optional)') }}</label>
+            <label class="block text-sm font-bold text-gray-700 mb-1.5">{{ __('Source Link') }}</label>
             <input type="text" wire:model="source_url" placeholder="https://..."
                 class="w-full rounded-lg border-gray-300 focus:border-brand focus:ring-brand text-sm" />
             <x-input-error :messages="$errors->get('source_url')" class="mt-1.5" />
         </div>
 
         <div>
-            <label class="block text-sm font-bold text-gray-700 mb-1.5">{{ __('Upload Evidence') }}</label>
+            <label class="block text-sm font-bold text-gray-700 mb-1.5">{{ __('Upload Evidence') }} <span class="font-normal text-gray-400">{{ __('(upload a file or add a source link above — at least one is required)') }}</span></label>
             <label class="block border-2 border-dashed border-gray-300 rounded-xl p-6 text-center text-gray-500 cursor-pointer hover:border-brand bg-gray-50">
                 <input type="file" wire:model="evidence" multiple class="hidden" accept=".jpg,.jpeg,.png,.pdf" />
                 <div class="text-sm font-semibold text-gray-600">{{ __('Click to browse files') }}</div>
                 <div class="text-xs text-gray-400 mt-1">{{ __('Images, PDFs supported — max 10MB each') }}</div>
             </label>
             <x-input-error :messages="$errors->get('evidence.*')" class="mt-1.5" />
+            <x-input-error :messages="$errors->get('evidence')" class="mt-1.5" />
 
             <div wire:loading wire:target="evidence" class="text-xs text-gray-400 mt-2">{{ __('Uploading...') }}</div>
 
