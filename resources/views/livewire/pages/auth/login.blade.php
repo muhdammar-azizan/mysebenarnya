@@ -71,11 +71,11 @@ new #[Layout('layouts.auth')] class extends Component
     }
 }; ?>
 
-<div class="min-h-screen box-border flex items-center justify-center px-6 py-8 bg-[#F0F1F3]">
+<div class="min-h-screen box-border flex items-center justify-center px-3 sm:px-6 py-8 bg-[#F0F1F3]">
     <div class="w-full max-w-[1000px] min-h-[620px] bg-white rounded-xl shadow-2xl overflow-hidden flex flex-wrap">
 
         {{-- Photo panel --}}
-        <div class="flex-[0.8_1_320px] min-w-[260px] relative overflow-hidden">
+        <div class="flex-[0.8_1_320px] min-w-0 min-h-[200px] relative overflow-hidden">
             <img src="{{ asset('images/login-photo.jpg') }}" alt="" class="absolute inset-0 w-full h-full object-cover" />
             <div class="absolute inset-0" style="background: linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.05) 30%, rgba(0,0,0,0.15) 60%, rgba(0,0,0,0.82) 100%);"></div>
 
@@ -94,7 +94,7 @@ new #[Layout('layouts.auth')] class extends Component
         </div>
 
         {{-- Form panel --}}
-        <div class="flex-[1_1_380px] min-w-[320px] box-border px-11 py-12 flex flex-col items-center justify-center">
+        <div class="flex-[1_1_380px] min-w-0 box-border px-6 sm:px-11 py-10 sm:py-12 flex flex-col items-center justify-center">
             <div class="w-full max-w-[340px]">
 
                 <div class="flex bg-gray-100 rounded-[10px] p-1 gap-1 mb-6" role="tablist">
