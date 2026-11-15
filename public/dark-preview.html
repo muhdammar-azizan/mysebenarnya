@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Pratonton Palet Mod Gelap (sementara)</title>
+<style>
+    /* ===== Proposed palette (preview only; the real system is untouched) ===== */
+    .theme-light {
+        --bg: #EDEEF0;
+        --surface: #FFFFFF;
+        --raised: #F9FAFB;
+        --border: #E5E7EB;
+        --border-strong: #D1D5DB;
+        --text: #111827;
+        --text-2: #4B5563;
+        --text-3: #6B7280;
+        --brand: #C41230;
+        --brand-hover: #A10E27;
+        --brand-text: #C41230;
+        --brand-soft: #FBE7E9;
+        --hover: #F3F4F6;
+        --scheme: light;
+
+        --green-bg: #DCFCE7;  --green-fg: #15803D;
+        --amber-bg: #FEF3C7;  --amber-fg: #B45309;
+        --blue-bg: #DBEAFE;   --blue-fg: #1D4ED8;
+        --purple-bg: #F3E8FF; --purple-fg: #7E22CE;
+        --teal-bg: #CCFBF1;   --teal-fg: #0F766E;
+        --red-bg: #FBE7E9;    --red-fg: #C41230;
+        --gray-bg: #F3F4F6;   --gray-fg: #4B5563;
+
+        --chart-1: #C41230; --chart-2: #1D7A3E; --chart-3: #C4670A; --chart-4: #7B4FBF; --chart-5: #2563EB; --chart-6: #8A8F98;
+        --shadow: 0 1px 2px rgba(0,0,0,.06);
+    }
+    .theme-dark {
+        --bg: #14161A;
+        --surface: #1C1F26;
+        --raised: #23272F;
+        --border: #2E333D;
+        --border-strong: #3A404C;
+        --text: #D5D9E0;
+        --text-2: #A9AFBB;
+        --text-3: #8B93A1;
+        --brand: #C41230;
+        --brand-hover: #D6213F;
+        --brand-text: #F0788A;
+        --brand-soft: rgba(240,120,138,.14);
+        --hover: #252932;
+        --scheme: dark;
+
+        --green-bg: rgba(111,207,151,.15);  --green-fg: #6FCF97;
+        --amber-bg: rgba(242,194,107,.15);  --amber-fg: #F2C26B;
+        --blue-bg: rgba(125,180,245,.15);   --blue-fg: #7DB4F5;
+        --purple-bg: rgba(183,156,240,.15); --purple-fg: #B79CF0;
+        --teal-bg: rgba(95,208,200,.15);    --teal-fg: #5FD0C8;
+        --red-bg: rgba(240,120,138,.15);    --red-fg: #F0788A;
+        --gray-bg: rgba(169,175,187,.15);   --gray-fg: #A9AFBB;
+
+        --chart-1: #E5576F; --chart-2: #5CBF84; --chart-3: #E0933D; --chart-4: #A98BE6; --chart-5: #6FA3F2; --chart-6: #8B93A1;
+        --shadow: 0 1px 2px rgba(0,0,0,.4);
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; font: 14px/1.5 Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: #0b0c0f; color: #e5e7eb; }
+
+    /* page chrome around the two previews */
+    .toolbar { position: sticky; top: 0; z-index: 10; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px; background: #0b0c0f; border-bottom: 1px solid #23262d; }
+    .toolbar h1 { font-size: 15px; margin: 0 12px 0 0; }
+    .toolbar button { border: 1px solid #3a404c; background: #161920; color: #e5e7eb; padding: 6px 12px; border-radius: 8px; cursor: pointer; font: inherit; }
+    .toolbar button[aria-pressed="true"] { background: #C41230; border-color: #C41230; color: #fff; }
+    .toolbar .note { color: #9aa1ad; font-size: 12px; margin-left: auto; }
+    .panes { display: grid; gap: 0; grid-template-columns: 1fr 1fr; }
+    .panes.only-light { grid-template-columns: 1fr; }
+    .panes.only-light .pane-dark, .panes.only-dark .pane-light { display: none; }
+    .panes.only-dark { grid-template-columns: 1fr; }
+    @media (max-width: 1100px) { .panes { grid-template-columns: 1fr; } }
+
+    /* ===== Sample app, driven only by the variables above ===== */
+    .pane { background: var(--bg); color: var(--text); color-scheme: var(--scheme); min-height: 100vh; }
+    .label { padding: 6px 16px; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; background: #000; color: #9aa1ad; }
+    .header { height: 56px; background: var(--brand); display: flex; align-items: center; gap: 14px; padding: 0 16px; color: #fff; }
+    .header .logo { font-weight: 800; letter-spacing: -.01em; }
+    .header .search { margin-left: auto; width: 220px; height: 32px; border-radius: 8px; background: var(--surface); color: var(--text-3); display: flex; align-items: center; padding: 0 10px; font-size: 13px; }
+    .header .pill { width: 32px; height: 32px; border-radius: 8px; background: rgba(255,255,255,.15); }
+    .header .avatar { width: 32px; height: 32px; border-radius: 50%; background: #fff; }
+    .shell { display: grid; grid-template-columns: 190px 1fr; }
+    .sidebar { background: var(--surface); border-right: 1px solid var(--border); padding: 14px 10px; min-height: 640px; }
+    .sidebar .menu { font-size: 11px; font-weight: 700; letter-spacing: .08em; color: var(--text-3); padding: 0 10px 8px; }
+    .sidebar a { display: block; padding: 9px 10px; border-radius: 8px; color: var(--text-2); font-weight: 600; text-decoration: none; margin-bottom: 2px; }
+    .sidebar a:hover { background: var(--hover); }
+    .sidebar a.active { background: var(--brand); color: #fff; }
+    .content { padding: 14px; }
+    .main { background: var(--surface); border-radius: 16px; padding: 22px; box-shadow: var(--shadow); }
+    h2 { font-size: 22px; margin: 0 0 2px; font-weight: 800; }
+    h3 { font-size: 15px; margin: 22px 0 10px; }
+    .sub { color: var(--text-2); margin: 0 0 16px; }
+    .muted { color: var(--text-3); font-size: 12px; }
+    a.link { color: var(--brand-text); font-weight: 600; text-decoration: none; }
+
+    .alert { display: flex; gap: 12px; align-items: center; border-radius: 10px; padding: 10px 14px; margin-bottom: 8px; border: 1px solid var(--border); }
+    .alert b { display: block; font-size: 13px; }
+    .alert span { font-size: 12px; color: var(--text-2); }
+    .alert.red { background: var(--red-bg); border-color: transparent; }
+    .alert.red b { color: var(--red-fg); }
+    .alert.purple { background: var(--purple-bg); border-color: transparent; }
+    .alert.purple b { color: var(--purple-fg); }
+    .alert.green { background: var(--green-bg); border-color: transparent; }
+    .alert.green b { color: var(--green-fg); }
+    .alert.amber { background: var(--amber-bg); border-color: transparent; }
+    .alert.amber b { color: var(--amber-fg); }
+
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .stat { border-radius: 12px; padding: 14px; }
+    .stat small { display: block; font-weight: 600; font-size: 12px; margin-bottom: 4px; }
+    .stat strong { font-size: 26px; }
+    .stat.blue { background: var(--blue-bg); color: var(--blue-fg); }
+    .stat.amber { background: var(--amber-bg); color: var(--amber-fg); }
+    .stat.green { background: var(--green-bg); color: var(--green-fg); }
+    .stat.red { background: var(--red-bg); color: var(--red-fg); }
+
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+    .b-gray { background: var(--gray-bg); color: var(--gray-fg); }
+    .b-amber { background: var(--amber-bg); color: var(--amber-fg); }
+    .b-green { background: var(--green-bg); color: var(--green-fg); }
+    .b-red { background: var(--red-bg); color: var(--red-fg); }
+    .b-blue { background: var(--blue-bg); color: var(--blue-fg); }
+    .b-purple { background: var(--purple-bg); color: var(--purple-fg); }
+    .b-teal { background: var(--teal-bg); color: var(--teal-fg); }
+    .badges { display: flex; flex-wrap: wrap; gap: 6px; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .tablewrap { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: var(--surface); }
+    thead tr { background: var(--raised); text-align: left; color: var(--text-3); font-size: 11px; text-transform: uppercase; letter-spacing: .05em; }
+    th, td { padding: 10px 14px; }
+    tbody tr { border-top: 1px solid var(--border); }
+    tbody tr:hover { background: var(--hover); }
+    td.title { font-weight: 600; }
+
+    .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .btn { border: 0; border-radius: 8px; padding: 9px 16px; font: inherit; font-weight: 700; cursor: pointer; }
+    .btn.primary { background: var(--brand); color: #fff; }
+    .btn.primary:hover { background: var(--brand-hover); }
+    .btn.ghost { background: transparent; color: var(--text-2); border: 1px solid var(--border-strong); }
+    .btn.soft { background: var(--brand-soft); color: var(--brand-text); }
+    .btn.green { background: #1E8E5A; color: #fff; }
+
+    label.f { display: block; font-size: 12px; font-weight: 700; color: var(--text-2); margin-bottom: 5px; }
+    input[type=text], input[type=date], input[type=password], select, textarea {
+        width: 100%; background: var(--raised); color: var(--text); border: 1px solid var(--border-strong);
+        border-radius: 8px; padding: 9px 12px; font: inherit;
+    }
+    input::placeholder, textarea::placeholder { color: var(--text-3); }
+    input:focus, select:focus, textarea:focus { outline: 2px solid var(--brand-text); outline-offset: 0; border-color: transparent; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .check { display: flex; gap: 8px; align-items: center; color: var(--text-2); }
+    .check input { accent-color: var(--brand); }
+
+    .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .card { border: 1px solid var(--border); background: var(--surface); border-radius: 12px; padding: 14px; }
+    .card .cat { color: var(--brand-text); font-size: 11px; font-weight: 700; margin-bottom: 4px; }
+    .card p { margin: 6px 0 0; color: var(--text-2); font-size: 12.5px; }
+
+    .charts { display: grid; grid-template-columns: 150px 1fr; gap: 20px; align-items: center; }
+    .donut { width: 140px; height: 140px; border-radius: 50%; position: relative;
+        background: conic-gradient(var(--chart-2) 0 38%, var(--chart-1) 38% 62%, var(--chart-3) 62% 78%, var(--chart-4) 78% 90%, var(--chart-5) 90% 96%, var(--chart-6) 96% 100%); }
+    .donut::after { content: "128"; position: absolute; inset: 24px; border-radius: 50%; background: var(--surface); display: grid; place-items: center; font-weight: 800; font-size: 22px; }
+    .bars { display: flex; align-items: flex-end; gap: 10px; height: 120px; }
+    .bar { flex: 1; border-radius: 6px 6px 0 0; }
+    .legend { display: flex; flex-wrap: wrap; gap: 10px 16px; margin-top: 10px; font-size: 12px; color: var(--text-2); }
+    .legend i { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 6px; }
+
+    .banner { position: relative; height: 150px; border-radius: 16px; overflow: hidden; background: linear-gradient(115deg, #0f0f11, #3a1119 60%, #14161a); color: #fff; display: flex; flex-direction: column; justify-content: center; padding: 0 24px; }
+    .banner .chip { display: inline-block; width: fit-content; background: rgba(255,255,255,.15); font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 999px; margin-bottom: 8px; }
+
+    .modal-bg { background: rgba(0,0,0,.45); border-radius: 12px; padding: 24px; display: grid; place-items: center; }
+    .modal { width: 100%; max-width: 340px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+    kbd { font: 600 10px/1 Inter, sans-serif; color: var(--text-3); border: 1px solid var(--border-strong); border-radius: 4px; padding: 2px 6px; }
+    .toggle { width: 44px; height: 24px; border-radius: 999px; background: #1E8E5A; position: relative; display: inline-block; }
+    .toggle::after { content: ""; position: absolute; top: 3px; left: 23px; width: 18px; height: 18px; border-radius: 50%; background: #fff; }
+    .toggle.off { background: var(--border-strong); }
+    .toggle.off::after { left: 3px; }
+    .timeline { border-left: 2px solid var(--border-strong); margin-left: 6px; padding-left: 14px; }
+    .timeline div { margin-bottom: 10px; }
+    .timeline .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--brand-text); margin-left: -20px; margin-right: 11px; }
+    .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; }
+    .sw { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; font-size: 11px; }
+    .sw i { display: block; height: 34px; }
+    .sw span { display: block; padding: 5px 8px; color: var(--text-2); background: var(--surface); }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+    <h1>Pratonton palet mod gelap (sementara)</h1>
+    <button type="button" data-mode="both" aria-pressed="true">Sebelah-menyebelah</button>
+    <button type="button" data-mode="only-light" aria-pressed="false">Cerah sahaja</button>
+    <button type="button" data-mode="only-dark" aria-pressed="false">Gelap sahaja</button>
+    <span class="note">Halaman ini berdiri sendiri. Sistem sebenar belum diubah. Padam <code>public/dark-preview.html</code> selepas diluluskan.</span>
+</div>
+
+<div class="panes" id="panes">
+    <section class="pane pane-light theme-light"><div class="label">Cerah (sedia ada)</div><div class="sample"></div></section>
+    <section class="pane pane-dark theme-dark"><div class="label">Gelap (cadangan)</div><div class="sample"></div></section>
+</div>
+
+<template id="sample">
+    <div class="header">
+        <span class="logo">SEBENARNYA.MY</span>
+        <div class="search">Cari pertanyaan, agensi... &nbsp;<kbd>Ctrl K</kbd></div>
+        <span class="pill"></span><span class="avatar"></span>
+    </div>
+    <div class="shell">
+        <nav class="sidebar">
+            <div class="menu">MENU</div>
+            <a class="active" href="#">Papan Pemuka</a>
+            <a href="#">Pertanyaan Baharu / Triaj</a>
+            <a href="#">Semua Pertanyaan</a>
+            <a href="#">Pengurusan Agensi</a>
+            <a href="#">Laporan</a>
+            <a href="#">Log Audit</a>
+        </nav>
+        <div class="content">
+            <div class="main">
+                <h2>Papan Pemuka SKMM</h2>
+                <p class="sub">Gambaran keseluruhan aktiviti pertanyaan dan status sistem. <a class="link" href="#">Lihat laporan penuh →</a></p>
+
+                <div class="alert red"><div><b>3 pertanyaan telah menunggu lebih 3 hari untuk triaj</b><span>Semak dan tugaskan atau gugurkan untuk kekal dalam sasaran.</span></div></div>
+                <div class="alert purple"><div><b>2 permintaan penjelasan daripada agensi menunggu maklum balas anda</b><span>Terkini: "Dakwaan vaksin" daripada Kementerian Kesihatan</span></div></div>
+                <div class="alert green"><div><b>Keputusan disimpan</b><span>Pertanyaan ditandakan sebagai Disahkan Benar.</span></div></div>
+                <div class="alert amber"><div><b>Draf disimpan</b><span>Fail bukti tidak disimpan, lampirkan semula sebelum menghantar.</span></div></div>
+
+                <h3>Kad statistik</h3>
+                <div class="stats">
+                    <div class="stat blue"><small>Jumlah Ditugaskan</small><strong>128</strong></div>
+                    <div class="stat amber"><small>Dalam Siasatan</small><strong>41</strong></div>
+                    <div class="stat green"><small>Selesai Bulan Ini</small><strong>67</strong></div>
+                    <div class="stat red"><small>Dikenal pasti Palsu</small><strong>19</strong></div>
+                </div>
+
+                <h3>Lencana status</h3>
+                <div class="badges">
+                    <span class="badge b-gray">Dihantar</span>
+                    <span class="badge b-amber">Dalam Siasatan</span>
+                    <span class="badge b-green">Disahkan Benar</span>
+                    <span class="badge b-red">Dikenal pasti Palsu</span>
+                    <span class="badge b-gray">Ditolak</span>
+                    <span class="badge b-blue">Menunggu Semakan Agensi</span>
+                    <span class="badge b-purple">Menunggu Penjelasan</span>
+                    <span class="badge b-teal">Menunggu Nasihat Anda</span>
+                    <span class="badge b-red">Lewat</span>
+                </div>
+
+                <h3>Jadual</h3>
+                <div class="tablewrap">
+                    <table>
+                        <thead><tr><th>Tajuk</th><th>Kategori</th><th>Status</th><th>Tarikh</th></tr></thead>
+                        <tbody>
+                            <tr><td class="title">Mesej Telegram: tarikh pilihan raya ditangguh</td><td>Kandungan Pilihan Raya &amp; Politik</td><td><span class="badge b-amber">Dalam Siasatan</span></td><td class="muted">12 Nov 2026</td></tr>
+                            <tr><td class="title">Video TikTok: pautan wang tunai percuma</td><td>Penipuan Kewangan &amp; Perbankan</td><td><span class="badge b-red">Dikenal pasti Palsu</span></td><td class="muted">10 Nov 2026</td></tr>
+                            <tr><td class="title">Artikel berita: mandat vaksin baharu</td><td>Dakwaan Kesihatan &amp; Perubatan</td><td><span class="badge b-green">Disahkan Benar</span></td><td class="muted">08 Nov 2026</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>Kad pertanyaan awam</h3>
+                <div class="cards">
+                    <div class="card"><div class="cat">Dakwaan Kesihatan &amp; Perubatan</div><b>Artikel berita: mandat vaksin baharu</b><p>Dakwaan bahawa semua sekolah wajib vaksin...</p><div style="margin-top:8px"><span class="badge b-green">Disahkan Benar</span></div></div>
+                    <div class="card"><div class="cat">Penipuan Kewangan &amp; Perbankan</div><b>Pautan wang tunai percuma</b><p>Pautan yang mendakwa kerajaan memberi wang tunai...</p><div style="margin-top:8px"><span class="badge b-red">Dikenal pasti Palsu</span></div></div>
+                    <div class="card"><div class="cat">Bantuan Bencana &amp; Kecemasan</div><b>Amaran banjir palsu</b><p>Mesej berantai tentang banjir besar esok...</p><div style="margin-top:8px"><span class="badge b-amber">Dalam Siasatan</span></div></div>
+                </div>
+
+                <h3>Borang</h3>
+                <div class="grid2">
+                    <div><label class="f">Tajuk / Berita Utama</label><input type="text" placeholder="cth. Dakwaan tentang..."></div>
+                    <div><label class="f">Kategori</label><select><option>Pilih kategori</option><option>Dakwaan Kesihatan &amp; Perubatan</option></select></div>
+                    <div><label class="f">Dari tarikh</label><input type="date"></div>
+                    <div><label class="f">Kata laluan</label><input type="password" value="rahsia123"></div>
+                </div>
+                <div style="margin-top:12px"><label class="f">Keterangan</label><textarea rows="2" placeholder="Terangkan berita yang anda mahu sahkan"></textarea></div>
+                <div class="row" style="margin-top:12px">
+                    <label class="check"><input type="checkbox" checked> Saya bersetuju dengan terma</label>
+                    <span class="toggle"></span><span class="muted">Aktif</span>
+                    <span class="toggle off"></span><span class="muted">Tidak aktif</span>
+                </div>
+
+                <h3>Butang</h3>
+                <div class="row">
+                    <button class="btn primary">Hantar Pertanyaan</button>
+                    <button class="btn ghost">Batal</button>
+                    <button class="btn soft">Simpan sebagai Draf</button>
+                    <button class="btn green">Sahkan</button>
+                </div>
+
+                <h3>Carta</h3>
+                <div class="charts">
+                    <div class="donut"></div>
+                    <div>
+                        <div class="bars">
+                            <div class="bar" style="height:40%;background:var(--chart-1)"></div>
+                            <div class="bar" style="height:65%;background:var(--chart-2)"></div>
+                            <div class="bar" style="height:52%;background:var(--chart-3)"></div>
+                            <div class="bar" style="height:88%;background:var(--chart-4)"></div>
+                            <div class="bar" style="height:30%;background:var(--chart-5)"></div>
+                            <div class="bar" style="height:72%;background:var(--chart-6)"></div>
+                        </div>
+                        <div class="legend">
+                            <span><i style="background:var(--chart-2)"></i>Disahkan Benar</span>
+                            <span><i style="background:var(--chart-1)"></i>Palsu</span>
+                            <span><i style="background:var(--chart-3)"></i>Dalam Siasatan</span>
+                            <span><i style="background:var(--chart-4)"></i>Penjelasan</span>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Sejarah status</h3>
+                <div class="timeline">
+                    <div><span class="dot"></span><b>Dihantar</b><div class="muted">10 Nov 2026 · Pertanyaan diterima</div></div>
+                    <div><span class="dot"></span><b>Dalam Siasatan</b><div class="muted">11 Nov 2026 · Ditugaskan kepada Kementerian Kesihatan</div></div>
+                </div>
+
+                <h3>Banner, modal dan kawalan</h3>
+                <div class="banner"><span class="chip">DISAHKAN OLEH AGENSI RASMI</span><b style="font-size:20px">Jawapan Sebenar, Disemak oleh Pihak Berkuasa yang Betul</b></div>
+                <div class="modal-bg" style="margin-top:12px">
+                    <div class="modal">
+                        <b>Gugurkan pertanyaan ini?</b>
+                        <p class="sub" style="margin:6px 0 12px">Tindakan ini muktamad dan akan direkodkan.</p>
+                        <div class="row"><button class="btn primary">Gugurkan</button><button class="btn ghost">Batal</button></div>
+                    </div>
+                </div>
+
+                <h3>Warna asas</h3>
+                <div class="swatches">
+                    <div class="sw"><i style="background:var(--bg)"></i><span>Latar halaman</span></div>
+                    <div class="sw"><i style="background:var(--surface)"></i><span>Kad / sidebar</span></div>
+                    <div class="sw"><i style="background:var(--raised)"></i><span>Input / dinaikkan</span></div>
+                    <div class="sw"><i style="background:var(--border)"></i><span>Sempadan</span></div>
+                    <div class="sw"><i style="background:var(--text)"></i><span>Teks utama</span></div>
+                    <div class="sw"><i style="background:var(--text-2)"></i><span>Teks sekunder</span></div>
+                    <div class="sw"><i style="background:var(--brand)"></i><span>Merah jenama (butang)</span></div>
+                    <div class="sw"><i style="background:var(--brand-text)"></i><span>Merah jenama (teks)</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+    const tpl = document.getElementById('sample');
+    document.querySelectorAll('.sample').forEach((el) => el.appendChild(tpl.content.cloneNode(true)));
+
+    const panes = document.getElementById('panes');
+    document.querySelectorAll('.toolbar button').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.toolbar button').forEach((b) => b.setAttribute('aria-pressed', b === btn));
+            panes.className = 'panes' + (btn.dataset.mode === 'both' ? '' : ' ' + btn.dataset.mode);
+        });
+    });
+</script>
+</body>
+</html>
