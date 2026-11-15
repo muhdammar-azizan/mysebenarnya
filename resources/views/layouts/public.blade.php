@@ -36,6 +36,7 @@
                         class="w-full h-9 pl-9 pr-3 text-sm rounded-lg border-0 bg-white focus:ring-2 focus:ring-white/50" />
                 </form>
 
+                <x-language-switcher tone="dark" class="flex-shrink-0" />
                 <livewire:public.topbar-widgets />
             </header>
 

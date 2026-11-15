@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
 Route::view('/', 'welcome');
+Route::post('locale/{locale}', [\App\Http\Controllers\LocaleController::class, 'update'])->name('locale.update');
 Route::view('about', 'about')->name('about');
 Route::view('faq', 'faq')->name('faq');
 Route::get('track', \App\Http\Controllers\TrackInquiryController::class)

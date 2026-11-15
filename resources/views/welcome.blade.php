@@ -27,10 +27,14 @@
                 <a href="#about" class="text-gray-600 text-sm font-semibold hover:text-gray-900">{{ __('About') }}</a>
                 <a href="{{ route('track') }}" class="text-gray-600 text-sm font-semibold hover:text-gray-900">{{ __('Track an Inquiry') }}</a>
                 <a href="{{ route('faq') }}" class="text-gray-600 text-sm font-semibold hover:text-gray-900">{{ __('FAQ') }}</a>
+                <x-language-switcher />
                 <a href="{{ route('login') }}" class="text-gray-600 text-sm font-semibold px-[18px] py-2 rounded-lg hover:text-gray-900">{{ __('Log In') }}</a>
                 <a href="{{ route('register') }}" class="bg-brand hover:bg-brand-dark text-white text-sm font-semibold px-5 py-2.5 rounded-lg">{{ __('Register') }}</a>
             </div>
-            <a href="{{ route('login') }}" class="md:hidden text-brand text-sm font-semibold">{{ __('Log In') }}</a>
+            <div class="md:hidden flex items-center gap-3">
+                <x-language-switcher />
+                <a href="{{ route('login') }}" class="text-brand text-sm font-semibold">{{ __('Log In') }}</a>
+            </div>
         </div>
 
         {{-- HERO --}}

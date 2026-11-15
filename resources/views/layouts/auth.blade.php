@@ -14,6 +14,7 @@
     </head>
     <body class="font-sans antialiased">
         <x-network-error-banner />
+        <x-language-switcher class="fixed top-3 right-3 z-30 shadow-sm" />
         {{ $slot }}
     </body>
 </html>

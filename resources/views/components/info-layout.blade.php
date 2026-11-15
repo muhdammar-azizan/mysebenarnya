@@ -25,6 +25,7 @@
                     <a href="{{ route('about') }}" class="{{ request()->routeIs('about') ? 'text-brand' : 'text-gray-600 hover:text-gray-900' }}">{{ __('About') }}</a>
                     <a href="{{ route('track') }}" class="{{ request()->routeIs('track') ? 'text-brand' : 'text-gray-600 hover:text-gray-900' }}">{{ __('Track') }}</a>
                     <a href="{{ route('faq') }}" class="{{ request()->routeIs('faq') ? 'text-brand' : 'text-gray-600 hover:text-gray-900' }}">{{ __('FAQ') }}</a>
+                    <x-language-switcher />
                     @auth
                         <a href="{{ route('dashboard') }}" class="bg-brand hover:bg-brand-dark text-white px-4 py-2 rounded-lg">{{ __('Dashboard') }}</a>
                     @else

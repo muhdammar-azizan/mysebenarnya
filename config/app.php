@@ -82,6 +82,12 @@ return [
 
     'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),
 
+    // Interface languages offered by the language switcher (code => label).
+    'available_locales' => [
+        'en' => 'EN',
+        'ms' => 'BM',
+    ],
+
     'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),
 
     /*

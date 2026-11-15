@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \App\Http\Middleware\EnsureUserHasRole::class,
         ]);
 
+        $middleware->appendToGroup('web', \App\Http\Middleware\SetLocale::class);
         $middleware->appendToGroup('web', \App\Http\Middleware\EnsurePasswordIsNotExpired::class);
         $middleware->appendToGroup('web', \App\Http\Middleware\TouchLastActive::class);
     })

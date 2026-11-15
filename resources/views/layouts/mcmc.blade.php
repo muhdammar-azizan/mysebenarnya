@@ -31,6 +31,7 @@
 
                 <livewire:mcmc.global-search />
 
+                <x-language-switcher tone="dark" class="flex-shrink-0" />
                 <livewire:mcmc.topbar-widgets />
             </header>
 
