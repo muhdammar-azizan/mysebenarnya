@@ -27,7 +27,7 @@ class InquiryStatusChanged extends Notification
      */
     public function toArray(object $notifiable): array
     {
-        $toStatusLabel = InquiryStatus::tryFrom($this->toStatus)?->label() ?? $this->toStatus;
+        $toStatusLabel = InquiryStatus::tryFrom($this->toStatus)?->label('en') ?? $this->toStatus;
 
         return [
             'inquiry_id' => $this->inquiry->id,

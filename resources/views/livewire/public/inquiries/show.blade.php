@@ -70,7 +70,7 @@ new #[Layout('layouts.public')] class extends Component
             </div>
             <div>
                 <div class="text-[11px] font-bold text-gray-400 uppercase tracking-wide">{{ __('Category') }}</div>
-                <div class="text-sm font-semibold text-gray-700 mt-0.5">{{ $inquiry->category?->value }}</div>
+                <div class="text-sm font-semibold text-gray-700 mt-0.5">{{ $inquiry->category?->label() }}</div>
             </div>
             <div>
                 <div class="text-[11px] font-bold text-gray-400 uppercase tracking-wide">{{ __('Date Submitted') }}</div>

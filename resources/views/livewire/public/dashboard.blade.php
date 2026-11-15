@@ -159,7 +159,7 @@ new #[Layout('layouts.public')] class extends Component
         <select wire:model.live="category" class="w-full sm:w-auto rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
             <option value="All">{{ __('All Categories') }}</option>
             @foreach ($this->categories as $case)
-                <option value="{{ $case->value }}">{{ $case->value }}</option>
+                <option value="{{ $case->value }}">{{ $case->label() }}</option>
             @endforeach
         </select>
     </div>
@@ -168,7 +168,7 @@ new #[Layout('layouts.public')] class extends Component
         @forelse ($this->rows as $inquiry)
             <button type="button" wire:key="card-{{ $inquiry->id }}" wire:click="viewPanel({{ $inquiry->id }})"
                 class="block text-left bg-white border border-gray-100 rounded-xl p-4 hover:shadow-md transition-shadow">
-                <div class="text-[11px] font-bold text-brand mb-2">{{ $inquiry->category?->value }}</div>
+                <div class="text-[11px] font-bold text-brand mb-2">{{ $inquiry->category?->label() }}</div>
                 <div class="font-bold text-sm text-gray-900 mb-3 line-clamp-2 min-h-[2.5rem]">{{ $inquiry->title }}</div>
                 <div class="flex items-center justify-between gap-2 pt-3 border-t border-gray-50">
                     <span class="text-xs text-gray-400">{{ $inquiry->created_at->format('d M Y') }}</span>
@@ -193,7 +193,7 @@ new #[Layout('layouts.public')] class extends Component
             </div>
             <div class="px-5 py-3 border-b border-gray-100 flex items-center gap-2 flex-wrap">
                 <x-inquiry-status-badge :status="$this->panelInquiry->status" />
-                <span class="text-xs text-gray-400">{{ $this->panelInquiry->category?->value }} &middot; {{ $this->panelInquiry->created_at->format('d M Y') }}</span>
+                <span class="text-xs text-gray-400">{{ $this->panelInquiry->category?->label() }} &middot; {{ $this->panelInquiry->created_at->format('d M Y') }}</span>
             </div>
             <div class="px-5 py-3 border-b border-gray-100">
                 <div class="text-[11px] font-bold text-gray-400 uppercase tracking-wide mb-1.5">{{ __('Assigned Agency') }}</div>

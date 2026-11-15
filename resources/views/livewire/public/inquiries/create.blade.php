@@ -159,7 +159,7 @@ new #[Layout('layouts.public')] class extends Component
 
         Auth::user()->inquiryDraft()?->delete();
 
-        session()->flash('status', 'Inquiry submitted successfully.');
+        session()->flash('status', __('Inquiry submitted successfully.'));
 
         $this->redirect(route('inquiries.show', $inquiry), navigate: true);
     }
@@ -198,7 +198,7 @@ new #[Layout('layouts.public')] class extends Component
             <select wire:model="category" class="w-full rounded-lg border-gray-300 focus:border-brand focus:ring-brand text-sm">
                 <option value="">{{ __('Select a category') }}</option>
                 @foreach ($this->categories as $case)
-                    <option value="{{ $case->value }}">{{ $case->value }}</option>
+                    <option value="{{ $case->value }}">{{ $case->label() }}</option>
                 @endforeach
             </select>
             <x-input-error :messages="$errors->get('category')" class="mt-1.5" />

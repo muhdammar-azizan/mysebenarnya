@@ -83,7 +83,7 @@ new #[Layout('layouts.public')] class extends Component
                 <div class="w-7 h-7 rounded-full {{ $iconDef['bg'] }} {{ $iconDef['color'] }} flex-shrink-0 flex items-center justify-center text-sm">{{ $iconDef['icon'] }}</div>
                 <div class="flex-1 min-w-0">
                     <div class="text-sm {{ $notification->read_at ? 'font-medium text-gray-600' : 'font-bold text-gray-900' }}">
-                        {{ $notification->data['message'] ?? 'Notification' }}
+                        {{ $notification->data['message'] ?? __('Notification') }}
                     </div>
                     <div class="text-xs text-gray-400 mt-0.5">{{ $notification->created_at->diffForHumans() }}</div>
                 </div>

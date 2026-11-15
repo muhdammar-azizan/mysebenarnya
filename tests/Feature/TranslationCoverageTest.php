@@ -2,8 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Enums\InquiryCategory;
+use App\Enums\InquiryStatus;
 use App\Enums\UserRole;
+use App\Models\Inquiry;
 use App\Models\User;
+use App\Notifications\InquiryStatusChanged;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -35,6 +39,18 @@ class TranslationCoverageTest extends TestCase
             'resources/views/livewire/pages/auth/*.blade.php',
             'app/Http/Controllers/TrackInquiryController.php',
             'app/Livewire/Forms/LoginForm.php',
+        ],
+        'Public role' => [
+            'resources/views/livewire/public/*.blade.php',
+            'resources/views/livewire/public/*/*.blade.php',
+            'resources/views/livewire/profile/*.blade.php',
+            'resources/views/profile.blade.php',
+            'resources/views/dashboard.blade.php',
+            'resources/views/components/inquiry-status-badge.blade.php',
+            'resources/views/components/network-error-banner.blade.php',
+            'resources/views/components/form-error-banner.blade.php',
+            'app/Enums/InquiryStatus.php',
+            'app/Enums/UserRole.php',
         ],
         'Navigation and header' => [
             'resources/views/components/*-sidebar.blade.php',
@@ -100,6 +116,49 @@ class TranslationCoverageTest extends TestCase
         $this->assertSame([], $missing, "Missing Malay translations:\n".implode("\n", $missing));
     }
 
+    public function test_every_enum_display_name_has_a_malay_translation(): void
+    {
+        $malay = $this->malay();
+        $missing = [];
+
+        foreach (InquiryCategory::cases() as $case) {
+            if (! array_key_exists($case->value, $malay)) {
+                $missing[] = 'category: '.$case->value;
+            }
+        }
+
+        foreach (InquiryStatus::cases() as $case) {
+            $english = $case->label('en');
+
+            if (! array_key_exists($english, $malay)) {
+                $missing[] = 'status: '.$english;
+            }
+        }
+
+        foreach (UserRole::cases() as $case) {
+            if (! array_key_exists($case->label('en'), $malay)) {
+                $missing[] = 'role: '.$case->label('en');
+            }
+        }
+
+        $this->assertSame([], $missing, "Missing Malay translations:\n".implode("\n", $missing));
+    }
+
+    public function test_enum_labels_follow_the_current_language_but_stored_values_do_not_change(): void
+    {
+        app()->setLocale('ms');
+
+        $this->assertSame('Dalam Siasatan', InquiryStatus::UnderInvestigation->label());
+        $this->assertSame('Disahkan Benar', InquiryStatus::VerifiedTrue->label());
+        $this->assertSame('Penipuan Kewangan & Perbankan', InquiryCategory::FinancialScams->label());
+        $this->assertSame('Pengguna Awam', UserRole::Public->label());
+
+        // Stored values and explicit-English labels are untouched.
+        $this->assertSame('Under Investigation', InquiryStatus::UnderInvestigation->value);
+        $this->assertSame('Financial Scams & Banking', InquiryCategory::FinancialScams->value);
+        $this->assertSame('Verified as True', InquiryStatus::VerifiedTrue->label('en'));
+    }
+
     public function test_every_scope_pattern_matches_at_least_one_file(): void
     {
         foreach (self::SCOPES as $scope => $patterns) {
@@ -148,7 +207,9 @@ class TranslationCoverageTest extends TestCase
             ->assertSee('Lupa Kata Laluan')
             ->assertSee('Ingat Saya')
             ->assertSee('Log masuk dengan Google')
-            ->assertSee('Meja Semakan Fakta SKMM');
+            ->assertSee('Meja Semakan Fakta SKMM')
+            ->assertSee('Rakan Agensi')
+            ->assertSee('Kakitangan SKMM');
     }
 
     public function test_the_register_and_reset_pages_render_in_malay(): void
@@ -213,6 +274,68 @@ class TranslationCoverageTest extends TestCase
             ->assertNotFound()
             ->assertSee('Halaman Tidak Ditemui')
             ->assertSee(route('dashboard'), false);
+    }
+
+    // ---------- Public role pages render in Malay ----------
+
+    public function test_public_dashboard_and_forms_render_in_malay(): void
+    {
+        $user = User::factory()->create(['role' => UserRole::Public, 'locale' => 'ms']);
+        Inquiry::factory()->create([
+            'submitted_by' => $user->id,
+            'category' => InquiryCategory::HealthMedical,
+            'status' => InquiryStatus::UnderInvestigation,
+        ]);
+
+        $this->actingAs($user)->get(route('dashboard'))
+            ->assertOk()
+            ->assertSee('Pertanyaan Awam')
+            ->assertSee('Dakwaan Kesihatan &amp; Perubatan', false)
+            ->assertSee('Semua Status')
+            ->assertSee('Dalam Siasatan');
+
+        $this->actingAs($user)->get(route('inquiries.create'))
+            ->assertOk()
+            ->assertSee('Hantar Pertanyaan Baharu')
+            ->assertSee('Simpan sebagai Draf')
+            ->assertSee('Pilih kategori');
+
+        $this->actingAs($user)->get(route('inquiries.index'))
+            ->assertOk()
+            ->assertSee('Jumlah Pertanyaan')
+            ->assertSee('Dakwaan Kesihatan &amp; Perubatan', false);
+
+        $this->actingAs($user)->get(route('notifications.index'))->assertOk()->assertSee('Notifikasi');
+        $this->actingAs($user)->get(route('profile'))->assertOk()->assertSee('Maklumat Profil')->assertSee('Kata Laluan &amp; Keselamatan', false);
+    }
+
+    public function test_public_inquiry_detail_and_browse_render_in_malay(): void
+    {
+        $user = User::factory()->create(['role' => UserRole::Public, 'locale' => 'ms']);
+        $inquiry = Inquiry::factory()->create([
+            'submitted_by' => $user->id,
+            'status' => InquiryStatus::VerifiedTrue,
+        ]);
+
+        $this->actingAs($user)->get(route('inquiries.show', $inquiry))
+            ->assertOk()
+            ->assertSee('Sejarah Status')
+            ->assertSee('Disahkan Benar');
+
+        $this->actingAs($user)->get(route('browse.show', $inquiry))
+            ->assertOk()
+            ->assertSee('Kongsi keputusan ini')
+            ->assertSee('Salin pautan');
+    }
+
+    public function test_saved_notification_messages_stay_english_whatever_the_actors_language(): void
+    {
+        app()->setLocale('ms');
+
+        $inquiry = Inquiry::factory()->create();
+        $data = (new InquiryStatusChanged($inquiry, 'Submitted', 'Verified True'))->toArray(new User);
+
+        $this->assertStringContainsString('is now Verified as True.', $data['message']);
     }
 
     private function renderIn(string $locale, string $view): string

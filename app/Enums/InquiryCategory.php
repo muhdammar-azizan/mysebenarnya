@@ -19,4 +19,12 @@ enum InquiryCategory: string
     case DisasterEmergency = 'Disaster & Emergency Aid';
     case TechnologyDigital = 'Technology & Digital Safety';
     case Other = 'Other';
+
+    /**
+     * Display name in the current language. The stored value stays English.
+     */
+    public function label(?string $locale = null): string
+    {
+        return __($this->value, [], $locale);
+    }
 }

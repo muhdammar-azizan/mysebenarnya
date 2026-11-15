@@ -3,7 +3,7 @@
 namespace Tests\Unit;
 
 use App\Enums\InquiryStatus;
-use PHPUnit\Framework\TestCase;
+use Tests\TestCase;
 
 class InquiryStatusLabelTest extends TestCase
 {

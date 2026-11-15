@@ -8,12 +8,14 @@ enum UserRole: string
     case McmcStaff = 'mcmc_staff';
     case AgencyStaff = 'agency_staff';
 
-    public function label(): string
+    public function label(?string $locale = null): string
     {
-        return match ($this) {
+        $english = match ($this) {
             self::Public => 'Public User',
             self::McmcStaff => 'MCMC Staff',
             self::AgencyStaff => 'Agency Staff',
         };
+
+        return __($english, [], $locale);
     }
 }

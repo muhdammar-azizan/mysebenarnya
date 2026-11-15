@@ -16,12 +16,15 @@ enum InquiryStatus: string
      * "Identified as Fake"). The stored/backing value is left as-is to
      * avoid a data migration for existing rows.
      */
-    public function label(): string
+    public function label(?string $locale = null): string
     {
-        return match ($this) {
+        $english = match ($this) {
             self::VerifiedTrue => 'Verified as True',
             self::IdentifiedFake => 'Identified as Fake',
             default => $this->value,
         };
+
+        // Translated for display only: the stored value never changes.
+        return __($english, [], $locale);
     }
 }
