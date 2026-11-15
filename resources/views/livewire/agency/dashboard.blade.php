@@ -343,7 +343,7 @@ new #[Layout('layouts.agency')] class extends Component
             @php $note = $this->notesFromMcmc($inquiry); @endphp
             <div wire:key="dash-row-{{ $inquiry->id }}" wire:click="viewPanel({{ $inquiry->id }})" class="grid grid-cols-[1.8fr_1fr_1fr_1.2fr_1.6fr_1fr] gap-2 px-5 py-3.5 text-sm border-b border-gray-50 last:border-0 items-center cursor-pointer hover:bg-gray-50">
                 <div class="font-semibold text-gray-900 truncate">{{ $inquiry->title }}</div>
-                <div class="text-gray-600 text-xs truncate">{{ $inquiry->category?->value }}</div>
+                <div class="text-gray-600 text-xs truncate">{{ $inquiry->category?->label() }}</div>
                 <div class="text-gray-400 text-xs whitespace-nowrap">{{ $inquiry->reviewed_at?->format('d M Y') ?? $inquiry->updated_at->format('d M Y') }}</div>
                 <div><x-inquiry-status-badge :status="$inquiry->status" /></div>
                 <div class="text-gray-500 text-xs truncate" title="{{ $note }}">{{ $note ?: '—' }}</div>
@@ -365,7 +365,7 @@ new #[Layout('layouts.agency')] class extends Component
                 <button wire:click="closePanel" class="text-gray-400 hover:text-brand text-lg leading-none flex-shrink-0">✕</button>
             </div>
             <div class="px-5 py-3 border-b border-gray-100 text-xs text-gray-500">
-                {{ $this->panelInquiry->category?->value }} · <x-inquiry-status-badge :status="$this->panelInquiry->status" />
+                {{ $this->panelInquiry->category?->label() }} · <x-inquiry-status-badge :status="$this->panelInquiry->status" />
             </div>
             <div class="flex border-b border-gray-100 flex-shrink-0">
                 <button wire:click="$set('panelTab', 'details')" class="flex-1 text-center py-2.5 text-xs font-bold {{ $panelTab === 'details' ? 'text-brand border-b-2 border-brand' : 'text-gray-400' }}">{{ __('Details') }}</button>
@@ -390,7 +390,7 @@ new #[Layout('layouts.agency')] class extends Component
                                 <div class="w-2 h-2 rounded-full bg-brand mt-1.5 flex-shrink-0"></div>
                                 <div>
                                     <div class="text-[11px] font-bold text-gray-400">{{ $log->created_at->format('d M Y') }}</div>
-                                    <div class="text-sm text-gray-900">{{ str($log->action)->headline() }}</div>
+                                    <div class="text-sm text-gray-900">{{ __((string) str($log->action)->headline()) }}</div>
                                 </div>
                             </div>
                         @empty

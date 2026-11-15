@@ -578,6 +578,11 @@ new #[Layout('layouts.mcmc')] class extends Component
 
     public function generateExport()
     {
+        return $this->inEnglish(fn () => $this->buildGenerateExport());
+    }
+
+    protected function buildGenerateExport()
+    {
         $sections = [];
 
         if ($this->exportSections['user'] ?? false) {
@@ -591,7 +596,7 @@ new #[Layout('layouts.mcmc')] class extends Component
         }
 
         if (empty($sections)) {
-            $this->addError('exportSections', __('Select at least one section to export.'));
+            $this->addError('exportSections', __('Select at least one section to export.', [], $this->screenLocale));
 
             return;
         }

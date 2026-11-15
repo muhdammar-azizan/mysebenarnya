@@ -74,7 +74,7 @@ new #[Layout('layouts.agency')] class extends Component
                     'jurisdiction_rejected' => ['update', __('rejected inquiry — outside jurisdiction')],
                     'investigation_updated' => ['comment', __('updated investigation notes')],
                     'verdict_finalized' => ['resolve', __('resolved inquiry as :status', ['status' => InquiryStatus::tryFrom((string) $log->to_status)?->label() ?? $log->to_status])],
-                    default => ['update', (string) str($log->action)->headline()],
+                    default => ['update', __((string) str($log->action)->headline())],
                 };
 
                 return [
@@ -197,6 +197,11 @@ new #[Layout('layouts.agency')] class extends Component
 
     public function generateExport()
     {
+        return $this->inEnglish(fn () => $this->buildGenerateExport());
+    }
+
+    protected function buildGenerateExport()
+    {
         $rows = collect($this->rows);
         $sections = [];
 
@@ -248,7 +253,7 @@ new #[Layout('layouts.agency')] class extends Component
         }
 
         if (empty($sections)) {
-            $this->addError('exportSections', __('Select at least one section to export.'));
+            $this->addError('exportSections', __('Select at least one section to export.', [], $this->screenLocale));
 
             return;
         }

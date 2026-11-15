@@ -55,7 +55,7 @@ new #[Layout('layouts.agency')] class extends Component
     <div class="bg-white border border-gray-100 rounded-2xl p-6 mb-5">
         <div class="text-xs font-bold text-teal-600 uppercase tracking-wide mb-1">{{ __('Consulted by MCMC') }}</div>
         <h1 class="font-display font-extrabold text-xl text-gray-900 mb-2">{{ $consult->thread->inquiry->title }}</h1>
-        <p class="text-sm text-gray-500">{{ __('Case owned by') }} <strong>{{ $consult->thread->inquiry->agency?->name }}</strong> &middot; {{ $consult->thread->inquiry->category?->value }}</p>
+        <p class="text-sm text-gray-500">{{ __('Case owned by') }} <strong>{{ $consult->thread->inquiry->agency?->name }}</strong> &middot; {{ $consult->thread->inquiry->category?->label() }}</p>
 
         <div class="mt-4 pt-4 border-t border-gray-100">
             <div class="text-[11px] font-bold text-gray-400 uppercase tracking-wide mb-1">{{ __('Case Description') }}</div>

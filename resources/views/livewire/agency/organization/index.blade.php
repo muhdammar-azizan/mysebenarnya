@@ -342,7 +342,7 @@ new #[Layout('layouts.agency')] class extends Component
                     <div class="grid grid-cols-[1.4fr_1.6fr_90px_90px] gap-3 px-5 py-3.5 text-xs border-b border-gray-50 last:border-0 items-center">
                         <div class="font-semibold text-gray-900 truncate">{{ $staffMember->name }}</div>
                         <div class="text-gray-400 truncate" title="{{ $staffMember->email }}">{{ $staffMember->email }}</div>
-                        <div class="text-gray-600">{{ str($staffMember->agency_role?->value ?? '—')->headline() }}</div>
+                        <div class="text-gray-600">{{ $staffMember->agency_role?->label() ?? '—' }}</div>
                         <div><span class="bg-green-100 text-green-700 text-[10.5px] font-bold px-2.5 py-0.5 rounded-full">{{ __('Active') }}</span></div>
                     </div>
                 @endforeach

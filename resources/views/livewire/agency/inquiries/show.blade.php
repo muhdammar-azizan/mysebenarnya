@@ -299,7 +299,7 @@ new #[Layout('layouts.agency')] class extends Component
         <div class="flex gap-8 flex-wrap mt-4">
             <div>
                 <div class="text-[11px] font-bold text-gray-400 uppercase tracking-wide">{{ __('Category') }}</div>
-                <div class="text-sm font-semibold text-gray-700 mt-0.5">{{ $inquiry->category?->value }}</div>
+                <div class="text-sm font-semibold text-gray-700 mt-0.5">{{ $inquiry->category?->label() }}</div>
             </div>
             <div>
                 <div class="text-[11px] font-bold text-gray-400 uppercase tracking-wide">{{ __('Submitted By') }}</div>
@@ -412,7 +412,7 @@ new #[Layout('layouts.agency')] class extends Component
                 <div class="bg-white border border-gray-100 rounded-2xl overflow-hidden">
                     <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between gap-3 flex-wrap">
                         <div>
-                            <div class="font-bold text-gray-900">{{ $thread->topic?->value ?? $thread->subject }}</div>
+                            <div class="font-bold text-gray-900">{{ $thread->topic?->label() ?? $thread->subject }}</div>
                             <div class="text-xs text-gray-400 mt-0.5">{{ $thread->created_at->format('d M Y, H:i') }}
                                 @if ($thread->priority?->value === 'Urgent')
                                     &middot; <span class="text-brand font-bold">{{ __('Urgent') }}</span>
@@ -470,7 +470,7 @@ new #[Layout('layouts.agency')] class extends Component
                         <div class="w-2 h-2 rounded-full bg-brand mt-1.5 flex-shrink-0"></div>
                         <div>
                             <div class="text-[11px] font-bold text-gray-400">{{ $log->created_at->format('d M Y, H:i') }} &middot; {{ $log->user?->name }}</div>
-                            <div class="text-sm font-bold text-gray-900">{{ str($log->action)->headline() }}</div>
+                            <div class="text-sm font-bold text-gray-900">{{ __((string) str($log->action)->headline()) }}</div>
                             @if ($log->notes)
                                 <div class="text-sm text-gray-600 mt-0.5">{{ $log->notes }}</div>
                             @endif
@@ -521,7 +521,7 @@ new #[Layout('layouts.agency')] class extends Component
                         <select wire:model="clarifyTopic" class="w-full rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
                             <option value="">{{ __('Select a topic...') }}</option>
                             @foreach ($this->topics as $case)
-                                <option value="{{ $case->value }}">{{ $case->value }}</option>
+                                <option value="{{ $case->value }}">{{ $case->label() }}</option>
                             @endforeach
                         </select>
                         <x-input-error :messages="$errors->get('clarifyTopic')" class="mt-1.5" />

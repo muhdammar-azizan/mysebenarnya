@@ -115,6 +115,11 @@ new #[Layout('layouts.mcmc')] class extends Component
 
     public function exportCsv()
     {
+        return $this->inEnglish(fn () => $this->buildExportCsv());
+    }
+
+    protected function buildExportCsv()
+    {
         $rows = $this->baseQuery()->latest()->cursor()->map(fn ($u) => [
             $u->name,
             $u->email,
@@ -127,6 +132,11 @@ new #[Layout('layouts.mcmc')] class extends Component
     }
 
     public function exportPdf()
+    {
+        return $this->inEnglish(fn () => $this->buildExportPdf());
+    }
+
+    protected function buildExportPdf()
     {
         $rows = $this->baseQuery()->latest()->get()->map(fn ($u) => [
             $u->name,

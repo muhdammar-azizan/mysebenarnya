@@ -11,4 +11,12 @@ enum AgencyStaffRole: string
 {
     case Admin = 'admin';
     case Reviewer = 'reviewer';
+
+    public function label(?string $locale = null): string
+    {
+        return __(match ($this) {
+            self::Admin => 'Admin',
+            self::Reviewer => 'Reviewer',
+        }, [], $locale);
+    }
 }

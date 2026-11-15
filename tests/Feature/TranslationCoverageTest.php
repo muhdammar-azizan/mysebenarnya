@@ -2,12 +2,19 @@
 
 namespace Tests\Feature;
 
+use App\Enums\AgencyStaffRole;
+use App\Enums\ClarificationPriority;
+use App\Enums\ClarificationStatus;
+use App\Enums\ClarificationTopic;
 use App\Enums\InquiryCategory;
 use App\Enums\InquiryStatus;
 use App\Enums\UserRole;
+use App\Models\Agency;
 use App\Models\Inquiry;
+use App\Models\InquiryActivityLog;
 use App\Models\User;
 use App\Notifications\InquiryStatusChanged;
+use Livewire\Volt\Volt;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -51,6 +58,16 @@ class TranslationCoverageTest extends TestCase
             'resources/views/components/form-error-banner.blade.php',
             'app/Enums/InquiryStatus.php',
             'app/Enums/UserRole.php',
+        ],
+        'Agency role' => [
+            'resources/views/livewire/agency/*.blade.php',
+            'resources/views/livewire/agency/*/*.blade.php',
+            'app/Enums/ClarificationStatus.php',
+            'app/Enums/ClarificationTopic.php',
+            'app/Enums/ClarificationPriority.php',
+            'app/Enums/AgencyStaffRole.php',
+            'app/Notifications/InquiryAssignedToAgency.php',
+            'app/Notifications/AgencyConsultRequested.php',
         ],
         'Navigation and header' => [
             'resources/views/components/*-sidebar.blade.php',
@@ -141,6 +158,38 @@ class TranslationCoverageTest extends TestCase
             }
         }
 
+        foreach (ClarificationStatus::cases() as $case) {
+            if (! array_key_exists($case->label('en'), $malay)) {
+                $missing[] = 'clarification status: '.$case->label('en');
+            }
+        }
+
+        foreach (ClarificationTopic::cases() as $case) {
+            if (! array_key_exists($case->value, $malay)) {
+                $missing[] = 'clarification topic: '.$case->value;
+            }
+        }
+
+        foreach (ClarificationPriority::cases() as $case) {
+            if (! array_key_exists($case->value, $malay)) {
+                $missing[] = 'clarification priority: '.$case->value;
+            }
+        }
+
+        foreach (AgencyStaffRole::cases() as $case) {
+            if (! array_key_exists($case->label('en'), $malay)) {
+                $missing[] = 'agency role: '.$case->label('en');
+            }
+        }
+
+        foreach (['assigned', 'reassigned', 'discarded', 'submitted', 'jurisdiction_accepted', 'jurisdiction_rejected', 'investigation_updated', 'verdict_finalized'] as $action) {
+            $headline = (string) str($action)->headline();
+
+            if (! array_key_exists($headline, $malay)) {
+                $missing[] = 'activity action: '.$headline;
+            }
+        }
+
         $this->assertSame([], $missing, "Missing Malay translations:\n".implode("\n", $missing));
     }
 
@@ -174,7 +223,8 @@ class TranslationCoverageTest extends TestCase
             preg_match_all('/:[a-z_]+/i', $english, $expected);
             preg_match_all('/:[a-z_]+/i', $malay, $actual);
 
-            $this->assertEqualsCanonicalizing($expected[0], $actual[0], "Placeholders differ in: {$english}");
+            // Plural forms (a|b) repeat placeholders, so compare the distinct set.
+            $this->assertEqualsCanonicalizing(array_unique($expected[0]), array_unique($actual[0]), "Placeholders differ in: {$english}");
         }
     }
 
@@ -336,6 +386,152 @@ class TranslationCoverageTest extends TestCase
         $data = (new InquiryStatusChanged($inquiry, 'Submitted', 'Verified True'))->toArray(new User);
 
         $this->assertStringContainsString('is now Verified as True.', $data['message']);
+    }
+
+    // ---------- Agency role pages render in Malay ----------
+
+    private function agencyStaffInMalay(): array
+    {
+        $agency = Agency::factory()->create(['name' => 'Kementerian Ujian']);
+        $staff = User::factory()->agencyStaff()->create([
+            'agency_id' => $agency->id,
+            'agency_role' => AgencyStaffRole::Admin,
+            'locale' => 'ms',
+        ]);
+
+        return [$agency, $staff];
+    }
+
+    public function test_agency_pages_render_in_malay(): void
+    {
+        [$agency, $staff] = $this->agencyStaffInMalay();
+        $inquiry = Inquiry::factory()->create([
+            'agency_id' => $agency->id,
+            'category' => InquiryCategory::FinancialScams,
+            'status' => InquiryStatus::UnderInvestigation,
+            'reviewed_at' => now()->subDays(30),
+        ]);
+
+        $this->actingAs($staff)->get(route('dashboard'))
+            ->assertOk()
+            ->assertSee('Papan Pemuka Agensi')
+            ->assertSee('Jumlah Ditugaskan')
+            ->assertSee('Pertanyaan yang Baru Ditugaskan')
+            ->assertSee('Penipuan Kewangan &amp; Perbankan', false)
+            ->assertSee('telah lewat');
+
+        $this->actingAs($staff)->get(route('agency.inquiries.index'))
+            ->assertOk()
+            ->assertSee('Dalam Siasatan')
+            ->assertSee('Nota daripada SKMM');
+
+        $this->actingAs($staff)->get(route('agency.inquiries.show', $inquiry))
+            ->assertOk()
+            ->assertSee('Butiran')
+            ->assertSee('Log Aktiviti');
+
+        $this->actingAs($staff)->get(route('agency.organization.index'))
+            ->assertOk()
+            ->assertSee('Maklumat Agensi')
+            ->assertSee('Kata Laluan &amp; Keselamatan', false);
+
+        $this->actingAs($staff)->get(route('agency.reports.index'))->assertOk()->assertSee('Trend Penyelesaian Bulanan');
+        $this->actingAs($staff)->get(route('agency.activity.index'))->assertOk()->assertSee('Semua Aktiviti');
+        $this->actingAs($staff)->get(route('agency.notifications.index'))->assertOk()->assertSee('Notifikasi');
+    }
+
+    public function test_agency_clarification_topics_roles_and_activity_actions_are_translated(): void
+    {
+        [$agency, $staff] = $this->agencyStaffInMalay();
+        $inquiry = Inquiry::factory()->create(['agency_id' => $agency->id, 'status' => InquiryStatus::UnderInvestigation]);
+
+        InquiryActivityLog::create([
+            'inquiry_id' => $inquiry->id,
+            'user_id' => $staff->id,
+            'action' => 'jurisdiction_accepted',
+            'notes' => 'ok',
+        ]);
+
+        app()->setLocale('ms'); // Volt::test() skips the middleware that normally sets it
+
+        Volt::actingAs($staff)->test('agency.inquiries.show', ['inquiry' => $inquiry])
+            ->call('setTab', 'activity')
+            ->assertSee('Bidang Kuasa Diterima');
+
+        $this->actingAs($staff)->get(route('agency.organization.index', ['tab' => 'security']))->assertOk();
+
+        $this->assertSame('Pentadbir', AgencyStaffRole::Admin->label());
+        $this->assertSame('Bukti tiada atau tidak jelas', ClarificationTopic::MissingEvidence->label());
+        $this->assertSame('Menunggu Maklum Balas SKMM', ClarificationStatus::Open->label());
+        $this->assertSame('Segera', ClarificationPriority::Urgent->label());
+
+        // Stored values never change.
+        $this->assertSame('Missing or unclear evidence', ClarificationTopic::MissingEvidence->value);
+        $this->assertSame('admin', AgencyStaffRole::Admin->value);
+    }
+
+    public function test_exports_are_produced_in_english_even_when_browsing_in_malay(): void
+    {
+        [$agency, $staff] = $this->agencyStaffInMalay();
+        Inquiry::factory()->create([
+            'agency_id' => $agency->id,
+            'category' => InquiryCategory::FinancialScams,
+            'status' => InquiryStatus::VerifiedTrue,
+            'reviewed_at' => now()->subDays(3),
+            'resolved_at' => now()->subDay(),
+        ]);
+
+        app()->setLocale('ms');
+
+        $component = Volt::actingAs($staff)->test('agency.reports.index')
+            ->set('exportFormat', 'excel')
+            ->call('generateExport')
+            ->assertHasNoErrors();
+
+        // The language is put back afterwards, so the page keeps rendering in Malay.
+        $this->assertSame('ms', app()->getLocale());
+        $component->assertSee('Trend Penyelesaian Bulanan')->assertSee('Penipuan Kewangan &amp; Perbankan', false);
+
+        $this->assertDatabaseHas('report_exports', ['user_id' => $staff->id, 'format' => 'excel']);
+    }
+
+    public function test_the_export_validation_message_follows_the_screen_language(): void
+    {
+        [, $staff] = $this->agencyStaffInMalay();
+
+        app()->setLocale('ms');
+
+        Volt::actingAs($staff)->test('agency.reports.index')
+            ->set('exportSections', [])
+            ->call('generateExport')
+            ->assertHasErrors(['exportSections' => 'Pilih sekurang-kurangnya satu bahagian untuk dieksport.']);
+    }
+
+    public function test_the_helper_restores_the_language_even_when_the_export_fails(): void
+    {
+        $host = new class
+        {
+            use \App\Concerns\GeneratesReports;
+
+            public function run(callable $callback)
+            {
+                return $this->inEnglish($callback);
+            }
+        };
+
+        app()->setLocale('ms');
+
+        try {
+            $host->run(function () {
+                $this->assertSame('en', app()->getLocale());
+
+                throw new \RuntimeException('boom');
+            });
+        } catch (\RuntimeException) {
+            // expected
+        }
+
+        $this->assertSame('ms', app()->getLocale());
     }
 
     private function renderIn(string $locale, string $view): string

@@ -79,6 +79,11 @@ new #[Layout('layouts.mcmc')] class extends Component
 
     public function exportCsv()
     {
+        return $this->inEnglish(fn () => $this->buildExportCsv());
+    }
+
+    protected function buildExportCsv()
+    {
         $rows = $this->baseQuery()->latest()->latest('id')->cursor()->map(fn ($log) => [
             $log->created_at->format('Y-m-d H:i:s'),
             $log->user?->name,

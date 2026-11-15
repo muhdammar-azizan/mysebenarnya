@@ -183,7 +183,8 @@ new #[Layout('layouts.agency')] class extends Component
         $max = max(1, $rows->max('total') ?? 1);
 
         return $rows->map(fn ($r) => [
-            'label' => $r->category?->value,
+            'label' => $r->category?->label(),
+            'value' => $r->category?->value,
             'count' => $r->total,
             'pct' => (int) round(($r->total / $max) * 100),
         ]);
@@ -218,7 +219,7 @@ new #[Layout('layouts.agency')] class extends Component
                 [
                     'heading' => 'Breakdown by Category',
                     'columns' => ['Category', 'Count'],
-                    'rows' => $this->categoryBreakdown->map(fn ($r) => [$r['label'], $r['count']])->all(),
+                    'rows' => $this->categoryBreakdown->map(fn ($r) => [$r['value'], $r['count']])->all(),
                 ],
             ],
         ]];
@@ -232,6 +233,11 @@ new #[Layout('layouts.agency')] class extends Component
             return;
         }
 
+        return $this->inEnglish(fn () => $this->buildGenerateExport());
+    }
+
+    protected function buildGenerateExport()
+    {
         $filenameBase = 'SEBENARNYA_'.str(Auth::user()->agency->code)->slug().'-Report';
 
         if ($this->exportFormat === 'excel') {
@@ -313,7 +319,7 @@ new #[Layout('layouts.agency')] class extends Component
                     <a href="{{ route('agency.inquiries.show', $inquiry) }}" wire:navigate class="flex items-center justify-between gap-3 px-3.5 py-3 border border-gray-100 rounded-lg hover:bg-gray-50 hover:border-red-100">
                         <div class="min-w-0">
                             <div class="text-sm font-semibold text-gray-900 truncate">{{ $inquiry->title }}</div>
-                            <div class="text-xs text-gray-400 mt-0.5">{{ $inquiry->category?->value }} &middot; {{ $inquiry->resolved_at?->format('d M Y') }}</div>
+                            <div class="text-xs text-gray-400 mt-0.5">{{ $inquiry->category?->label() }} &middot; {{ $inquiry->resolved_at?->format('d M Y') }}</div>
                         </div>
                         <x-inquiry-status-badge :status="$inquiry->status" />
                     </a>

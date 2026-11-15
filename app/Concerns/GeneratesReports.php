@@ -6,12 +6,57 @@ use App\Exports\MultiSheetReportExport;
 use App\Models\ReportExport;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Features\SupportComputed\SupportLegacyComputedPropertySyntax;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 trait GeneratesReports
 {
+    /**
+     * The language the user is browsing in while an export is being built in
+     * English, so on-screen messages raised during the export can still use it.
+     */
+    protected ?string $screenLocale = null;
+
+    /**
+     * Run a callback with the interface language forced to English.
+     *
+     * Exported documents (PDF, Excel, CSV) are formal records that get shared
+     * outside the app, so they are always produced in English regardless of
+     * the language the signed-in user is browsing in.
+     *
+     * @template T
+     *
+     * @param  callable(): T  $callback
+     * @return T
+     */
+    protected function inEnglish(callable $callback): mixed
+    {
+        $previous = app()->getLocale();
+        $this->screenLocale = $previous;
+
+        // Computed values are cached for the rest of the request. Drop them on
+        // the way in (so the export is not built from translated data) and on
+        // the way out (so the page is not re-rendered from English data).
+        $this->forgetComputedValues();
+        app()->setLocale('en');
+
+        try {
+            return $callback();
+        } finally {
+            app()->setLocale($previous);
+            $this->forgetComputedValues();
+        }
+    }
+
+    protected function forgetComputedValues(): void
+    {
+        foreach (SupportLegacyComputedPropertySyntax::getComputedPropertyNames($this) as $name) {
+            unset($this->{$name});
+        }
+    }
+
     protected function reportId(): string
     {
         return 'RPT-'.now()->format('Ymd').'-'.strtoupper(substr(bin2hex(random_bytes(2)), 0, 4));

@@ -144,7 +144,7 @@ new #[Layout('layouts.agency')] class extends Component
         <select wire:model.live="category" class="w-full sm:w-auto rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
             <option value="All">{{ __('All Categories') }}</option>
             @foreach ($this->categories as $case)
-                <option value="{{ $case->value }}">{{ $case->value }}</option>
+                <option value="{{ $case->value }}">{{ $case->label() }}</option>
             @endforeach
         </select>
         <div class="flex items-center gap-2">
@@ -171,7 +171,7 @@ new #[Layout('layouts.agency')] class extends Component
                     <tr wire:key="row-{{ $inquiry->id }}" onclick="window.location='{{ route('agency.inquiries.show', $inquiry) }}'" class="border-t border-gray-50 hover:bg-gray-50 cursor-pointer">
                         <td class="px-5 py-3.5">
                             <div class="font-semibold text-gray-900">{{ $inquiry->title }}</div>
-                            <div class="text-xs text-gray-400 mt-0.5">{{ $inquiry->category?->value }} &middot; {{ __('Assigned') }} {{ $inquiry->reviewed_at?->format('d M Y') ?? $inquiry->updated_at->format('d M Y') }}</div>
+                            <div class="text-xs text-gray-400 mt-0.5">{{ $inquiry->category?->label() }} &middot; {{ __('Assigned') }} {{ $inquiry->reviewed_at?->format('d M Y') ?? $inquiry->updated_at->format('d M Y') }}</div>
                             @if ($inquiry->hasOpenClarification())
                                 <div class="inline-flex items-center gap-1.5 mt-1.5 bg-purple-50 text-purple-700 text-[10.5px] font-bold px-2 py-0.5 rounded-full">
                                     <span class="w-1.5 h-1.5 rounded-full bg-current"></span>{{ __('Clarification Pending') }}
