@@ -12,6 +12,7 @@
     $bottomItems = [
         ['route' => 'mcmc.settings.index', 'icon' => 'settings', 'label' => __('Settings')],
         ['route' => 'mcmc.recent-actions.index', 'icon' => 'history', 'label' => __('My Recent Actions')],
+        ['route' => 'mcmc.audit-log.index', 'icon' => 'shield', 'label' => __('Audit Log')],
     ];
 @endphp
 

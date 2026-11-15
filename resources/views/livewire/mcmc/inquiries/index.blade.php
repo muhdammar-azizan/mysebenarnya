@@ -58,7 +58,7 @@ new #[Layout('layouts.mcmc')] class extends Component
     {
         return Inquiry::query()
             ->where('status', '!=', InquiryStatus::Discarded)
-            ->when($this->search, fn ($q) => $q->where('title', 'like', '%'.$this->search.'%'))
+            ->when($this->search, fn ($q) => $q->where(fn ($qq) => $qq->where('title', 'like', '%'.$this->search.'%')->orWhere('reference_no', 'like', '%'.$this->search.'%')))
             ->when($this->category !== 'All', fn ($q) => $q->where('category', $this->category))
             ->when($this->agency !== 'All', fn ($q) => $q->where('agency_id', $this->agency))
             ->when($this->dateFrom, fn ($q) => $q->whereDate('created_at', '>=', $this->dateFrom))
@@ -150,6 +150,21 @@ new #[Layout('layouts.mcmc')] class extends Component
         return implode(' · ', $parts);
     }
 
+    public function exportCsv()
+    {
+        $rows = $this->baseQuery()->with('agency')->latest()->cursor()->map(fn ($i) => [
+            $i->reference_no,
+            $i->title,
+            $i->category?->value,
+            $this->rowStatus($i)['label'],
+            $i->agency?->name,
+            $i->created_at->format('Y-m-d'),
+            $i->resolved_at?->format('Y-m-d'),
+        ]);
+
+        return $this->downloadCsv('SEBENARNYA_All-Inquiries', ['Reference No', 'Title', 'Category', 'Status', 'Agency', 'Date Submitted', 'Date Resolved'], $rows);
+    }
+
     public function exportPdf()
     {
         $rows = $this->baseQuery()->latest()->get()->map(fn ($i) => [
@@ -175,13 +190,18 @@ new #[Layout('layouts.mcmc')] class extends Component
             <h1 class="font-display font-extrabold text-2xl text-gray-900">{{ __('All Inquiries') }}</h1>
             <p class="text-gray-500 text-sm mt-1">{{ __('Complete record of every inquiry across all stages.') }}</p>
         </div>
-        <button wire:click="exportPdf" class="bg-brand hover:bg-brand-dark text-white font-bold text-sm px-5 py-2.5 rounded-lg whitespace-nowrap flex items-center gap-2">
-            📄 {{ __('Export Report') }}
-        </button>
+        <div class="flex gap-2 flex-shrink-0">
+            <button wire:click="exportCsv" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-bold text-sm px-4 py-2.5 rounded-lg whitespace-nowrap">
+                {{ __('Export CSV') }}
+            </button>
+            <button wire:click="exportPdf" class="bg-brand hover:bg-brand-dark text-white font-bold text-sm px-5 py-2.5 rounded-lg whitespace-nowrap flex items-center gap-2">
+                📄 {{ __('Export Report') }}
+            </button>
+        </div>
     </div>
 
     <div class="flex flex-wrap items-center gap-3 my-5">
-        <input type="text" wire:model.live.debounce.400ms="search" placeholder="{{ __('Search by title...') }}" class="flex-1 max-w-xs rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand" />
+        <input type="text" wire:model.live.debounce.400ms="search" placeholder="{{ __('Search by title or reference...') }}" class="flex-1 max-w-xs rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand" />
         <select wire:model.live="category" class="w-full sm:w-auto rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
             <option value="All">{{ __('All Categories') }}</option>
             @foreach ($this->categories as $case)

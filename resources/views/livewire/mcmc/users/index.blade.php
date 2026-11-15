@@ -113,6 +113,19 @@ new #[Layout('layouts.mcmc')] class extends Component
         return $events->sortByDesc('date')->values();
     }
 
+    public function exportCsv()
+    {
+        $rows = $this->baseQuery()->latest()->cursor()->map(fn ($u) => [
+            $u->name,
+            $u->email,
+            $u->created_at->format('Y-m-d'),
+            $u->email_verified_at ? 'Verified' : 'Unverified',
+            $u->submitted_inquiries_count,
+        ]);
+
+        return $this->downloadCsv('SEBENARNYA_Registered-Users', ['Name', 'Email', 'Registered', 'Status', 'Inquiries'], $rows);
+    }
+
     public function exportPdf()
     {
         $rows = $this->baseQuery()->latest()->get()->map(fn ($u) => [
@@ -152,9 +165,14 @@ new #[Layout('layouts.mcmc')] class extends Component
             <h1 class="font-display font-extrabold text-2xl text-gray-900">{{ __('Registered Users') }}</h1>
             <p class="text-gray-500 text-sm mt-1">{{ __('View all registered public user accounts, profile details, and activity history.') }}</p>
         </div>
-        <button wire:click="exportPdf" class="bg-brand hover:bg-brand-dark text-white font-bold text-sm px-5 py-2.5 rounded-lg whitespace-nowrap flex items-center gap-2">
-            📄 {{ __('Export Report') }}
-        </button>
+        <div class="flex gap-2 flex-shrink-0">
+            <button wire:click="exportCsv" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-bold text-sm px-4 py-2.5 rounded-lg whitespace-nowrap">
+                {{ __('Export CSV') }}
+            </button>
+            <button wire:click="exportPdf" class="bg-brand hover:bg-brand-dark text-white font-bold text-sm px-5 py-2.5 rounded-lg whitespace-nowrap flex items-center gap-2">
+                📄 {{ __('Export Report') }}
+            </button>
+        </div>
     </div>
 
     <div class="flex flex-wrap gap-5 text-sm font-semibold text-gray-600 my-5">

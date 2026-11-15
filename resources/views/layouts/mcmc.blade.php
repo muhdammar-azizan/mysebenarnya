@@ -29,11 +29,7 @@
 
                 <div class="flex-1"></div>
 
-                <form action="{{ route('mcmc.inquiries.index') }}" method="GET" class="relative w-64 flex-shrink-0 hidden md:block">
-                    <x-icon name="search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                    <input type="text" name="search" placeholder="{{ __('Search inquiries, agencies...') }}"
-                        class="w-full h-9 pl-9 pr-3 text-sm rounded-lg border-0 bg-white focus:ring-2 focus:ring-white/50" />
-                </form>
+                <livewire:mcmc.global-search />
 
                 <livewire:mcmc.topbar-widgets />
             </header>

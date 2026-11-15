@@ -59,6 +59,38 @@ trait GeneratesReports
     }
 
     /**
+     * Stream a UTF-8 CSV (with a BOM so Excel reads accents correctly).
+     *
+     * Cells that start with =, +, - or @ are prefixed with an apostrophe so
+     * spreadsheet software never runs user-supplied text as a formula.
+     *
+     * @param  array<int, string>  $headings
+     * @param  iterable<int, array<int, mixed>>  $rows
+     */
+    protected function downloadCsv(string $filename, array $headings, iterable $rows): StreamedResponse
+    {
+        $this->logReportExport($this->reportId(), $filename, 'csv');
+
+        $clean = static function (mixed $value): string {
+            $text = (string) $value;
+
+            return $text !== '' && in_array($text[0], ['=', '+', '-', '@', "\t", "\r"], true) ? "'".$text : $text;
+        };
+
+        return response()->streamDownload(function () use ($headings, $rows, $clean): void {
+            $out = fopen('php://output', 'w');
+            fwrite($out, "\xEF\xBB\xBF");
+            fputcsv($out, array_map($clean, $headings));
+
+            foreach ($rows as $row) {
+                fputcsv($out, array_map($clean, $row));
+            }
+
+            fclose($out);
+        }, $filename.'_'.now()->format('Ymd').'.csv', ['Content-Type' => 'text/csv; charset=UTF-8']);
+    }
+
+    /**
      * @param  array<int, array{title: string, headings: array<int, string>, rows: array<int, array<int, mixed>>}>  $sheets
      */
     protected function downloadExcel(string $filename, array $sheets): BinaryFileResponse|StreamedResponse
