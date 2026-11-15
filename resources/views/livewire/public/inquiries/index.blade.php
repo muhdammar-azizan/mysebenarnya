@@ -110,6 +110,13 @@ new #[Layout('layouts.public')] class extends Component
     <h1 class="font-display font-extrabold text-2xl text-gray-900">{{ __('My Inquiries') }}</h1>
     <p class="text-gray-500 text-sm mt-1 mb-6">{{ __('Track and manage your submitted inquiries.') }}</p>
 
+    @if (Auth::user()->inquiryDraft)
+        <div class="mb-6 bg-amber-50 border border-amber-100 text-amber-800 text-sm rounded-xl px-4 py-3 flex flex-wrap items-center justify-between gap-2">
+            <span>{{ __('You have an unfinished inquiry saved as a draft.') }}</span>
+            <a href="{{ route('inquiries.create') }}" wire:navigate class="font-bold hover:underline">{{ __('Continue draft') }} &rarr;</a>
+        </div>
+    @endif
+
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-7">
         <button wire:click="filterByStatus('All')" class="text-left bg-gray-50 border border-gray-100 rounded-xl p-4 hover:shadow-sm {{ $status === 'All' ? 'ring-2 ring-gray-300' : '' }}">
             <div class="text-xs font-semibold text-gray-500 mb-2">{{ __('Total Inquiries') }}</div>

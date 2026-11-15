@@ -86,6 +86,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->belongsTo(Agency::class);
     }
 
+    public function inquiryDraft(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(InquiryDraft::class);
+    }
+
     public function submittedInquiries(): HasMany
     {
         return $this->hasMany(Inquiry::class, 'submitted_by');

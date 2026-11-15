@@ -6,6 +6,9 @@ use Livewire\Volt\Volt;
 Route::view('/', 'welcome');
 Route::view('about', 'about')->name('about');
 Route::view('faq', 'faq')->name('faq');
+Route::get('track', \App\Http\Controllers\TrackInquiryController::class)
+    ->middleware('throttle:20,1')
+    ->name('track');
 
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
