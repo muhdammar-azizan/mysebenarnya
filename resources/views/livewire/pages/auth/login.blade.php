@@ -32,29 +32,29 @@ new #[Layout('layouts.auth')] class extends Component
     {
         return match ($this->form->role) {
             'mcmc_staff' => [
-                'heading' => 'MCMC Staff Login',
-                'subtitle' => 'Sign in to triage, assign, and manage inquiries.',
-                'emailPlaceholder' => 'Staff Username',
-                'submitLabel' => 'Login as MCMC Staff',
+                'heading' => __('MCMC Staff Login'),
+                'subtitle' => __('Sign in to triage, assign, and manage inquiries.'),
+                'emailPlaceholder' => __('Staff Username'),
+                'submitLabel' => __('Login as MCMC Staff'),
             ],
             'agency_staff' => [
-                'heading' => 'Agency Partner Login',
-                'subtitle' => 'Sign in to review and investigate assigned inquiries.',
-                'emailPlaceholder' => 'Agency Username',
-                'submitLabel' => 'Login as Agency Staff',
+                'heading' => __('Agency Partner Login'),
+                'subtitle' => __('Sign in to review and investigate assigned inquiries.'),
+                'emailPlaceholder' => __('Agency Username'),
+                'submitLabel' => __('Login as Agency Staff'),
             ],
             default => [
-                'heading' => 'Welcome Back',
-                'subtitle' => 'Verify news, one inquiry at a time.',
-                'emailPlaceholder' => 'Email',
-                'submitLabel' => 'Login',
+                'heading' => __('Welcome Back'),
+                'subtitle' => __('Verify news, one inquiry at a time.'),
+                'emailPlaceholder' => __('Email'),
+                'submitLabel' => __('Login'),
             ],
         };
     }
 
     public function showGoogleMessage(): void
     {
-        $this->googleMessage = 'Google sign-in is not available in this demo.';
+        $this->googleMessage = __('Google sign-in is not available in this demo.');
     }
 
     /**
@@ -108,8 +108,8 @@ new #[Layout('layouts.auth')] class extends Component
 
             <div class="absolute bottom-8 left-8 right-8 z-10">
                 <div class="font-display font-bold text-[22px] text-white leading-snug mb-3.5">&quot;Tidak Pasti, Jangan Kongsi&quot;</div>
-                <div class="text-[13px] font-bold text-white">MCMC Fact-Check Desk</div>
-                <div class="text-xs text-white/75">Malaysian Communications and Multimedia Commission</div>
+                <div class="text-[13px] font-bold text-white">{{ __('MCMC Fact-Check Desk') }}</div>
+                <div class="text-xs text-white/75">{{ __('Malaysian Communications and Multimedia Commission') }}</div>
             </div>
         </div>
 
@@ -130,7 +130,7 @@ new #[Layout('layouts.auth')] class extends Component
                                 'bg-transparent text-gray-500 hover:text-gray-700' => $form->role !== $value,
                             ])
                         >
-                            {{ $label }}
+                            {{ __($label) }}
                         </button>
                     @endforeach
                 </div>
@@ -158,7 +158,7 @@ new #[Layout('layouts.auth')] class extends Component
                             <input
                                 :type="show ? 'text' : 'password'"
                                 wire:model="form.password"
-                                placeholder="Password"
+                                placeholder="{{ __('Password') }}"
                                 autocomplete="current-password"
                                 class="w-full box-border h-11 px-3 pr-10 rounded-[9px] bg-gray-100 text-sm border focus:outline-none focus:ring-0 {{ $errors->has('form.password') ? 'border-brand ring-2 ring-brand/10' : 'border-gray-300' }}"
                             />
@@ -191,7 +191,7 @@ new #[Layout('layouts.auth')] class extends Component
                     @if ($form->role === 'public')
                         <button type="button" wire:click="showGoogleMessage" class="h-[46px] rounded-[9px] bg-white text-gray-900 border-[1.5px] border-gray-200 font-semibold text-sm flex items-center justify-center gap-2.5 shadow-sm hover:bg-gray-50 hover:border-gray-300 hover:-translate-y-0.5 transition">
                             <svg width="17" height="17" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l6-6C34.5 5.1 29.5 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21 21-9.4 21-21c0-1.2-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.8 1.1 8 3l6-6C34.5 5.1 29.5 3 24 3 16.3 3 9.7 7.4 6.3 14.7z"/><path fill="#4CAF50" d="M24 45c5.4 0 10.3-2.1 14-5.5l-6.5-5.3C29.5 35.9 26.9 37 24 37c-5.2 0-9.6-3.3-11.3-8l-6.6 5.1C9.6 40.5 16.2 45 24 45z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-1.1 3-3.4 5.3-6.3 6.7l6.5 5.3C39.5 36.7 45 30.9 45 24c0-1.2-.1-2.4-.4-3.5z"/></svg>
-                            Sign in with Google
+                            {{ __('Sign in with Google') }}
                         </button>
                     @endif
                 </form>

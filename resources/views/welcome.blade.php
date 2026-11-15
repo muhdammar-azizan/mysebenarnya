@@ -40,7 +40,7 @@
         {{-- HERO --}}
         <div class="relative mx-4 md:mx-10 rounded-3xl overflow-hidden max-w-[1200px] md:mx-auto min-h-[420px] md:min-h-[560px] flex items-center">
             <div class="absolute inset-0 z-0">
-                <img src="{{ asset('images/landing-hero-mcmc-office.png') }}" alt="MCMC office signage" class="w-full h-full object-cover block" />
+                <img src="{{ asset('images/landing-hero-mcmc-office.png') }}" alt="{{ __('MCMC office signage') }}" class="w-full h-full object-cover block" />
                 <div class="absolute inset-0" style="background: linear-gradient(115deg, rgba(15,15,17,0.92) 0%, rgba(15,15,17,0.78) 42%, rgba(20,10,12,0.35) 75%, rgba(20,10,12,0.15) 100%);"></div>
             </div>
             <div class="relative z-10 px-7 md:px-16 py-16 md:py-20 max-w-2xl">
@@ -136,7 +136,7 @@
                     </div>
                 </div>
                 <div>
-                    <img src="{{ asset('images/landing-about-phones.webp') }}" alt="Citizens engaging with digital content" class="w-full h-[380px] object-cover block rounded-[20px]" />
+                    <img src="{{ asset('images/landing-about-phones.webp') }}" alt="{{ __('Citizens engaging with digital content') }}" class="w-full h-[380px] object-cover block rounded-[20px]" />
                 </div>
             </div>
         </div>

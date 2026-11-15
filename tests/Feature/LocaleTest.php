@@ -79,9 +79,10 @@ class LocaleTest extends TestCase
 
     public function test_untranslated_text_falls_back_to_english(): void
     {
-        $this->withSession(['locale' => 'ms'])->get(route('faq'))
-            ->assertOk()
-            ->assertSee('Frequently Asked Questions');
+        app()->setLocale('ms');
+
+        $this->assertSame('A sentence nobody has translated yet.', __('A sentence nobody has translated yet.'));
+        $this->assertSame('Papan Pemuka', __('Dashboard'));
     }
 
     public function test_every_role_layout_shows_the_language_switcher(): void

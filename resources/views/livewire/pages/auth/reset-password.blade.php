@@ -79,7 +79,7 @@ new #[Layout('layouts.auth')] class extends Component
         <div x-data="{ show: false, pw: '' }">
             <label for="password" class="block text-[13px] font-medium mb-1.5">{{ __('New Password') }}</label>
             <div class="relative">
-                <input id="password" :type="show ? 'text' : 'password'" wire:model="password" x-model="pw" placeholder="Enter new password" required autocomplete="new-password"
+                <input id="password" :type="show ? 'text' : 'password'" wire:model="password" x-model="pw" placeholder="{{ __('Enter new password') }}" required autocomplete="new-password"
                     class="w-full box-border h-10 px-3 pr-10 rounded-lg text-sm border focus:outline-none focus:ring-0 {{ $errors->has('password') ? 'border-brand ring-2 ring-brand/10' : 'border-gray-300' }}" />
                 <button type="button" @click="show = !show" class="absolute right-3 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-gray-400 flex items-center justify-center">
                     <svg x-show="!show" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.6" stroke="currentColor" stroke-width="1.8"/></svg>
@@ -89,9 +89,9 @@ new #[Layout('layouts.auth')] class extends Component
             <template x-if="pw">
                 <div x-data="{
                     get strength() {
-                        if (pw.length < 6) return { bars: ['#C41230','#EDEEF0','#EDEEF0'], label: 'Weak password' };
-                        if (pw.length < 10) return { bars: ['#C41230','#E8A33D','#EDEEF0'], label: 'Medium strength' };
-                        return { bars: ['#1E8E5A','#1E8E5A','#1E8E5A'], label: 'Strong password' };
+                        if (pw.length < 6) return { bars: ['#C41230','#EDEEF0','#EDEEF0'], label: @js(__('Weak password')) };
+                        if (pw.length < 10) return { bars: ['#C41230','#E8A33D','#EDEEF0'], label: @js(__('Medium strength')) };
+                        return { bars: ['#1E8E5A','#1E8E5A','#1E8E5A'], label: @js(__('Strong password')) };
                     }
                 }">
                     <div class="flex gap-1 mt-2">
@@ -108,7 +108,7 @@ new #[Layout('layouts.auth')] class extends Component
         <div x-data="{ show: false }">
             <label for="password_confirmation" class="block text-[13px] font-medium mb-1.5">{{ __('Confirm Password') }}</label>
             <div class="relative">
-                <input id="password_confirmation" :type="show ? 'text' : 'password'" wire:model="password_confirmation" placeholder="Re-enter password" required autocomplete="new-password"
+                <input id="password_confirmation" :type="show ? 'text' : 'password'" wire:model="password_confirmation" placeholder="{{ __('Re-enter password') }}" required autocomplete="new-password"
                     class="w-full box-border h-10 px-3 pr-10 rounded-lg text-sm border focus:outline-none focus:ring-0 {{ $errors->has('password_confirmation') ? 'border-brand ring-2 ring-brand/10' : 'border-gray-300' }}" />
                 <button type="button" @click="show = !show" class="absolute right-3 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-gray-400 flex items-center justify-center">
                     <svg x-show="!show" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.6" stroke="currentColor" stroke-width="1.8"/></svg>

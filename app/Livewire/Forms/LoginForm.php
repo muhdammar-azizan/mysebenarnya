@@ -41,7 +41,7 @@ class LoginForm extends Form
 
         if (! $isStaff && ! filter_var($this->email, FILTER_VALIDATE_EMAIL)) {
             throw ValidationException::withMessages([
-                'form.email' => 'Please enter a valid email address.',
+                'form.email' => __('Please enter a valid email address.'),
             ]);
         }
 
@@ -62,7 +62,7 @@ class LoginForm extends Form
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                'form.email' => 'These credentials do not match the selected portal.',
+                'form.email' => __('These credentials do not match the selected portal.'),
             ]);
         }
 

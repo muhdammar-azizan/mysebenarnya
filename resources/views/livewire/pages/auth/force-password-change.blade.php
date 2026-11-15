@@ -56,18 +56,18 @@ new #[Layout('layouts.auth')] class extends Component
                     newPw: '', confirmPw: '',
                     get reqs() {
                         return [
-                            { label: 'At least 8 characters', met: this.newPw.length >= 8 },
-                            { label: 'Upper & lower case letters', met: /[a-z]/.test(this.newPw) && /[A-Z]/.test(this.newPw) },
-                            { label: 'At least one number', met: /[0-9]/.test(this.newPw) },
-                            { label: 'At least one special character', met: /[^A-Za-z0-9]/.test(this.newPw) },
+                            { label: @js(__('At least 8 characters')), met: this.newPw.length >= 8 },
+                            { label: @js(__('Upper & lower case letters')), met: /[a-z]/.test(this.newPw) && /[A-Z]/.test(this.newPw) },
+                            { label: @js(__('At least one number')), met: /[0-9]/.test(this.newPw) },
+                            { label: @js(__('At least one special character')), met: /[^A-Za-z0-9]/.test(this.newPw) },
                         ];
                     },
                     get strength() {
                         const n = this.reqs.filter(r => r.met).length;
                         if (!this.newPw) return { bars: ['#EDEEF0','#EDEEF0','#EDEEF0'], label: '', color: '' };
-                        if (n <= 1) return { bars: ['#C41230','#EDEEF0','#EDEEF0'], label: 'Weak password', color: '#C41230' };
-                        if (n <= 3) return { bars: ['#C41230','#E8A33D','#EDEEF0'], label: 'Medium strength', color: '#E8A33D' };
-                        return { bars: ['#1E8E5A','#1E8E5A','#1E8E5A'], label: 'Strong password', color: '#1E8E5A' };
+                        if (n <= 1) return { bars: ['#C41230','#EDEEF0','#EDEEF0'], label: @js(__('Weak password')), color: '#C41230' };
+                        if (n <= 3) return { bars: ['#C41230','#E8A33D','#EDEEF0'], label: @js(__('Medium strength')), color: '#E8A33D' };
+                        return { bars: ['#1E8E5A','#1E8E5A','#1E8E5A'], label: @js(__('Strong password')), color: '#1E8E5A' };
                     },
                     get allMet() { return this.reqs.every(r => r.met); },
                     get updateDisabled() { return !this.allMet || this.newPw !== this.confirmPw || !this.confirmPw; }

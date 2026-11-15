@@ -62,4 +62,8 @@ Route::middleware(['auth', 'verified', 'role:agency_staff'])->prefix('agency')->
     Volt::route('notifications', 'agency.notifications.index')->name('notifications.index');
 });
 
+// Unknown URLs go through the web middleware group too, so the 404 page knows
+// the visitor's session, signed-in user and chosen language.
+Route::fallback(fn () => abort(404));
+
 require __DIR__.'/auth.php';
