@@ -146,7 +146,7 @@ new #[Layout('layouts.mcmc')] class extends Component
     <div class="bg-white border border-gray-100 rounded-2xl p-6 mb-5">
         <div class="flex items-center gap-3 flex-wrap justify-between">
             <div>
-                <div class="text-xs font-bold text-purple-600 uppercase tracking-wide mb-1">{{ $thread->topic?->value }}</div>
+                <div class="text-xs font-bold text-purple-600 uppercase tracking-wide mb-1">{{ $thread->topic?->label() }}</div>
                 <h1 class="font-display font-extrabold text-xl text-gray-900">{{ $thread->inquiry->title }}</h1>
                 <p class="text-sm text-gray-500 mt-1">{{ __('Requested by') }} {{ $thread->inquiry->agency?->name }} &middot; {{ $thread->created_at->format('d M Y, H:i') }}</p>
             </div>
@@ -158,11 +158,11 @@ new #[Layout('layouts.mcmc')] class extends Component
         <div class="mt-4 pt-4 border-t border-gray-100 grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
             <div>
                 <div class="text-[11px] font-bold text-gray-400 uppercase">{{ __('Category') }}</div>
-                <div class="font-semibold text-gray-700">{{ $thread->inquiry->category?->value }}</div>
+                <div class="font-semibold text-gray-700">{{ $thread->inquiry->category?->label() }}</div>
             </div>
             <div>
                 <div class="text-[11px] font-bold text-gray-400 uppercase">{{ __('Priority') }}</div>
-                <div class="font-semibold {{ $thread->priority?->value === 'Urgent' ? 'text-brand' : 'text-gray-700' }}">{{ $thread->priority?->value }}</div>
+                <div class="font-semibold {{ $thread->priority?->value === 'Urgent' ? 'text-brand' : 'text-gray-700' }}">{{ $thread->priority?->label() }}</div>
             </div>
             <div>
                 <div class="text-[11px] font-bold text-gray-400 uppercase">{{ __('Consulting') }}</div>
@@ -226,7 +226,7 @@ new #[Layout('layouts.mcmc')] class extends Component
                         </div>
                         <div class="flex items-center gap-2">
                             <span class="px-2.5 py-1 rounded-full text-xs font-bold {{ match($consult->status->value) { 'pending' => 'bg-amber-100 text-amber-700', 'responded' => 'bg-teal-100 text-teal-700', default => 'bg-gray-100 text-gray-500' } }}">
-                                {{ str($consult->status->value)->headline() }}
+                                {{ $consult->status->label() }}
                             </span>
                             @can('end', $consult)
                                 <button wire:click="$set('endConsultId', {{ $consult->id }})" class="text-xs font-bold text-gray-400 hover:text-brand">{{ __('End') }}</button>
@@ -241,7 +241,7 @@ new #[Layout('layouts.mcmc')] class extends Component
         <div class="bg-white border border-gray-100 rounded-2xl p-5">
             <div class="font-bold text-gray-900 mb-2.5">{{ __('Inquiry Summary') }}</div>
             <div class="text-xs text-gray-400 mb-2.5">
-                {{ $thread->inquiry->category?->value }} &middot;
+                {{ $thread->inquiry->category?->label() }} &middot;
                 {{ __('Submitted') }} {{ $thread->inquiry->created_at->format('d M Y') }} &middot;
                 {{ __('Assigned') }} {{ $thread->inquiry->reviewed_at?->format('d M Y') ?? '—' }}
             </div>
@@ -269,7 +269,7 @@ new #[Layout('layouts.mcmc')] class extends Component
                         <div class="w-2 h-2 rounded-full bg-brand mt-1.5 flex-shrink-0"></div>
                         <div>
                             <div class="text-[11.5px] font-semibold text-gray-400">{{ $log->created_at->format('d M Y, H:i') }}</div>
-                            <div class="text-[12.5px] font-semibold text-gray-800">{{ str($log->action)->headline() }}</div>
+                            <div class="text-[12.5px] font-semibold text-gray-800">{{ __((string) str($log->action)->headline()) }}</div>
                         </div>
                     </div>
                 @empty

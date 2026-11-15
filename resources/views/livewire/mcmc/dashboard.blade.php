@@ -50,17 +50,21 @@ new #[Layout('layouts.mcmc')] class extends Component
             return null;
         }
 
-        $title = $openThreads->count().' '.Str::plural('clarification request', $openThreads->count()).' from agencies awaiting your response';
+        $title = trans_choice(
+            ':count clarification request from agencies awaiting your response|:count clarification requests from agencies awaiting your response',
+            $openThreads->count(),
+            ['count' => $openThreads->count()],
+        );
         if ($urgentCount > 0) {
-            $title .= " ({$urgentCount} urgent)";
+            $title .= ' '.__('(:count urgent)', ['count' => $urgentCount]);
         }
 
         $sub = '';
         if ($latest = $openThreads->first()) {
-            $sub = 'Latest: "'.$latest->inquiry?->title.'" from '.($latest->inquiry?->agency?->name ?? '—');
+            $sub = __('Latest: ":title" from :agency', ['title' => $latest->inquiry?->title, 'agency' => $latest->inquiry?->agency?->name ?? '—']);
         }
         if ($adviceCount > 0) {
-            $sub .= ($sub ? ' · ' : '').$adviceCount.' with new advice from a consulted agency';
+            $sub .= ($sub ? ' · ' : '').__(':count with new advice from a consulted agency', ['count' => $adviceCount]);
         }
 
         return ['title' => $title, 'sub' => $sub];
@@ -343,11 +347,11 @@ new #[Layout('layouts.mcmc')] class extends Component
                                 <div class="w-7 h-7 rounded-lg {{ $cat['bg'] }} {{ $cat['color'] }} flex items-center justify-center font-extrabold text-[10.5px] flex-shrink-0">{{ $cat['code'] }}</div>
                                 <div class="min-w-0">
                                     <div class="font-semibold text-gray-900 truncate">{{ $row->title }}</div>
-                                    <div class="text-gray-400 text-xs">{{ $row->category?->value }}</div>
+                                    <div class="text-gray-400 text-xs">{{ $row->category?->label() }}</div>
                                 </div>
                             </div>
                         </td>
-                        <td class="px-5 py-3.5 text-gray-500">{{ $row->evidence_count }} {{ __('file'.($row->evidence_count === 1 ? '' : 's')).' attached' }}</td>
+                        <td class="px-5 py-3.5 text-gray-500">{{ trans_choice(':count file attached|:count files attached', $row->evidence_count) }}</td>
                         <td class="px-5 py-3.5 text-gray-500 whitespace-nowrap">{{ $row->created_at->format('d M Y') }}</td>
                     </tr>
                 @empty

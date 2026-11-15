@@ -58,7 +58,7 @@ new #[Layout('layouts.mcmc')] class extends Component
             </div>
             <div>
                 <div class="text-[11px] font-bold text-gray-400 uppercase tracking-wide">{{ __('Category') }}</div>
-                <div class="text-sm font-semibold text-gray-700 mt-0.5">{{ $inquiry->category?->value }}</div>
+                <div class="text-sm font-semibold text-gray-700 mt-0.5">{{ $inquiry->category?->label() }}</div>
             </div>
             <div>
                 <div class="text-[11px] font-bold text-gray-400 uppercase tracking-wide">{{ __('Assigned Agency') }}</div>
@@ -107,7 +107,7 @@ new #[Layout('layouts.mcmc')] class extends Component
                         <div class="w-2 h-2 rounded-full bg-brand mt-1.5 flex-shrink-0"></div>
                         <div>
                             <div class="text-[11px] font-bold text-gray-400">{{ $log->created_at->format('d M Y, H:i') }} &middot; {{ $log->user?->name }}</div>
-                            <div class="text-sm font-bold text-gray-900">{{ str($log->action)->headline() }}</div>
+                            <div class="text-sm font-bold text-gray-900">{{ __((string) str($log->action)->headline()) }}</div>
                             @if ($log->notes)
                                 <div class="text-sm text-gray-600 mt-0.5">{{ $log->notes }}</div>
                             @endif

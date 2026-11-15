@@ -285,7 +285,7 @@ new #[Layout('layouts.mcmc')] class extends Component
                 <select wire:model.live="category" class="w-full sm:w-auto rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
                     <option value="All">{{ __('All Categories') }}</option>
                     @foreach ($this->categories as $case)
-                        <option value="{{ $case->value }}">{{ $case->value }}</option>
+                        <option value="{{ $case->value }}">{{ $case->label() }}</option>
                     @endforeach
                 </select>
                 <select wire:model.live="dateRange" class="w-full sm:w-auto rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
@@ -329,7 +329,7 @@ new #[Layout('layouts.mcmc')] class extends Component
                                         <span class="ml-1 inline-block px-2 py-0.5 rounded-full text-[11px] font-bold bg-red-100 text-red-700">{{ __('Overdue') }}</span>
                                     @endif
                                 </td>
-                                <td class="px-5 py-3.5 text-gray-600">{{ $row->evidence_count }} {{ __('file'.($row->evidence_count === 1 ? '' : 's')).' attached' }}</td>
+                                <td class="px-5 py-3.5 text-gray-600">{{ trans_choice(':count file attached|:count files attached', $row->evidence_count) }}</td>
                                 <td class="px-5 py-3.5 text-gray-600 whitespace-nowrap">{{ $row->created_at->format('d M Y') }}</td>
                                 <td class="px-5 py-3.5 text-right">
                                     <button wire:click="openReview({{ $row->id }})" class="text-sm font-bold text-brand hover:underline">{{ __('Review') }}</button>
@@ -382,7 +382,7 @@ new #[Layout('layouts.mcmc')] class extends Component
                             <div class="text-sm font-semibold text-gray-900 truncate">{{ $log->inquiry?->title }}</div>
                             <div class="text-xs text-gray-400 mt-0.5">{{ $log->user?->name }} &middot; {{ $log->created_at->format('d M Y, H:i') }}</div>
                         </div>
-                        <span class="flex-shrink-0 px-2.5 py-1 rounded-full text-xs font-bold {{ $log->action === 'discarded' ? 'bg-gray-100 text-gray-500' : 'bg-blue-100 text-blue-700' }}">{{ str($log->action)->headline() }}</span>
+                        <span class="flex-shrink-0 px-2.5 py-1 rounded-full text-xs font-bold {{ $log->action === 'discarded' ? 'bg-gray-100 text-gray-500' : 'bg-blue-100 text-blue-700' }}">{{ __((string) str($log->action)->headline()) }}</span>
                     </div>
                 @empty
                     <p class="px-5 py-10 text-center text-gray-400">{{ __('No triage decisions yet.') }}</p>
@@ -434,7 +434,7 @@ new #[Layout('layouts.mcmc')] class extends Component
                 <x-inquiry-status-badge :status="$inquiry->status" />
             </div>
             <div class="flex gap-8 flex-wrap mb-5 text-sm">
-                <div><span class="text-gray-400">{{ __('Category') }}:</span> <span class="font-semibold text-gray-700">{{ $inquiry->category?->value }}</span></div>
+                <div><span class="text-gray-400">{{ __('Category') }}:</span> <span class="font-semibold text-gray-700">{{ $inquiry->category?->label() }}</span></div>
                 <div><span class="text-gray-400">{{ __('Submitted by') }}:</span> <span class="font-semibold text-gray-700">{{ $inquiry->submitter?->name }}</span></div>
                 <div><span class="text-gray-400">{{ __('Prior submissions') }}:</span> <span class="font-semibold text-gray-700">{{ $inquiry->submitter?->submittedInquiries()->count() - 1 }}</span></div>
             </div>
@@ -490,7 +490,7 @@ new #[Layout('layouts.mcmc')] class extends Component
                     <button type="button" wire:click="$set('selectedAgencyId', {{ $agency->id }})"
                         class="text-left border-2 rounded-xl p-4 {{ $selectedAgencyId === $agency->id ? 'border-brand bg-brand-light' : 'border-gray-100' }}">
                         <div class="font-bold text-sm text-gray-900">{{ $agency->name }} @if ($recommended)<span class="text-brand">({{ __('Recommended') }})</span>@endif</div>
-                        <div class="text-xs text-gray-500 mt-1">{{ $agency->specialization?->value }} · {{ __(':count active cases', ['count' => $agency->active_case_count]) }}</div>
+                        <div class="text-xs text-gray-500 mt-1">{{ $agency->specialization?->label() }} · {{ __(':count active cases', ['count' => $agency->active_case_count]) }}</div>
                     </button>
                 @endforeach
             </div>

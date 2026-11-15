@@ -129,7 +129,7 @@ new #[Layout('layouts.mcmc')] class extends Component
                 <select wire:model="specialization" class="w-full rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
                     <option value="">{{ __('Select specialization...') }}</option>
                     @foreach ($this->specializations as $case)
-                        <option value="{{ $case->value }}">{{ $case->value }}</option>
+                        <option value="{{ $case->value }}">{{ $case->label() }}</option>
                     @endforeach
                 </select>
                 <x-input-error :messages="$errors->get('specialization')" class="mt-1.5" />

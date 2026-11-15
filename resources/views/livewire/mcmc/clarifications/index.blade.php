@@ -52,7 +52,7 @@ new #[Layout('layouts.mcmc')] class extends Component
                             <span class="text-[11px] font-bold text-brand">{{ __('URGENT') }}</span>
                         @endif
                     </div>
-                    <div class="text-xs text-gray-400 mt-0.5">{{ $thread->inquiry->agency?->name }} &middot; {{ $thread->topic?->value }} &middot; {{ $thread->updated_at->diffForHumans() }}</div>
+                    <div class="text-xs text-gray-400 mt-0.5">{{ $thread->inquiry->agency?->name }} &middot; {{ $thread->topic?->label() }} &middot; {{ $thread->updated_at->diffForHumans() }}</div>
                 </div>
                 <div class="flex items-center gap-2 flex-shrink-0">
                     @if ($thread->unread_by_mcmc)

@@ -215,7 +215,7 @@ new #[Layout('layouts.mcmc')] class extends Component
         <select wire:model.live="category" class="w-full sm:w-auto rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
             <option value="All">{{ __('All Categories') }}</option>
             @foreach ($this->categories as $case)
-                <option value="{{ $case->value }}">{{ $case->value }}</option>
+                <option value="{{ $case->value }}">{{ $case->label() }}</option>
             @endforeach
         </select>
         <select wire:model.live="status" class="w-full sm:w-auto rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
@@ -255,7 +255,7 @@ new #[Layout('layouts.mcmc')] class extends Component
                         <div class="text-xs text-gray-400 mt-0.5">{{ __('Assigned to :agency · :date', ['agency' => $inquiry->agency->name, 'date' => $inquiry->reviewed_at?->format('d M Y') ?? '—']) }}</div>
                     @endif
                 </div>
-                <div class="text-gray-600">{{ $inquiry->category?->value }}</div>
+                <div class="text-gray-600">{{ $inquiry->category?->label() }}</div>
                 <div class="flex flex-col items-start gap-1.5">
                     <span class="inline-block min-w-[130px] text-left px-3 py-1 rounded-full text-xs font-bold {{ $st['bg'] }} {{ $st['color'] }}">{{ $st['label'] }}</span>
                     @if ($chip)
@@ -281,7 +281,7 @@ new #[Layout('layouts.mcmc')] class extends Component
                 <button wire:click="closePanel" class="text-gray-400 hover:text-brand text-lg leading-none flex-shrink-0">✕</button>
             </div>
             <div class="px-5 py-3 border-b border-gray-100 text-xs text-gray-500">
-                {{ $this->panelInquiry->category?->value }} · {{ __('Submitted :date', ['date' => $this->panelInquiry->created_at->format('d M Y')]) }}
+                {{ $this->panelInquiry->category?->label() }} · {{ __('Submitted :date', ['date' => $this->panelInquiry->created_at->format('d M Y')]) }}
             </div>
 
             @if ($this->panelInquiry->agency)
@@ -302,7 +302,7 @@ new #[Layout('layouts.mcmc')] class extends Component
                             {{ $thread->status->label() }}
                         </span>
                     </div>
-                    <div class="text-xs font-bold text-gray-800">#{{ $thread->id }} · {{ $thread->topic->value }}</div>
+                    <div class="text-xs font-bold text-gray-800">#{{ $thread->id }} · {{ $thread->topic->label() }}</div>
                     <div class="text-xs text-gray-500 mt-1 leading-relaxed">{{ \Illuminate\Support\Str::limit($thread->subject, 100) }}</div>
                 </div>
             @endif
@@ -334,7 +334,7 @@ new #[Layout('layouts.mcmc')] class extends Component
                                 <div class="w-2 h-2 rounded-full bg-brand mt-1.5 flex-shrink-0"></div>
                                 <div>
                                     <div class="text-[11px] font-bold text-gray-400">{{ $log->created_at->format('d M Y') }}</div>
-                                    <div class="text-sm text-gray-900">{{ str($log->action)->headline() }}</div>
+                                    <div class="text-sm text-gray-900">{{ __((string) str($log->action)->headline()) }}</div>
                                 </div>
                             </div>
                         @empty

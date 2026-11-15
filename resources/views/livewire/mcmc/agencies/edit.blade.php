@@ -94,7 +94,7 @@ new #[Layout('layouts.mcmc')] class extends Component
             <label class="block text-sm font-bold text-gray-700 mb-1.5">{{ __('Specialization / Jurisdiction') }}</label>
             <select wire:model="specialization" class="w-full rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
                 @foreach ($this->specializations as $case)
-                    <option value="{{ $case->value }}">{{ $case->value }}</option>
+                    <option value="{{ $case->value }}">{{ $case->label() }}</option>
                 @endforeach
             </select>
             <x-input-error :messages="$errors->get('specialization')" class="mt-1.5" />

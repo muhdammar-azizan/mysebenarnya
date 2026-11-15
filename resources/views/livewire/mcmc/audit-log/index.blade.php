@@ -119,7 +119,7 @@ new #[Layout('layouts.mcmc')] class extends Component
         <select wire:model.live="action" class="w-full sm:w-auto rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
             <option value="All">{{ __('All Actions') }}</option>
             @foreach ($this->actions as $name)
-                <option value="{{ $name }}">{{ str($name)->headline() }}</option>
+                <option value="{{ $name }}">{{ __((string) str($name)->headline()) }}</option>
             @endforeach
         </select>
         <select wire:model.live="actor" class="w-full sm:w-auto rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
@@ -153,11 +153,11 @@ new #[Layout('layouts.mcmc')] class extends Component
                         <td class="px-5 py-3.5">
                             <div class="font-semibold text-gray-900">{{ $log->user?->name ?? __('System') }}</div>
                             <div class="text-xs text-gray-400">
-                                {{ $log->user ? str($log->user->role->value)->headline() : '' }}@if ($log->user?->agency) &middot; {{ $log->user->agency->name }}@endif
+                                {{ $log->user ? $log->user->role->label() : '' }}@if ($log->user?->agency) &middot; {{ $log->user->agency->name }}@endif
                             </div>
                         </td>
                         <td class="px-5 py-3.5">
-                            <span class="inline-block px-2.5 py-1 rounded-full text-xs font-bold {{ $badge['bg'] }} {{ $badge['color'] }}">{{ str($log->action)->headline() }}</span>
+                            <span class="inline-block px-2.5 py-1 rounded-full text-xs font-bold {{ $badge['bg'] }} {{ $badge['color'] }}">{{ __((string) str($log->action)->headline()) }}</span>
                             @if ($log->notes)
                                 <div class="text-xs text-gray-500 mt-1.5 max-w-xs">{{ $log->notes }}</div>
                             @endif

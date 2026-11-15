@@ -116,6 +116,11 @@ trait GeneratesReports
     {
         $this->logReportExport($this->reportId(), $filename, 'csv');
 
+        // Build every row now. The download is streamed after this method has
+        // returned, by which time a lazily mapped cursor would run outside the
+        // English-only window that exports are produced in.
+        $rows = is_array($rows) ? $rows : iterator_to_array($rows, false);
+
         $clean = static function (mixed $value): string {
             $text = (string) $value;
 

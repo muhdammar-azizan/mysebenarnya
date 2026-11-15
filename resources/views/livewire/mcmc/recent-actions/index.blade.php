@@ -51,7 +51,7 @@ new #[Layout('layouts.mcmc')] class extends Component
                     <tr wire:key="action-{{ $log->id }}" class="border-t border-gray-50">
                         <td class="px-5 py-3.5 font-semibold text-gray-900 truncate max-w-xs">{{ $log->inquiry?->title }}</td>
                         <td class="px-5 py-3.5">
-                            <span class="inline-block px-2.5 py-1 rounded-full text-xs font-bold {{ $badge['bg'] }} {{ $badge['color'] }}">{{ str($log->action)->headline() }}</span>
+                            <span class="inline-block px-2.5 py-1 rounded-full text-xs font-bold {{ $badge['bg'] }} {{ $badge['color'] }}">{{ __((string) str($log->action)->headline()) }}</span>
                         </td>
                         <td class="px-5 py-3.5 text-gray-500 whitespace-nowrap">{{ $log->created_at->format('d M Y, g:i A') }}</td>
                     </tr>

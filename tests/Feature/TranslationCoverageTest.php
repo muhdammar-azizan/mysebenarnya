@@ -6,6 +6,7 @@ use App\Enums\AgencyStaffRole;
 use App\Enums\ClarificationPriority;
 use App\Enums\ClarificationStatus;
 use App\Enums\ClarificationTopic;
+use App\Enums\ConsultStatus;
 use App\Enums\InquiryCategory;
 use App\Enums\InquiryStatus;
 use App\Enums\UserRole;
@@ -68,6 +69,16 @@ class TranslationCoverageTest extends TestCase
             'app/Enums/AgencyStaffRole.php',
             'app/Notifications/InquiryAssignedToAgency.php',
             'app/Notifications/AgencyConsultRequested.php',
+        ],
+        'MCMC role' => [
+            'resources/views/livewire/mcmc/*.blade.php',
+            'resources/views/livewire/mcmc/*/*.blade.php',
+            'resources/views/components/export-modal.blade.php',
+            'app/Enums/ConsultStatus.php',
+            'app/Notifications/NewInquirySubmitted.php',
+            'app/Notifications/NewAgencyRegistered.php',
+            'app/Notifications/AgencyAccountProvisioned.php',
+            'app/Notifications/AgencyStaffInvited.php',
         ],
         'Navigation and header' => [
             'resources/views/components/*-sidebar.blade.php',
@@ -179,6 +190,12 @@ class TranslationCoverageTest extends TestCase
         foreach (AgencyStaffRole::cases() as $case) {
             if (! array_key_exists($case->label('en'), $malay)) {
                 $missing[] = 'agency role: '.$case->label('en');
+            }
+        }
+
+        foreach (ConsultStatus::cases() as $case) {
+            if (! array_key_exists($case->label('en'), $malay)) {
+                $missing[] = 'consult status: '.$case->label('en');
             }
         }
 
@@ -532,6 +549,158 @@ class TranslationCoverageTest extends TestCase
         }
 
         $this->assertSame('ms', app()->getLocale());
+    }
+
+    // ---------- MCMC role pages render in Malay ----------
+
+    private function mcmcInMalay(): User
+    {
+        return User::factory()->mcmcStaff()->create(['locale' => 'ms']);
+    }
+
+    public function test_mcmc_pages_render_in_malay(): void
+    {
+        $mcmc = $this->mcmcInMalay();
+        $agency = Agency::factory()->create(['specialization' => InquiryCategory::FinancialScams]);
+        Inquiry::factory()->create([
+            'category' => InquiryCategory::FinancialScams,
+            'status' => InquiryStatus::Submitted,
+            'created_at' => now()->subDays(10),
+        ]);
+        Inquiry::factory()->create(['agency_id' => $agency->id, 'status' => InquiryStatus::UnderInvestigation, 'reviewed_at' => now()->subDays(30)]);
+
+        $this->actingAs($mcmc)->get(route('dashboard'))
+            ->assertOk()
+            ->assertSee('Papan Pemuka SKMM')
+            ->assertSee('Pertanyaan Menunggu Triaj')
+            ->assertSee('Agensi Berdaftar')
+            ->assertSee('Penipuan Kewangan &amp; Perbankan', false)
+            ->assertSee('telah menunggu lebih 3 hari untuk triaj');
+
+        $this->actingAs($mcmc)->get(route('mcmc.triage.index'))->assertOk()->assertSee('Menunggu Triaj')->assertSee('Lewat');
+        $this->actingAs($mcmc)->get(route('mcmc.triage.index', ['tab' => 'assigned']))->assertOk()->assertSee('Agensi Ditugaskan');
+        $this->actingAs($mcmc)->get(route('mcmc.inquiries.index'))->assertOk()->assertSee('Semua Pertanyaan')->assertSee('Semua Agensi')->assertSee('Eksport CSV');
+        $this->actingAs($mcmc)->get(route('mcmc.agencies.index'))->assertOk()->assertSee('Semua Pengkhususan');
+        $this->actingAs($mcmc)->get(route('mcmc.agencies.create'))->assertOk()->assertSee('Daftar Agensi Baharu');
+        $this->actingAs($mcmc)->get(route('mcmc.agencies.edit', $agency))->assertOk()->assertSee('Sunting Agensi');
+        $this->actingAs($mcmc)->get(route('mcmc.users.index'))->assertOk()->assertSee('Pengguna Berdaftar')->assertSee('Jumlah:');
+        $this->actingAs($mcmc)->get(route('mcmc.reports.index'))->assertOk()->assertSee('Laporan &amp; Analitik', false)->assertSee('Laporan Pengguna');
+        $this->actingAs($mcmc)->get(route('mcmc.settings.index'))->assertOk()->assertSee('Tetapan Akaun');
+        $this->actingAs($mcmc)->get(route('mcmc.audit-log.index'))->assertOk()->assertSee('Log Audit')->assertSee('Semua Tindakan');
+        $this->actingAs($mcmc)->get(route('mcmc.recent-actions.index'))->assertOk()->assertSee('Tindakan Terkini Saya');
+        $this->actingAs($mcmc)->get(route('mcmc.clarifications.index'))->assertOk()->assertSee('Permintaan Penjelasan');
+        $this->actingAs($mcmc)->get(route('mcmc.notifications.index'))->assertOk()->assertSee('Notifikasi');
+    }
+
+    public function test_mcmc_inquiry_detail_and_clarification_thread_render_in_malay(): void
+    {
+        $mcmc = $this->mcmcInMalay();
+        $agency = Agency::factory()->create();
+        $inquiry = Inquiry::factory()->create([
+            'agency_id' => $agency->id,
+            'category' => InquiryCategory::HealthMedical,
+            'status' => InquiryStatus::UnderInvestigation,
+        ]);
+        InquiryActivityLog::create(['inquiry_id' => $inquiry->id, 'user_id' => $mcmc->id, 'action' => 'verdict_finalized', 'notes' => 'x']);
+
+        $thread = \App\Models\ClarificationThread::create([
+            'inquiry_id' => $inquiry->id,
+            'opened_by' => User::factory()->agencyStaff()->create(['agency_id' => $agency->id])->id,
+            'subject' => 'Need more context',
+            'topic' => ClarificationTopic::MissingEvidence,
+            'priority' => ClarificationPriority::Urgent,
+            'status' => ClarificationStatus::Open,
+        ]);
+
+        $this->actingAs($mcmc)->get(route('mcmc.inquiries.show', $inquiry))
+            ->assertOk()
+            ->assertSee('Dakwaan Kesihatan &amp; Perubatan', false);
+
+        app()->setLocale('ms'); // Volt::test() skips the middleware that normally sets it
+
+        Volt::actingAs($mcmc)->test('mcmc.inquiries.show', ['inquiry' => $inquiry])
+            ->call('setTab', 'activity')
+            ->assertSee('Keputusan Dimuktamadkan');
+
+        $this->actingAs($mcmc)->get(route('mcmc.clarifications.show', $thread))
+            ->assertOk()
+            ->assertSee('Bukti tiada atau tidak jelas')
+            ->assertSee('Menunggu Maklum Balas SKMM')
+            ->assertSee('Segera');
+
+        $this->actingAs($mcmc)->get(route('mcmc.clarifications.index'))
+            ->assertOk()
+            ->assertSee('Bukti tiada atau tidak jelas');
+    }
+
+    public function test_the_global_search_and_audit_log_speak_malay(): void
+    {
+        $mcmc = $this->mcmcInMalay();
+        app()->setLocale('ms');
+
+        Volt::actingAs($mcmc)->test('mcmc.global-search')->assertSee('Taip sekurang-kurangnya 2 aksara untuk mencari.');
+        Volt::actingAs($mcmc)->test('mcmc.global-search')->set('query', 'tiada-padanan-langsung')->assertSee('Tiada hasil untuk');
+
+        $inquiry = Inquiry::factory()->create();
+        InquiryActivityLog::create(['inquiry_id' => $inquiry->id, 'user_id' => $mcmc->id, 'action' => 'jurisdiction_accepted']);
+
+        Volt::actingAs($mcmc)->test('mcmc.audit-log.index')
+            ->assertSee('Bidang Kuasa Diterima')
+            ->assertSee('Kakitangan SKMM');
+    }
+
+    public function test_mcmc_exports_are_always_english(): void
+    {
+        $mcmc = $this->mcmcInMalay();
+        Inquiry::factory()->create([
+            'title' => 'Export sample',
+            'category' => InquiryCategory::FinancialScams,
+            'status' => InquiryStatus::Submitted,
+        ]);
+        User::factory()->create(['role' => UserRole::Public, 'email' => 'someone@example.test']);
+
+        app()->setLocale('ms');
+
+        $csv = function ($component) {
+            return base64_decode($component->effects['download']['content']);
+        };
+
+        $inquiries = $csv(Volt::actingAs($mcmc)->test('mcmc.inquiries.index')->call('exportCsv'));
+        $this->assertStringContainsString('Financial Scams & Banking', $inquiries);
+        $this->assertStringContainsString('Awaiting Review', $inquiries);
+        $this->assertStringNotContainsString('Penipuan', $inquiries);
+        $this->assertStringNotContainsString('Menunggu', $inquiries);
+
+        $users = $csv(Volt::actingAs($mcmc)->test('mcmc.users.index')->call('exportCsv'));
+        $this->assertStringContainsString('Name,Email,Registered,Status,Inquiries', $users);
+        $this->assertStringContainsString('someone@example.test', $users);
+        $this->assertStringContainsString('Verified', $users);
+        $this->assertStringNotContainsString('Nama', $users);
+        $this->assertSame('ms', app()->getLocale());
+
+        // The page itself keeps rendering in Malay straight after an export.
+        Volt::actingAs($mcmc)->test('mcmc.inquiries.index')
+            ->call('exportCsv')
+            ->assertSee('Penipuan Kewangan &amp; Perbankan', false);
+    }
+
+    public function test_the_malay_dashboard_alert_keeps_the_english_wording_in_english(): void
+    {
+        $mcmc = User::factory()->mcmcStaff()->create(['locale' => 'en']);
+        $agency = Agency::factory()->create();
+        $thread = \App\Models\ClarificationThread::create([
+            'inquiry_id' => Inquiry::factory()->create(['agency_id' => $agency->id])->id,
+            'opened_by' => User::factory()->agencyStaff()->create(['agency_id' => $agency->id])->id,
+            'subject' => 'Q',
+            'topic' => ClarificationTopic::Other,
+            'priority' => ClarificationPriority::Urgent,
+            'status' => ClarificationStatus::Open,
+        ]);
+
+        $this->actingAs($mcmc)->get(route('dashboard'))
+            ->assertOk()
+            ->assertSee('1 clarification request from agencies awaiting your response')
+            ->assertSee('(1 urgent)');
     }
 
     private function renderIn(string $locale, string $view): string

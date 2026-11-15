@@ -107,7 +107,7 @@ new #[Layout('layouts.mcmc')] class extends Component
             ->limit(20)
             ->get()
             ->each(function ($log) use ($events) {
-                $events->push(['date' => $log->created_at, 'label' => str($log->action)->headline().': '.$log->inquiry?->title]);
+                $events->push(['date' => $log->created_at, 'label' => __((string) str($log->action)->headline()).': '.$log->inquiry?->title]);
             });
 
         return $events->sortByDesc('date')->values();

@@ -152,7 +152,7 @@ new #[Layout('layouts.mcmc')] class extends Component
         <select wire:model.live="specialization" class="w-full sm:w-auto rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
             <option value="all">{{ __('All Specializations') }}</option>
             @foreach ($this->specializations as $case)
-                <option value="{{ $case->value }}">{{ $case->value }}</option>
+                <option value="{{ $case->value }}">{{ $case->label() }}</option>
             @endforeach
         </select>
     </div>
@@ -186,7 +186,7 @@ new #[Layout('layouts.mcmc')] class extends Component
                                 <span>{{ $agency->name }} <span class="text-gray-400 font-normal">({{ $agency->code }})</span></span>
                             </div>
                         </td>
-                        <td class="px-5 py-3.5 text-gray-600">{{ $agency->specialization?->value }}</td>
+                        <td class="px-5 py-3.5 text-gray-600">{{ $agency->specialization?->label() }}</td>
                         <td class="px-5 py-3.5 text-gray-500 text-xs">{{ $agency->contact_email }}</td>
                         <td class="px-5 py-3.5 text-gray-600">{{ $agency->active_count }}</td>
                         <td class="px-5 py-3.5 text-gray-600">{{ $agency->resolved_count }}</td>
@@ -222,7 +222,7 @@ new #[Layout('layouts.mcmc')] class extends Component
                 <div class="flex flex-col gap-3.5 text-sm">
                     <div>
                         <div class="text-gray-400 text-xs mb-1">{{ __('Specialization') }}</div>
-                        <div class="font-semibold">{{ $this->detailsAgency->specialization?->value }}</div>
+                        <div class="font-semibold">{{ $this->detailsAgency->specialization?->label() }}</div>
                     </div>
                     <div>
                         <div class="text-gray-400 text-xs mb-1">{{ __('Contact Email') }}</div>

@@ -333,7 +333,7 @@ new #[Layout('layouts.mcmc')] class extends Component
 
         return collect(InquiryCategory::cases())
             ->map(fn ($case) => [
-                'label' => $case->value,
+                'label' => $case->label(),
                 'count' => $counts[$case->value] ?? 0,
                 'pct' => (int) round((($counts[$case->value] ?? 0) / $grandTotal) * 100),
                 'color' => self::CATEGORY_COLORS[$case->value] ?? '#8A8F98',
@@ -678,7 +678,7 @@ new #[Layout('layouts.mcmc')] class extends Component
             <select wire:model.live="inquiryCategoryFilter" class="w-full sm:w-auto rounded-lg border-gray-300 text-sm focus:border-brand focus:ring-brand">
                 <option value="All">{{ __('All Categories') }}</option>
                 @foreach ($this->categoryOptions as $case)
-                    <option value="{{ $case->value }}">{{ $case->value }}</option>
+                    <option value="{{ $case->value }}">{{ $case->label() }}</option>
                 @endforeach
             </select>
         @endif
