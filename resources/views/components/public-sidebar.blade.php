@@ -4,6 +4,7 @@
         ['route' => 'inquiries.create', 'icon' => 'plus-circle', 'label' => __('Submit Inquiry')],
         ['route' => 'inquiries.index', 'icon' => 'folder', 'label' => __('My Inquiries')],
         ['route' => 'profile', 'icon' => 'user', 'label' => __('Profile Settings')],
+        ['route' => 'faq', 'icon' => 'help', 'label' => __('Help & FAQ')],
     ];
 @endphp
 

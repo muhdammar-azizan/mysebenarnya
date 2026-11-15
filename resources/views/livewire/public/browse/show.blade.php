@@ -73,6 +73,28 @@ new #[Layout('layouts.public')] class extends Component
         </div>
     </div>
 
+    @if (in_array($inquiry->status, [InquiryStatus::VerifiedTrue, InquiryStatus::IdentifiedFake], true))
+        @php
+            $shareUrl = route('browse.show', $inquiry);
+            $shareText = __('MySebenarnya result — ":title": :status', ['title' => $inquiry->title, 'status' => $inquiry->status->label()]);
+        @endphp
+        <div class="bg-white border border-gray-100 rounded-2xl p-5 mb-5 flex flex-wrap items-center justify-between gap-3"
+            x-data="{ copied: false, copy() { navigator.clipboard.writeText(@js($shareUrl)).then(() => { this.copied = true; setTimeout(() => this.copied = false, 2000); }); } }">
+            <div>
+                <div class="font-bold text-gray-900 text-sm">{{ __('Share this result') }}</div>
+                <div class="text-xs text-gray-500 mt-0.5">{{ __('Help stop misinformation by sharing the verified answer.') }}</div>
+            </div>
+            <div class="flex gap-2">
+                <button type="button" @click="copy()" class="border border-gray-300 hover:bg-gray-50 text-gray-700 font-semibold text-xs px-3.5 py-2 rounded-lg">
+                    <span x-show="!copied">{{ __('Copy link') }}</span>
+                    <span x-show="copied" x-cloak>{{ __('Link copied!') }}</span>
+                </button>
+                <a href="https://wa.me/?text={{ rawurlencode($shareText.' '.$shareUrl) }}" target="_blank" rel="noopener noreferrer"
+                    class="bg-green-600 hover:bg-green-700 text-white font-semibold text-xs px-3.5 py-2 rounded-lg">WhatsApp</a>
+            </div>
+        </div>
+    @endif
+
     <div class="bg-white border border-gray-100 rounded-2xl p-6 mb-5">
         <div class="font-bold text-gray-900 mb-2">{{ __('Description') }}</div>
         <p class="text-sm text-gray-600 leading-relaxed">{{ $inquiry->description }}</p>
