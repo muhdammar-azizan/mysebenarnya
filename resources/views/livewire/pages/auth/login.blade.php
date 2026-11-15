@@ -1,6 +1,7 @@
 <?php
 
 use App\Livewire\Forms\LoginForm;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
@@ -64,6 +65,25 @@ new #[Layout('layouts.auth')] class extends Component
         $this->validate();
 
         $this->form->authenticate();
+
+        // Staff with two-factor authentication enabled are not signed in yet:
+        // park the verified user in the session and ask for the 6-digit code.
+        $user = Auth::user();
+
+        if ($user->canUseTwoFactor() && $user->hasTwoFactorEnabled()) {
+            Auth::logout();
+
+            Session::put('two_factor', [
+                'id' => $user->getAuthIdentifier(),
+                'remember' => $this->form->remember,
+                'started_at' => now()->timestamp,
+            ]);
+            Session::regenerate();
+
+            $this->redirect(route('two-factor.challenge', absolute: false), navigate: true);
+
+            return;
+        }
 
         Session::regenerate();
 

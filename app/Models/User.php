@@ -69,6 +69,8 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $hidden = [
         'password',
         'remember_token',
+        'two_factor_secret',
+        'two_factor_recovery_codes',
     ];
 
     /**
@@ -86,6 +88,9 @@ class User extends Authenticatable implements MustVerifyEmail
             'must_change_password' => 'boolean',
             'last_active_at' => 'datetime',
             'notification_preferences' => 'array',
+            'two_factor_secret' => 'encrypted',
+            'two_factor_recovery_codes' => 'encrypted:array',
+            'two_factor_confirmed_at' => 'datetime',
         ];
     }
 
@@ -97,6 +102,38 @@ class User extends Authenticatable implements MustVerifyEmail
     public function wantsNotification(string $key): bool
     {
         return (bool) ($this->notification_preferences[$key] ?? true);
+    }
+
+    /**
+     * Two-factor authentication is offered to MCMC and agency staff only.
+     */
+    public function canUseTwoFactor(): bool
+    {
+        return $this->isMcmcStaff() || $this->isAgencyStaff();
+    }
+
+    public function hasTwoFactorEnabled(): bool
+    {
+        return $this->two_factor_secret !== null && $this->two_factor_confirmed_at !== null;
+    }
+
+    /**
+     * Consume a recovery code. Each code works once.
+     */
+    public function useRecoveryCode(string $code): bool
+    {
+        $codes = $this->two_factor_recovery_codes ?? [];
+
+        foreach ($codes as $index => $stored) {
+            if (hash_equals((string) $stored, $code)) {
+                unset($codes[$index]);
+                $this->forceFill(['two_factor_recovery_codes' => array_values($codes)])->save();
+
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function agency(): BelongsTo

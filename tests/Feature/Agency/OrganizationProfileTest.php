@@ -221,7 +221,7 @@ class OrganizationProfileTest extends TestCase
             ->assertSee('Staff Access')
             ->assertSee('Admin Person')
             ->assertSee('Reviewer Person')
-            ->assertDontSee('Two-Factor Authentication');
+            ->assertSee('Two-Factor Authentication');
     }
 
     public function test_password_tab_no_longer_has_its_own_top_level_staff_tab(): void

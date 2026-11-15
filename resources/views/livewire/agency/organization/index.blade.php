@@ -323,6 +323,7 @@ new #[Layout('layouts.agency')] class extends Component
         </form>
     @else
         <livewire:profile.update-password-form />
+        <div class="bg-white rounded-2xl border border-gray-100 p-6 mt-6"><livewire:profile.two-factor-authentication /></div>
 
         <div class="max-w-xl mt-6">
             <div class="flex items-center justify-between mb-4">

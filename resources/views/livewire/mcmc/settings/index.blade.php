@@ -64,6 +64,7 @@ new #[Layout('layouts.mcmc')] class extends Component
                 <livewire:profile.update-profile-information-form />
             @elseif ($tab === 'security')
                 <livewire:profile.update-password-form />
+                <div class="bg-white rounded-2xl border border-gray-100 p-6"><livewire:profile.two-factor-authentication /></div>
             @else
                 @if ($prefsSaved)
                     <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-sm font-semibold">
