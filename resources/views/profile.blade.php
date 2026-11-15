@@ -24,6 +24,11 @@
                 <button type="button" @click="tab = 'security'" :class="tab === 'security' ? 'text-brand border-b-2 border-brand' : 'text-gray-400'" class="px-5 py-3 text-sm font-bold">
                     {{ __('Password & Security') }}
                 </button>
+                @unless (auth()->user()->isMcmcStaff())
+                    <button type="button" @click="tab = 'notifications'" :class="tab === 'notifications' ? 'text-brand border-b-2 border-brand' : 'text-gray-400'" class="px-5 py-3 text-sm font-bold">
+                        {{ __('Notifications') }}
+                    </button>
+                @endunless
             </div>
 
             <div x-show="tab === 'info'" class="space-y-6">
@@ -39,6 +44,16 @@
                     </div>
                 </div>
             </div>
+
+            @unless (auth()->user()->isMcmcStaff())
+                <div x-show="tab === 'notifications'" x-cloak class="space-y-6">
+                    <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
+                        <div class="max-w-xl">
+                            <livewire:profile.notification-preferences />
+                        </div>
+                    </div>
+                </div>
+            @endunless
 
             <div x-show="tab === 'security'" x-cloak class="space-y-6">
                 <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">

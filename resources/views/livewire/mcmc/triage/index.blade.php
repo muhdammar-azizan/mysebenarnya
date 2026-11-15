@@ -155,7 +155,7 @@ new #[Layout('layouts.mcmc')] class extends Component
             'notes' => $notes,
         ]);
 
-        $inquiry->submitter?->notify(new InquiryStatusChanged($inquiry, $fromStatus, InquiryStatus::Discarded->value));
+        $inquiry->submitter?->wantsNotification('statusChanged') && $inquiry->submitter->notify(new InquiryStatusChanged($inquiry, $fromStatus, InquiryStatus::Discarded->value));
     }
 
     public function confirmAssign(): void
@@ -190,10 +190,10 @@ new #[Layout('layouts.mcmc')] class extends Component
         ]);
 
         if (! $wasReassignment) {
-            $inquiry->submitter?->notify(new InquiryStatusChanged($inquiry, $fromStatus, InquiryStatus::UnderInvestigation->value));
+            $inquiry->submitter?->wantsNotification('statusChanged') && $inquiry->submitter->notify(new InquiryStatusChanged($inquiry, $fromStatus, InquiryStatus::UnderInvestigation->value));
         }
 
-        $agency->users->each(fn ($staff) => $staff->notify(new InquiryAssignedToAgency($inquiry)));
+        $agency->users->filter(fn ($staff) => $staff->wantsNotification('inquiryAssigned'))->each(fn ($staff) => $staff->notify(new InquiryAssignedToAgency($inquiry)));
 
         $this->backToList();
         $this->tab = $wasReassignment ? 'reassign' : 'pending';

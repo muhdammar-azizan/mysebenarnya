@@ -190,7 +190,7 @@ new #[Layout('layouts.agency')] class extends Component
             'notes' => $this->rejectReason,
         ]);
 
-        $this->inquiry->submitter?->notify(new InquiryStatusChanged($this->inquiry, InquiryStatus::UnderInvestigation->value, InquiryStatus::Rejected->value));
+        $this->inquiry->submitter?->wantsNotification('statusChanged') && $this->inquiry->submitter->notify(new InquiryStatusChanged($this->inquiry, InquiryStatus::UnderInvestigation->value, InquiryStatus::Rejected->value));
         if ($this->inquiry->reviewer?->wantsNotification('agencyRejects')) {
             $this->inquiry->reviewer->notify(new InquiryStatusChanged($this->inquiry, InquiryStatus::UnderInvestigation->value, InquiryStatus::Rejected->value));
         }
@@ -270,7 +270,7 @@ new #[Layout('layouts.agency')] class extends Component
             'notes' => $this->investigationNotes,
         ]);
 
-        $this->inquiry->submitter?->notify(new InquiryStatusChanged($this->inquiry, InquiryStatus::UnderInvestigation->value, $finalStatus->value));
+        $this->inquiry->submitter?->wantsNotification('statusChanged') && $this->inquiry->submitter->notify(new InquiryStatusChanged($this->inquiry, InquiryStatus::UnderInvestigation->value, $finalStatus->value));
         if ($this->inquiry->reviewer?->wantsNotification('agencyResolves')) {
             $this->inquiry->reviewer->notify(new InquiryStatusChanged($this->inquiry, InquiryStatus::UnderInvestigation->value, $finalStatus->value));
         }

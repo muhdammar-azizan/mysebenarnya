@@ -104,7 +104,7 @@ new #[Layout('layouts.mcmc')] class extends Component
             return;
         }
 
-        $agency->users->each(fn ($staff) => $staff->notify(new AgencyConsultRequested($consult)));
+        $agency->users->filter(fn ($staff) => $staff->wantsNotification('consultRequested'))->each(fn ($staff) => $staff->notify(new AgencyConsultRequested($consult)));
 
         $this->inviteModalOpen = false;
         $this->thread->refresh();

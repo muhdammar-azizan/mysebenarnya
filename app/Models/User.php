@@ -43,6 +43,24 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public const NOTIFICATION_PREFERENCE_KEYS = ['newInquiry', 'agencyRejects', 'agencyResolves', 'newAgency'];
 
+    public const PUBLIC_NOTIFICATION_PREFERENCE_KEYS = ['statusChanged'];
+
+    public const AGENCY_NOTIFICATION_PREFERENCE_KEYS = ['inquiryAssigned', 'consultRequested'];
+
+    /**
+     * The notification preference keys that apply to this user's role.
+     *
+     * @return list<string>
+     */
+    public function notificationPreferenceKeys(): array
+    {
+        return match (true) {
+            $this->isMcmcStaff() => self::NOTIFICATION_PREFERENCE_KEYS,
+            $this->isAgencyStaff() => self::AGENCY_NOTIFICATION_PREFERENCE_KEYS,
+            default => self::PUBLIC_NOTIFICATION_PREFERENCE_KEYS,
+        };
+    }
+
     /**
      * The attributes that should be hidden for serialization.
      *
