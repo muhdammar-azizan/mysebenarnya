@@ -51,6 +51,7 @@ new class extends Component
             'statusChanged' => [__('Inquiry status updates'), __('Get notified when the status of one of your inquiries changes')],
             'inquiryAssigned' => [__('New inquiry assigned'), __('Get notified when MCMC assigns an inquiry to your agency')],
             'consultRequested' => [__('Consultation requested'), __('Get notified when MCMC asks your agency for input on a clarification')],
+            'slaReminder' => [__('Overdue reminders'), __('Get a daily reminder when an inquiry in your agency passes its investigation deadline')],
         ];
 
         return collect($user->notificationPreferenceKeys())

@@ -66,6 +66,38 @@ new #[Layout('layouts.mcmc')] class extends Component
         return ['title' => $title, 'sub' => $sub];
     }
 
+    /**
+     * Overdue-work alerts shown at the top of the dashboard.
+     *
+     * @return list<array{title: string, sub: string, cta: string, url: string}>
+     */
+    public function getSlaAlertsProperty(): array
+    {
+        $alerts = [];
+
+        $triage = Inquiry::triageOverdue()->count();
+        if ($triage > 0) {
+            $alerts[] = [
+                'title' => trans_choice(':count inquiry has waited over :days days for triage|:count inquiries have waited over :days days for triage', $triage, ['count' => $triage, 'days' => config('sla.triage_days')]),
+                'sub' => __('Review and assign or discard them to stay within the target.'),
+                'cta' => __('Open triage'),
+                'url' => route('mcmc.triage.index'),
+            ];
+        }
+
+        $investigation = Inquiry::investigationOverdue()->count();
+        if ($investigation > 0) {
+            $alerts[] = [
+                'title' => trans_choice(':count agency investigation is overdue (over :days days)|:count agency investigations are overdue (over :days days)', $investigation, ['count' => $investigation, 'days' => config('sla.investigation_days')]),
+                'sub' => __('Follow up with the agencies handling these inquiries.'),
+                'cta' => __('View assigned'),
+                'url' => route('mcmc.triage.index', ['tab' => 'assigned']),
+            ];
+        }
+
+        return $alerts;
+    }
+
     public function getTriageRowsProperty()
     {
         return Inquiry::where('status', InquiryStatus::Submitted)
@@ -161,6 +193,19 @@ new #[Layout('layouts.mcmc')] class extends Component
 <div>
     <h1 class="font-display font-extrabold text-2xl text-gray-900 mb-1">{{ __('MCMC Dashboard') }}</h1>
     <p class="text-gray-500 text-sm mb-5">{{ __('Overview of inquiry activity and system status.') }}</p>
+
+    @foreach ($this->slaAlerts as $alert)
+        <a href="{{ $alert['url'] }}" wire:navigate class="flex items-center gap-3.5 bg-red-50 border border-red-200 rounded-lg px-4 py-3 mb-3 hover:shadow-md transition-shadow">
+            <div class="w-9 h-9 rounded-full bg-brand text-white flex items-center justify-center flex-shrink-0">
+                <x-icon name="clock" class="w-[18px] h-[18px]" />
+            </div>
+            <div class="flex-1 min-w-0">
+                <div class="text-sm font-bold text-red-900">{{ $alert['title'] }}</div>
+                <div class="text-xs text-gray-500 mt-0.5">{{ $alert['sub'] }}</div>
+            </div>
+            <div class="text-sm font-bold text-brand whitespace-nowrap">{{ $alert['cta'] }} →</div>
+        </a>
+    @endforeach
 
     @if ($this->clarifyAlert)
         <a href="{{ route('mcmc.clarifications.index') }}" wire:navigate class="flex items-center gap-3.5 bg-purple-50 border border-purple-200 rounded-lg px-4 py-3 mb-5 hover:shadow-md transition-shadow">

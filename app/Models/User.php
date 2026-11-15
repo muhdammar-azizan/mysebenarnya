@@ -41,11 +41,11 @@ class User extends Authenticatable implements MustVerifyEmail
      * Notification preference keys that default to enabled when a staff
      * member has never saved their Notification Preferences tab.
      */
-    public const NOTIFICATION_PREFERENCE_KEYS = ['newInquiry', 'agencyRejects', 'agencyResolves', 'newAgency'];
+    public const NOTIFICATION_PREFERENCE_KEYS = ['newInquiry', 'agencyRejects', 'agencyResolves', 'newAgency', 'slaReminder'];
 
     public const PUBLIC_NOTIFICATION_PREFERENCE_KEYS = ['statusChanged'];
 
-    public const AGENCY_NOTIFICATION_PREFERENCE_KEYS = ['inquiryAssigned', 'consultRequested'];
+    public const AGENCY_NOTIFICATION_PREFERENCE_KEYS = ['inquiryAssigned', 'consultRequested', 'slaReminder'];
 
     /**
      * The notification preference keys that apply to this user's role.

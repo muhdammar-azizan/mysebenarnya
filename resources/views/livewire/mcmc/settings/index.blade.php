@@ -37,6 +37,7 @@ new #[Layout('layouts.mcmc')] class extends Component
             ['key' => 'agencyRejects', 'label' => __('Agency rejects an inquiry'), 'desc' => __('Get notified when an agency returns an inquiry for reassignment')],
             ['key' => 'agencyResolves', 'label' => __('Agency resolves an inquiry'), 'desc' => __('Get notified when an assigned agency finalizes a verdict')],
             ['key' => 'newAgency', 'label' => __('New agency registration'), 'desc' => __('Get notified when a new agency is registered in the system')],
+            ['key' => 'slaReminder', 'label' => __('Overdue reminders'), 'desc' => __('Get a daily reminder when an inquiry has waited too long for triage')],
         ];
     }
 }; ?>

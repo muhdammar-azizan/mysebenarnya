@@ -131,6 +131,18 @@ new #[Layout('layouts.agency')] class extends Component
         $agencyId = $this->agencyId();
         $alerts = [];
 
+        $overdue = Inquiry::investigationOverdue()->where('agency_id', $agencyId)->count();
+
+        if ($overdue > 0) {
+            $alerts[] = [
+                'title' => trans_choice(':count inquiry is overdue (over :days days under investigation)|:count inquiries are overdue (over :days days under investigation)', $overdue, ['count' => $overdue, 'days' => config('sla.investigation_days')]),
+                'sub' => __('Please finish these investigations or ask MCMC for clarification.'),
+                'cta' => __('View'),
+                'bg' => 'bg-red-50', 'border' => 'border-red-200', 'iconBg' => 'bg-brand', 'titleColor' => 'text-red-900',
+                'url' => route('agency.inquiries.index', ['status' => InquiryStatus::UnderInvestigation->value]),
+            ];
+        }
+
         $pendingConsults = ClarificationConsult::where('consulted_agency_id', $agencyId)
             ->where('status', ConsultStatus::Pending)
             ->count();

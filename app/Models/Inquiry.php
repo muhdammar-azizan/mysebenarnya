@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\InquiryCategory;
 use App\Enums\InquiryStatus;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -91,6 +92,50 @@ class Inquiry extends Model
     public function clarificationThreads(): HasMany
     {
         return $this->hasMany(ClarificationThread::class);
+    }
+
+    /**
+     * Submitted inquiries that have waited longer than the triage target.
+     */
+    public function scopeTriageOverdue(Builder $query): Builder
+    {
+        return $query->where('status', InquiryStatus::Submitted)
+            ->where('created_at', '<=', now()->subDays(config('sla.triage_days')));
+    }
+
+    /**
+     * Inquiries under investigation for longer than the investigation target,
+     * counted from assignment. Time spent waiting on an open MCMC clarification
+     * is MCMC's, not the agency's, so those cases are left out.
+     */
+    public function scopeInvestigationOverdue(Builder $query): Builder
+    {
+        $cutoff = now()->subDays(config('sla.investigation_days'))->toDateTimeString();
+
+        return $query->where('status', InquiryStatus::UnderInvestigation)
+            ->whereNotNull('agency_id')
+            ->whereRaw('COALESCE(reviewed_at, created_at) <= ?', [$cutoff])
+            ->whereDoesntHave('clarificationThreads', fn (Builder $q) => $q->where('status', 'open'));
+    }
+
+    public function isTriageOverdue(): bool
+    {
+        return $this->status === InquiryStatus::Submitted
+            && $this->created_at !== null
+            && $this->created_at->lte(now()->subDays(config('sla.triage_days')));
+    }
+
+    public function isInvestigationOverdue(): bool
+    {
+        if ($this->status !== InquiryStatus::UnderInvestigation || $this->agency_id === null) {
+            return false;
+        }
+
+        $since = $this->reviewed_at ?? $this->created_at;
+
+        return $since !== null
+            && $since->lte(now()->subDays(config('sla.investigation_days')))
+            && ! $this->hasOpenClarification();
     }
 
     /**

@@ -183,6 +183,9 @@ new #[Layout('layouts.agency')] class extends Component
                             @if ($inquiry->isAwaitingJurisdiction())
                                 <span class="ml-1 inline-block px-2 py-0.5 rounded-full text-[11px] font-bold bg-gray-100 text-gray-500">{{ __('Awaiting Review') }}</span>
                             @endif
+                            @if ($inquiry->isInvestigationOverdue())
+                                <span class="ml-1 inline-block px-2 py-0.5 rounded-full text-[11px] font-bold bg-red-100 text-red-700">{{ __('Overdue') }}</span>
+                            @endif
                         </td>
                         <td class="px-5 py-3.5 text-gray-500 text-xs truncate" title="{{ $note }}">{{ $note ?: '—' }}</td>
                     </tr>

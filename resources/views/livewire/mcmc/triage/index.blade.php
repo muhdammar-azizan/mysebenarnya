@@ -323,7 +323,12 @@ new #[Layout('layouts.mcmc')] class extends Component
                         @forelse ($this->pendingRows as $row)
                             <tr wire:key="pending-{{ $row->id }}" class="border-t border-gray-50 hover:bg-gray-50">
                                 <td class="px-5 py-3.5"><input type="checkbox" wire:click="toggleSelect({{ $row->id }})" @checked(in_array($row->id, $selectedIds))></td>
-                                <td class="px-5 py-3.5 font-semibold text-gray-900">{{ $row->title }}</td>
+                                <td class="px-5 py-3.5 font-semibold text-gray-900">
+                                    {{ $row->title }}
+                                    @if ($row->isTriageOverdue())
+                                        <span class="ml-1 inline-block px-2 py-0.5 rounded-full text-[11px] font-bold bg-red-100 text-red-700">{{ __('Overdue') }}</span>
+                                    @endif
+                                </td>
                                 <td class="px-5 py-3.5 text-gray-600">{{ $row->evidence_count }} {{ __('file'.($row->evidence_count === 1 ? '' : 's')).' attached' }}</td>
                                 <td class="px-5 py-3.5 text-gray-600 whitespace-nowrap">{{ $row->created_at->format('d M Y') }}</td>
                                 <td class="px-5 py-3.5 text-right">
@@ -405,6 +410,9 @@ new #[Layout('layouts.mcmc')] class extends Component
                                     <x-inquiry-status-badge :status="$row->status" />
                                     @if ($row->isAwaitingJurisdiction())
                                         <span class="ml-1 inline-block px-2 py-0.5 rounded-full text-[11px] font-bold bg-gray-100 text-gray-500">{{ __('Awaiting Review') }}</span>
+                                    @endif
+                                    @if ($row->isInvestigationOverdue())
+                                        <span class="ml-1 inline-block px-2 py-0.5 rounded-full text-[11px] font-bold bg-red-100 text-red-700">{{ __('Overdue') }}</span>
                                     @endif
                                 </td>
                             </tr>
