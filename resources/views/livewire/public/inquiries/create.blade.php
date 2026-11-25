@@ -5,11 +5,14 @@ use App\Enums\InquiryStatus;
 use App\Enums\UserRole;
 use App\Models\Inquiry;
 use App\Models\InquiryActivityLog;
-use App\Models\InquiryEvidence;
 use App\Models\User;
 use App\Notifications\NewInquirySubmitted;
+use App\Rules\SafeImageDimensions;
+use App\Support\EvidenceStorage;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Validate;
 use Livewire\Volt\Component;
@@ -102,7 +105,8 @@ new #[Layout('layouts.public')] class extends Component
             'category' => 'required|string',
             'description' => 'required|string|min:20',
             'source_url' => 'nullable|url|max:2048',
-            'evidence.*' => 'file|max:10240|mimes:jpg,jpeg,png,pdf',
+            'evidence' => 'array',
+            'evidence.*' => ['file', 'max:10240', 'mimes:jpg,jpeg,png,pdf', new SafeImageDimensions],
         ]);
 
         if (count($this->evidence) === 0 && blank($this->source_url)) {
@@ -111,28 +115,25 @@ new #[Layout('layouts.public')] class extends Component
             return;
         }
 
+        app(EvidenceStorage::class)->assertWithinLimits(Auth::user(), count($this->evidence), 0, 'evidence');
+
         try {
-            $inquiry = Inquiry::create([
-                'submitted_by' => Auth::id(),
-                'title' => $this->title,
-                'category' => $this->category,
-                'description' => $this->description,
-                'source_url' => $this->source_url ?: null,
-                'status' => InquiryStatus::Submitted,
-            ]);
-
-            foreach ($this->evidence as $file) {
-                $path = $file->store('evidence', 'local');
-
-                InquiryEvidence::create([
-                    'inquiry_id' => $inquiry->id,
-                    'uploaded_by' => Auth::id(),
-                    'file_path' => $path,
-                    'file_name' => $file->getClientOriginalName(),
-                    'file_type' => $file->getMimeType(),
-                    'file_size' => $file->getSize(),
+            $inquiry = DB::transaction(function () {
+                $inquiry = Inquiry::create([
+                    'submitted_by' => Auth::id(),
+                    'title' => $this->title,
+                    'category' => $this->category,
+                    'description' => $this->description,
+                    'source_url' => $this->source_url ?: null,
+                    'status' => InquiryStatus::Submitted,
                 ]);
-            }
+
+                foreach (array_values($this->evidence) as $index => $file) {
+                    app(EvidenceStorage::class)->store($inquiry, Auth::user(), $file, $index + 1, 'evidence');
+                }
+
+                return $inquiry;
+            });
 
             InquiryActivityLog::create([
                 'inquiry_id' => $inquiry->id,
@@ -149,6 +150,8 @@ new #[Layout('layouts.public')] class extends Component
                         $staff->notify(new NewInquirySubmitted($inquiry));
                     }
                 });
+        } catch (ValidationException $e) {
+            throw $e;
         } catch (\Throwable $e) {
             report($e);
 
@@ -220,10 +223,11 @@ new #[Layout('layouts.public')] class extends Component
 
         <div>
             <label class="block text-sm font-bold text-gray-700 mb-1.5">{{ __('Upload Evidence') }} <span class="font-normal text-gray-400">{{ __('(upload a file or add a source link above — at least one is required)') }}</span></label>
+            <x-demo-notice class="mb-3" />
             <label class="block border-2 border-dashed border-gray-300 rounded-xl p-6 text-center text-gray-500 cursor-pointer hover:border-brand bg-gray-50">
                 <input type="file" wire:model="evidence" multiple class="hidden" accept=".jpg,.jpeg,.png,.pdf" />
                 <div class="text-sm font-semibold text-gray-600">{{ __('Click to browse files') }}</div>
-                <div class="text-xs text-gray-400 mt-1">{{ __('Images, PDFs supported — max 10MB each') }}</div>
+                <div class="text-xs text-gray-400 mt-1">{{ __('Images, PDFs supported — max 10MB each, up to :count files', ['count' => config('uploads.max_files_per_submission')]) }}</div>
             </label>
             <x-input-error :messages="$errors->get('evidence.*')" class="mt-1.5" />
             <x-input-error :messages="$errors->get('evidence')" class="mt-1.5" />

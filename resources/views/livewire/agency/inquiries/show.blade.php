@@ -6,8 +6,9 @@ use App\Enums\InquiryStatus;
 use App\Models\ClarificationThread;
 use App\Models\Inquiry;
 use App\Models\InquiryActivityLog;
-use App\Models\InquiryEvidence;
 use App\Notifications\InquiryStatusChanged;
+use App\Rules\SafeImageDimensions;
+use App\Support\EvidenceStorage;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
@@ -203,19 +204,18 @@ new #[Layout('layouts.agency')] class extends Component
     protected function storeEvidence(): void
     {
         // Agency uploads get the same limits as public ones.
-        $this->validate(['newEvidence.*' => 'file|max:10240|mimes:jpg,jpeg,png,pdf']);
+        $this->validate([
+            'newEvidence' => 'array',
+            'newEvidence.*' => ['file', 'max:10240', 'mimes:jpg,jpeg,png,pdf', new SafeImageDimensions],
+        ]);
 
-        foreach ($this->newEvidence as $file) {
-            $path = $file->store('evidence', 'local');
+        $storage = app(EvidenceStorage::class);
+        $existing = $this->inquiry->evidence()->count();
 
-            InquiryEvidence::create([
-                'inquiry_id' => $this->inquiry->id,
-                'uploaded_by' => Auth::id(),
-                'file_path' => $path,
-                'file_name' => $file->getClientOriginalName(),
-                'file_type' => $file->getMimeType(),
-                'file_size' => $file->getSize(),
-            ]);
+        $storage->assertWithinLimits(Auth::user(), count($this->newEvidence), $existing, 'newEvidence');
+
+        foreach (array_values($this->newEvidence) as $index => $file) {
+            $storage->store($this->inquiry, Auth::user(), $file, $existing + $index + 1, 'newEvidence');
         }
 
         $this->newEvidence = [];
@@ -378,7 +378,9 @@ new #[Layout('layouts.agency')] class extends Component
                 <x-input-error :messages="$errors->get('investigationNotes')" class="mb-3" />
 
                 <label class="block text-sm font-bold text-gray-700 mb-1.5">{{ __('Attach Supporting Evidence (optional)') }}</label>
-                <input type="file" wire:model="newEvidence" multiple class="block text-sm mb-2" />
+                <x-demo-notice class="mb-3" />
+                <input type="file" wire:model="newEvidence" multiple accept=".jpg,.jpeg,.png,.pdf" class="block text-sm mb-2" />
+                <p class="text-xs text-gray-400 mb-2">{{ __('Images, PDFs supported — max 10MB each, up to :count files', ['count' => config('uploads.max_files_per_submission')]) }}</p>
                 <x-input-error :messages="$errors->get('newEvidence.*')" class="mb-3" />
 
                 <div class="text-xs text-gray-500 bg-gray-50 rounded-lg px-3.5 py-2.5 mb-5">

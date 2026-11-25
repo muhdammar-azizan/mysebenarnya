@@ -1,5 +1,7 @@
 <?php
 
+use App\Rules\SafeImageDimensions;
+use App\Support\ImageSanitizer;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Volt\Component;
@@ -14,16 +16,23 @@ new class extends Component
     public function save(): void
     {
         $this->validate([
-            'newPhoto' => ['required', 'image', 'max:2048'],
+            'newPhoto' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048', new SafeImageDimensions],
         ]);
 
         $user = Auth::user();
 
+        // Re-encode the photo so EXIF data (such as GPS location) is dropped.
+        try {
+            ['path' => $path] = app(ImageSanitizer::class)->store($this->newPhoto, 'public', 'profile-photos', (int) config('uploads.avatar_max_side'));
+        } catch (\InvalidArgumentException) {
+            $this->addError('newPhoto', __('This image could not be processed. Please try a different one.'));
+
+            return;
+        }
+
         if ($user->profile_photo_path) {
             Storage::disk('public')->delete($user->profile_photo_path);
         }
-
-        $path = $this->newPhoto->store('profile-photos', 'public');
 
         $user->forceFill(['profile_photo_path' => $path])->save();
 
@@ -84,6 +93,7 @@ new class extends Component
     <header>
         <h2 class="text-lg font-medium text-gray-900">{{ __('Profile Photo') }}</h2>
         <p class="mt-1 text-sm text-gray-600">{{ __('Upload a photo, then crop it to a square before saving.') }}</p>
+        <x-demo-notice class="mt-3" />
     </header>
 
     <div class="mt-6 flex items-center gap-4">

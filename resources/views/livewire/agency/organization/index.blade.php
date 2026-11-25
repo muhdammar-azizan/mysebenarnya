@@ -5,6 +5,8 @@ use App\Enums\UserRole;
 use App\Models\Agency;
 use App\Models\User;
 use App\Notifications\AgencyStaffInvited;
+use App\Rules\SafeImageDimensions;
+use App\Support\ImageSanitizer;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -95,14 +97,21 @@ new #[Layout('layouts.agency')] class extends Component
         }
 
         $this->validate([
-            'newLogo' => ['required', 'image', 'max:2048'],
+            'newLogo' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048', new SafeImageDimensions],
         ]);
+
+        // Re-encode the logo so hidden metadata is dropped.
+        try {
+            ['path' => $path] = app(ImageSanitizer::class)->store($this->newLogo, 'public', 'agency-logos', (int) config('uploads.logo_max_side'));
+        } catch (\InvalidArgumentException) {
+            $this->addError('newLogo', __('This image could not be processed. Please try a different one.'));
+
+            return;
+        }
 
         if ($this->agency->logo_path) {
             Storage::disk('public')->delete($this->agency->logo_path);
         }
-
-        $path = $this->newLogo->store('agency-logos', 'public');
 
         $this->agency->update(['logo_path' => $path]);
 
@@ -231,6 +240,7 @@ new #[Layout('layouts.agency')] class extends Component
                 @endonce
 
                 <label class="block text-sm font-bold text-gray-700 mb-3">{{ __('Agency Logo / Profile Picture') }}</label>
+                <x-demo-notice class="mb-3" />
                 <div class="flex items-center gap-4">
                     @if ($this->agency->logo_path)
                         <img src="{{ asset('storage/'.$this->agency->logo_path) }}" class="w-16 h-16 rounded-xl object-cover" alt="{{ __('Agency logo') }}">

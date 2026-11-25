@@ -47,6 +47,14 @@ class UserFactory extends Factory
     }
 
     /**
+     * Indicate that the model is a shared demo account.
+     */
+    public function demo(): static
+    {
+        return $this->state(fn (array $attributes) => ['is_demo' => true]);
+    }
+
+    /**
      * Indicate that the model should be MCMC staff.
      */
     public function mcmcStaff(): static

@@ -87,6 +87,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'role' => UserRole::class,
             'agency_role' => AgencyStaffRole::class,
             'must_change_password' => 'boolean',
+            'is_demo' => 'boolean',
             'last_active_at' => 'datetime',
             'notification_preferences' => 'array',
             'two_factor_secret' => 'encrypted',
@@ -175,6 +176,14 @@ class User extends Authenticatable implements MustVerifyEmail
     public function isAgencyAdmin(): bool
     {
         return $this->isAgencyStaff() && $this->agency_role === AgencyStaffRole::Admin;
+    }
+
+    /**
+     * Shared demo account (many visitors use it at once).
+     */
+    public function isDemo(): bool
+    {
+        return (bool) $this->is_demo;
     }
 
     public function isAgencyReviewer(): bool
