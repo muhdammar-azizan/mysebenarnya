@@ -114,7 +114,7 @@ new #[Layout('layouts.public')] class extends Component
         <div class="font-bold text-gray-900 mb-3">{{ __('Evidence') }}</div>
         <div class="flex flex-wrap gap-2">
             @forelse ($inquiry->evidence as $file)
-                <a href="{{ asset('storage/'.$file->file_path) }}" target="_blank"
+                <a href="{{ $file->url() }}" target="_blank"
                     class="flex items-center gap-2 bg-gray-50 hover:bg-gray-100 rounded-lg px-3.5 py-2.5 text-sm font-semibold text-gray-700">
                     📎 {{ $file->file_name }}
                 </a>

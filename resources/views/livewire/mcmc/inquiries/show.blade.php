@@ -94,7 +94,7 @@ new #[Layout('layouts.mcmc')] class extends Component
     @elseif ($tab === 'evidence')
         <div class="bg-white border border-gray-100 rounded-2xl p-6">
             @forelse ($inquiry->evidence as $file)
-                <a href="{{ asset('storage/'.$file->file_path) }}" target="_blank" class="flex items-center gap-2 bg-gray-50 hover:bg-gray-100 rounded-lg px-3.5 py-2.5 text-sm font-semibold text-gray-700 mb-2 w-fit">📎 {{ $file->file_name }}</a>
+                <a href="{{ $file->url() }}" target="_blank" class="flex items-center gap-2 bg-gray-50 hover:bg-gray-100 rounded-lg px-3.5 py-2.5 text-sm font-semibold text-gray-700 mb-2 w-fit">📎 {{ $file->file_name }}</a>
             @empty
                 <p class="text-sm text-gray-400">{{ __('No evidence files attached.') }}</p>
             @endforelse

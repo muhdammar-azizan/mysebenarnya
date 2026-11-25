@@ -11,6 +11,10 @@ Route::get('track', \App\Http\Controllers\TrackInquiryController::class)
     ->middleware('throttle:20,1')
     ->name('track');
 
+Route::get('evidence/{evidence}', \App\Http\Controllers\EvidenceController::class)
+    ->middleware(['auth', 'verified'])
+    ->name('evidence.show');
+
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
     ->name('dashboard');

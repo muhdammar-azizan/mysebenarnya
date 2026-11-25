@@ -122,7 +122,7 @@ new #[Layout('layouts.public')] class extends Component
             ]);
 
             foreach ($this->evidence as $file) {
-                $path = $file->store('evidence', 'public');
+                $path = $file->store('evidence', 'local');
 
                 InquiryEvidence::create([
                     'inquiry_id' => $inquiry->id,

@@ -52,6 +52,7 @@ class SubmitInquiryTest extends TestCase
     public function test_public_user_can_submit_an_inquiry(): void
     {
         Storage::fake('public');
+        Storage::fake('local');
 
         $user = User::factory()->create(['role' => UserRole::Public]);
 
@@ -76,7 +77,9 @@ class SubmitInquiryTest extends TestCase
         $this->assertCount(1, $inquiry->evidence);
         $this->assertCount(1, $inquiry->activityLogs);
 
-        Storage::disk('public')->assertExists($inquiry->evidence->first()->file_path);
+        // Evidence is stored privately, never on the publicly served disk.
+        Storage::disk('local')->assertExists($inquiry->evidence->first()->file_path);
+        Storage::disk('public')->assertMissing($inquiry->evidence->first()->file_path);
     }
 
     public function test_title_category_and_description_are_required(): void

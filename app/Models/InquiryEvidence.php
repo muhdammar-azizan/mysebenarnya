@@ -22,6 +22,14 @@ class InquiryEvidence extends Model
         'description',
     ];
 
+    /**
+     * Access-controlled link; evidence is never served from a public URL.
+     */
+    public function url(): string
+    {
+        return route('evidence.show', $this);
+    }
+
     public function inquiry(): BelongsTo
     {
         return $this->belongsTo(Inquiry::class);

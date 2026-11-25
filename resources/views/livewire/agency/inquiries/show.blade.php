@@ -202,8 +202,11 @@ new #[Layout('layouts.agency')] class extends Component
 
     protected function storeEvidence(): void
     {
+        // Agency uploads get the same limits as public ones.
+        $this->validate(['newEvidence.*' => 'file|max:10240|mimes:jpg,jpeg,png,pdf']);
+
         foreach ($this->newEvidence as $file) {
-            $path = $file->store('evidence', 'public');
+            $path = $file->store('evidence', 'local');
 
             InquiryEvidence::create([
                 'inquiry_id' => $this->inquiry->id,
@@ -375,7 +378,8 @@ new #[Layout('layouts.agency')] class extends Component
                 <x-input-error :messages="$errors->get('investigationNotes')" class="mb-3" />
 
                 <label class="block text-sm font-bold text-gray-700 mb-1.5">{{ __('Attach Supporting Evidence (optional)') }}</label>
-                <input type="file" wire:model="newEvidence" multiple class="block text-sm mb-5" />
+                <input type="file" wire:model="newEvidence" multiple class="block text-sm mb-2" />
+                <x-input-error :messages="$errors->get('newEvidence.*')" class="mb-3" />
 
                 <div class="text-xs text-gray-500 bg-gray-50 rounded-lg px-3.5 py-2.5 mb-5">
                     {{ __('Reviewing Officer:') }} <strong class="text-gray-900">{{ auth()->user()->name }}</strong> — {{ __('will be recorded with this status update.') }}
@@ -393,7 +397,7 @@ new #[Layout('layouts.agency')] class extends Component
     @elseif ($tab === 'evidence')
         <div class="bg-white border border-gray-100 rounded-2xl p-6">
             @forelse ($inquiry->evidence as $file)
-                <a href="{{ asset('storage/'.$file->file_path) }}" target="_blank" class="flex items-center gap-2 bg-gray-50 hover:bg-gray-100 rounded-lg px-3.5 py-2.5 text-sm font-semibold text-gray-700 mb-2 w-fit">📎 {{ $file->file_name }}</a>
+                <a href="{{ $file->url() }}" target="_blank" class="flex items-center gap-2 bg-gray-50 hover:bg-gray-100 rounded-lg px-3.5 py-2.5 text-sm font-semibold text-gray-700 mb-2 w-fit">📎 {{ $file->file_name }}</a>
             @empty
                 <p class="text-sm text-gray-400">{{ __('No evidence files attached.') }}</p>
             @endforelse
