@@ -110,8 +110,9 @@ new #[Layout('layouts.public')] class extends Component
         <div class="font-bold text-gray-900 mb-3">{{ __('Evidence') }}</div>
         <div class="flex flex-wrap gap-2">
             @forelse ($inquiry->evidence as $file)
+                {{-- File names stay private to the people handling the inquiry (they can reveal the submitter), so show a generic label. --}}
                 <div class="inline-flex items-center gap-2 bg-gray-50 rounded-lg px-3.5 py-2.5 text-sm font-semibold text-gray-700">
-                    📎 {{ $file->file_name }}
+                    📎 {{ __('Evidence file :number', ['number' => $loop->iteration]) }}
                 </div>
             @empty
                 <p class="text-sm text-gray-400">{{ __('No evidence files attached.') }}</p>
