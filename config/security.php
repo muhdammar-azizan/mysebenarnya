@@ -51,4 +51,30 @@ return [
 
     'csp_report_only' => (bool) env('CSP_REPORT_ONLY', false),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Abuse limits
+    |--------------------------------------------------------------------------
+    |
+    | [attempts, seconds]. Counted per visitor IP (never per account, because
+    | demo accounts are shared). See App\Support\Throttle.
+    |
+    */
+
+    'limits' => [
+        // Any sign-in failures from one IP, whatever email or username is tried.
+        'login_ip' => [30, 600],
+        'register' => [5, 3600],
+        // Reset links sent from one IP, and to one email address.
+        'forgot_password' => [5, 3600],
+        'forgot_password_email' => [3, 3600],
+        'reset_password' => [10, 3600],
+        'verification_email' => [6, 3600],
+        'submit_inquiry' => [10, 3600],
+        // PDF, Excel and CSV exports are heavy.
+        'export' => [15, 60],
+        // Live search runs while typing.
+        'search' => [120, 60],
+    ],
+
 ];

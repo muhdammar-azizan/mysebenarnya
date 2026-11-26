@@ -1,5 +1,6 @@
 <?php
 
+use App\Support\Throttle;
 use Illuminate\Support\Facades\Password;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
@@ -16,6 +17,10 @@ new #[Layout('layouts.auth')] class extends Component
         $this->validate([
             'email' => ['required', 'string', 'email'],
         ]);
+
+        // Limit by IP, and by target address so one inbox cannot be flooded.
+        Throttle::enforce('forgot_password', 'email', Throttle::ip());
+        Throttle::enforce('forgot_password_email', 'email', strtolower($this->email));
 
         // We will send the password reset link to this user. Once we have attempted
         // to send the link, we will examine the response then see the message we

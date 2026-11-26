@@ -4,6 +4,7 @@ use App\Enums\UserRole;
 use App\Models\Agency;
 use App\Models\Inquiry;
 use App\Models\User;
+use App\Support\Throttle;
 use Livewire\Volt\Component;
 
 new class extends Component
@@ -19,7 +20,8 @@ new class extends Component
     {
         $term = $this->term();
 
-        if (mb_strlen($term) < 2) {
+        // Searching runs while typing, so it is capped. Over the cap the box simply shows no results.
+        if (mb_strlen($term) < 2 || Throttle::limited('search') !== null) {
             return ['inquiries' => collect(), 'agencies' => collect(), 'users' => collect()];
         }
 

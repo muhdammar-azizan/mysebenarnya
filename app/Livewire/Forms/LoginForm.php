@@ -50,7 +50,7 @@ class LoginForm extends Form
             : ['email' => $this->email, 'password' => $this->password];
 
         if (! Auth::attempt($credentials, $this->remember)) {
-            RateLimiter::hit($this->throttleKey());
+            $this->hitFailure();
 
             throw ValidationException::withMessages([
                 'form.email' => trans('auth.failed'),
@@ -59,7 +59,7 @@ class LoginForm extends Form
 
         if (Auth::user()->role->value !== $this->role) {
             Auth::logout();
-            RateLimiter::hit($this->throttleKey());
+            $this->hitFailure();
 
             throw ValidationException::withMessages([
                 'form.email' => __('These credentials do not match the selected portal.'),
@@ -74,13 +74,21 @@ class LoginForm extends Form
      */
     protected function ensureIsNotRateLimited(): void
     {
-        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
+        // Two limits: this account from this IP, and failures from this IP overall
+        // (so trying a different username each time does not get around the first).
+        $key = match (true) {
+            RateLimiter::tooManyAttempts($this->throttleKey(), 5) => $this->throttleKey(),
+            RateLimiter::tooManyAttempts($this->ipThrottleKey(), config('security.limits.login_ip')[0]) => $this->ipThrottleKey(),
+            default => null,
+        };
+
+        if ($key === null) {
             return;
         }
 
         event(new Lockout(request()));
 
-        $seconds = RateLimiter::availableIn($this->throttleKey());
+        $seconds = RateLimiter::availableIn($key);
 
         throw ValidationException::withMessages([
             'form.email' => trans('auth.throttle', [
@@ -96,5 +104,17 @@ class LoginForm extends Form
     protected function throttleKey(): string
     {
         return Str::transliterate(Str::lower($this->email).'|'.request()->ip());
+    }
+
+    protected function ipThrottleKey(): string
+    {
+        return 'login_ip|'.request()->ip();
+    }
+
+    /** Count one failed sign-in against both limits. */
+    protected function hitFailure(): void
+    {
+        RateLimiter::hit($this->throttleKey());
+        RateLimiter::hit($this->ipThrottleKey(), config('security.limits.login_ip')[1]);
     }
 }

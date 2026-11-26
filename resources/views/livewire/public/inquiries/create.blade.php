@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Notifications\NewInquirySubmitted;
 use App\Rules\SafeImageDimensions;
 use App\Support\EvidenceStorage;
+use App\Support\Throttle;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -111,6 +112,12 @@ new #[Layout('layouts.public')] class extends Component
 
         if (count($this->evidence) === 0 && blank($this->source_url)) {
             $this->addError('evidence', __('Supporting evidence is required. Upload a document or image, or add a source link.'));
+
+            return;
+        }
+
+        if (($wait = Throttle::limited('submit_inquiry')) !== null) {
+            $this->submissionError = Throttle::message($wait);
 
             return;
         }

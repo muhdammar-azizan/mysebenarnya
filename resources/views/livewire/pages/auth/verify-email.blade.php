@@ -1,6 +1,7 @@
 <?php
 
 use App\Livewire\Actions\Logout;
+use App\Support\Throttle;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Livewire\Attributes\Layout;
@@ -18,6 +19,8 @@ new #[Layout('layouts.auth')] class extends Component
 
             return;
         }
+
+        Throttle::abortIfLimited('verification_email');
 
         Auth::user()->sendEmailVerificationNotification();
 

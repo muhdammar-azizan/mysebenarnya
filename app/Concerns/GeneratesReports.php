@@ -4,6 +4,7 @@ namespace App\Concerns;
 
 use App\Exports\MultiSheetReportExport;
 use App\Models\ReportExport;
+use App\Support\Throttle;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Features\SupportComputed\SupportLegacyComputedPropertySyntax;
@@ -33,6 +34,9 @@ trait GeneratesReports
      */
     protected function inEnglish(callable $callback): mixed
     {
+        // Every export goes through here, so this is the one place to cap how often they can run.
+        Throttle::abortIfLimited('export');
+
         $previous = app()->getLocale();
         $this->screenLocale = $previous;
 

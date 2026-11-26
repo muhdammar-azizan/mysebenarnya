@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use App\Support\Throttle;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -27,6 +28,8 @@ new #[Layout('layouts.auth')] class extends Component
             'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
             'terms' => ['accepted'],
         ]);
+
+        Throttle::enforce('register', 'email', Throttle::ip());
 
         unset($validated['terms']);
         $validated['password'] = Hash::make($validated['password']);

@@ -4,7 +4,9 @@ use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
 Route::view('/', 'welcome');
-Route::post('locale/{locale}', [\App\Http\Controllers\LocaleController::class, 'update'])->name('locale.update');
+Route::post('locale/{locale}', [\App\Http\Controllers\LocaleController::class, 'update'])
+    ->middleware('throttle:30,1')
+    ->name('locale.update');
 Route::view('about', 'about')->name('about');
 Route::view('faq', 'faq')->name('faq');
 Route::get('track', \App\Http\Controllers\TrackInquiryController::class)
@@ -12,7 +14,7 @@ Route::get('track', \App\Http\Controllers\TrackInquiryController::class)
     ->name('track');
 
 Route::get('evidence/{evidence}', \App\Http\Controllers\EvidenceController::class)
-    ->middleware(['auth', 'verified'])
+    ->middleware(['auth', 'verified', 'throttle:120,1'])
     ->name('evidence.show');
 
 Route::view('dashboard', 'dashboard')
